@@ -75,11 +75,11 @@ function AuthModal({ onClose }: { onClose: () => void }) {
           }}
         >
           <img src={logoImg} alt="AI Sprint" className="auth-logo-img" />
-          <div className="auth-tagline">Learn AI Fast. Stay Ahead Forever.</div>
+          <div className="auth-tagline">Master Accounting. Leverage AI. Stay Ahead.</div>
         </div>
 
         <h1 className="auth-heading">
-          {mode === "login" ? "Welcome Back to Level 1" : t("auth.createAccount")}
+          {mode === "login" ? "Welcome Back to Accounting in the AI Era" : t("auth.createAccount")}
         </h1>
 
         <p className="auth-subtext">
@@ -395,8 +395,8 @@ function ContactSection() {
             {/* Web3Forms access key & recipient */}
             <input type="hidden" name="access_key" value="9354c53d-f37d-4c31-845b-88286c03d1d4" />
             <input type="hidden" name="to" value="aisprint.app@outlook.com" />
-            <input type="hidden" name="subject" value="AI Sprint Support Request" />
-            <input type="hidden" name="from_name" value="AI Sprint Landing Page" />
+            <input type="hidden" name="subject" value="Accounting Sprint Support Request" />
+            <input type="hidden" name="from_name" value="AI Sprint Accounting Landing Page" />
 
             {/* Error banner */}
             {error && (
@@ -578,19 +578,19 @@ export default function LandingPage() {
         </div>
 
         <div className="lp-hero-badge" style={{ color: THEME_COLOR, background: "rgba(13, 124, 138, 0.1)", borderColor: "rgba(13, 124, 138, 0.2)" }}>
-          ⚡ Practical AI Foundations
+          ⚡ Accounting · AI · 28 Days
         </div>
 
-        <h1 className="lp-hero-h1">{"In 28 days, become the person who\nconfidently uses AI every single day."}</h1>
-        <p className="lp-hero-tagline" style={{ color: THEME_COLOR }}>Build confidence with AI in just minutes a day.</p>
+        <h1 className="lp-hero-h1">{"In 28 days, become the accountant\nwho confidently works with AI."}</h1>
+        <p className="lp-hero-tagline" style={{ color: THEME_COLOR }}>Master accounting fundamentals and AI workflows in just 15 minutes a day.</p>
         <p className="lp-hero-sub">
-          Start with the essentials: practical tools, guided daily lessons, and
-          a clear path from beginner confusion to real-world AI confidence.
+          Built for accountants, bookkeepers, and finance professionals who want to
+          work smarter with AI — without losing the professional judgement that matters.
         </p>
 
         <div className="lp-hero-actions">
           <button className="lp-hero-cta" onClick={() => setShowAuth(true)}>
-            Start Level 1 →
+            Start the 28-Day Challenge →
           </button>
         </div>
 
@@ -606,8 +606,8 @@ export default function LandingPage() {
           </div>
           <div className="lp-stat-divider" />
           <div className="lp-stat">
-            <span className="lp-stat-num">Beginner</span>
-            <span className="lp-stat-label">Friendly</span>
+            <span className="lp-stat-num">Finance</span>
+            <span className="lp-stat-label">Focused</span>
           </div>
           <div className="lp-stat-divider" />
           <div className="lp-stat">
@@ -619,35 +619,35 @@ export default function LandingPage() {
 
       <section className="lp-section" style={{ background: "var(--color-surface)" }}>
         <div className="lp-section-inner">
-          <div className="lp-section-label">START HERE</div>
-          <h2 className="lp-section-h2">The best first step into practical AI</h2>
+          <div className="lp-section-label">ACCOUNTING + AI · BASIC TRACK</div>
+          <h2 className="lp-section-h2">The practical way to master accounting with AI in 2026</h2>
           <p className="lp-section-sub">
-            Level 1 is built for learners who want a simple, structured, and
-            motivating way to understand AI tools without getting overwhelmed.
+            This 28-day Basic track is built for accountants and finance professionals who want a
+            structured, practical path to using AI in their daily accounting work — without the overwhelm.
           </p>
 
           <div className="lp-why-grid">
             <div className="lp-why-card">
               <div className="lp-why-icon lp-why-icon--teal">⏱</div>
-              <h3 className="lp-card-title">Short daily lessons</h3>
+              <h3 className="lp-card-title">15 minutes a day</h3>
               <p className="lp-card-body">
-                Make progress in small steps without needing hours of study time.
+                Each lesson is structured: concept, walkthrough, and one practical accounting task.
               </p>
             </div>
 
             <div className="lp-why-card">
               <div className="lp-why-icon lp-why-icon--purple">🧠</div>
-              <h3 className="lp-card-title">Clear AI foundations</h3>
+              <h3 className="lp-card-title">Real accounting workflows</h3>
               <p className="lp-card-body">
-                Learn the tools, terms, and workflows that matter most first.
+                Learn how AI fits into bookkeeping, reconciliation, month-end close, and reporting.
               </p>
             </div>
 
             <div className="lp-why-card">
               <div className="lp-why-icon lp-why-icon--green">🏆</div>
-              <h3 className="lp-card-title">Real confidence fast</h3>
+              <h3 className="lp-card-title">Build your prompt library</h3>
               <p className="lp-card-body">
-                Move from "I've heard of this" to "I can actually use this."
+                Leave with 10+ reusable accounting prompts and a personal AI workflow — not just theory.
               </p>
             </div>
           </div>
@@ -660,26 +660,28 @@ export default function LandingPage() {
             <div className="lp-col-block">
               <h3 className="lp-col-heading">What you'll learn</h3>
               <p className="lp-col-body">
-                Prompting, core tools, content workflows, beginner automation,
-                and practical AI habits you can use right away.
+                Accounting fundamentals, AI-assisted bookkeeping, reconciliation, 
+                month-end close, prompting, controls, ethics, and reporting — all 2026 relevant.
               </p>
               <ul className="lp-check-list">
-                <li className="lp-check-item"><span className="lp-check-icon">✓</span> Build a strong AI foundation</li>
-                <li className="lp-check-item"><span className="lp-check-icon">✓</span> Understand key tool categories</li>
-                <li className="lp-check-item"><span className="lp-check-icon">✓</span> Practice with guided lessons</li>
+                <li className="lp-check-item"><span className="lp-check-icon">✓</span> AI prompting for accounting tasks</li>
+                <li className="lp-check-item"><span className="lp-check-icon">✓</span> Bookkeeping and reconciliation with AI</li>
+                <li className="lp-check-item"><span className="lp-check-icon">✓</span> Month-end close and variance commentary</li>
+                <li className="lp-check-item"><span className="lp-check-icon">✓</span> Internal controls and AI ethics in finance</li>
+                <li className="lp-check-item"><span className="lp-check-icon">✓</span> Build a personal accountant prompt library</li>
               </ul>
             </div>
 
             <div className="lp-col-block">
               <h3 className="lp-col-heading">Who it's for</h3>
               <p className="lp-col-body">
-                Professionals, students, creators, and business owners who want a
-                simple on-ramp into AI without technical overload.
+                Accountants, bookkeepers, junior finance staff, and non-finance founders
+                who want to use AI confidently in their daily finance work.
               </p>
               <ul className="lp-check-list">
-                <li className="lp-check-item"><span className="lp-check-icon">✓</span> No advanced experience needed</li>
-                <li className="lp-check-item"><span className="lp-check-icon">✓</span> Designed for fast momentum</li>
-                <li className="lp-check-item"><span className="lp-check-icon">✓</span> Great before Level 2 and Level 3</li>
+                <li className="lp-check-item"><span className="lp-check-icon">✓</span> No prior AI experience needed</li>
+                <li className="lp-check-item"><span className="lp-check-icon">✓</span> Relevant for all accounting software users</li>
+                <li className="lp-check-item"><span className="lp-check-icon">✓</span> Ideal foundation before the Advanced track</li>
               </ul>
             </div>
           </div>
@@ -691,13 +693,13 @@ export default function LandingPage() {
 
       <section className="lp-cta-section">
         <div className="lp-section-inner" style={{ textAlign: "center" }}>
-          <h2 className="lp-cta-h2">Ready to begin Level 1?</h2>
+          <h2 className="lp-cta-h2">Ready to become an AI-ready accountant?</h2>
           <p className="lp-cta-sub">
-            Use the same clean login experience you liked, then start learning
-            with the Level 1 foundation track.
+            Join accountants and finance professionals building smarter workflows
+            with AI — 15 minutes a day, 28 days, no fluff.
           </p>
           <button className="lp-cta-btn" onClick={() => setShowAuth(true)}>
-            Open Login →
+            Start the Basic Track →
           </button>
         </div>
       </section>
