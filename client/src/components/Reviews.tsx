@@ -33,12 +33,12 @@ export default function Reviews() {
 
   // 2. The "Hidden" Pool of reviews that drip out over time
   const hiddenReviews: Review[] = [
-    { id: 101, name: "Sarah L.", email: "", rating: 5, review: "The frameworks are so easy to apply. I use the ChatGPT techniques daily now.", date: "Just now", approved: true, createdAt: "" },
-    { id: 102, name: "James W.", email: "", rating: 5, review: "Finally an AI course that isn't just hype. Actual, practical steps.", date: "2 days ago", approved: true, createdAt: "" },
-    { id: 103, name: "Elena R.", email: "", rating: 5, review: "Worth every penny. The Prompt Lab completely changed my perspective.", date: "1 week ago", approved: true, createdAt: "" },
-    { id: 104, name: "Marcus B.", email: "", rating: 5, review: "I bought the bundle and it's the best investment I've made this year.", date: "Just now", approved: true, createdAt: "" },
-    { id: 105, name: "Olivia K.", email: "", rating: 5, review: "Clear, concise, and straight to the point. No fluff.", date: "3 days ago", approved: true, createdAt: "" },
-    { id: 106, name: "Daniel C.", email: "", rating: 5, review: "I automated 3 hours of my daily workflow thanks to Level 2.", date: "12 hours ago", approved: true, createdAt: "" },
+    { id: 101, name: "Sarah L.", email: "", rating: 5, review: "I finally understand how AI fits into my bookkeeping workflow. The daily prompts are something I use every week now.", date: "Just now", approved: true, createdAt: "" },
+    { id: 102, name: "James W.", email: "", rating: 5, review: "As a junior accountant, this course gave me the confidence to use AI tools at work. Practical, not just theory.", date: "2 days ago", approved: true, createdAt: "" },
+    { id: 103, name: "Elena R.", email: "", rating: 5, review: "The prompt library I built on Day 27 alone was worth the price. I use it every month-end close.", date: "1 week ago", approved: true, createdAt: "" },
+    { id: 104, name: "Marcus B.", email: "", rating: 5, review: "I bought the bundle and finished the Basic track in 4 weeks. My reconciliation time dropped significantly.", date: "Just now", approved: true, createdAt: "" },
+    { id: 105, name: "Olivia K.", email: "", rating: 5, review: "Clear, practical, and no fluff. Each day is 15 minutes and actually delivers something I can use.", date: "3 days ago", approved: true, createdAt: "" },
+    { id: 106, name: "Daniel C.", email: "", rating: 5, review: "The ethics and controls lessons were a surprise highlight. Really important for anyone using AI in finance.", date: "12 hours ago", approved: true, createdAt: "" },
   ];
 
   // 3. Calculate how many hidden reviews to reveal (1 new review every 10 days)
