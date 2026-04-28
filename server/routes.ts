@@ -17,20 +17,19 @@ declare module "express-session" {
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "", { apiVersion: "2023-10-16" });
 
+// ── Accounting Course Pricing ─────────────────────────────────────────────
+// USD via Stripe (amounts in cents)
 const PRICES: Record<string, { amount: number; label: string }> = {
-  "1": { amount: 500,  label: "Level 1 — Basic" },
-  "2": { amount: 700,  label: "Level 2 — Advanced" },
-  "3": { amount: 1000, label: "Level 3 — Master" },
-  "bundle": { amount: 1500, label: "All 3 Levels Bundle" },
-  "bundle23": { amount: 1200, label: "Level 2 + Level 3 Bundle" },
+  "accounting-basic":    { amount: 500,  label: "Accounting in the AI Era — Basic Level" },
+  "accounting-advanced": { amount: 700,  label: "Accounting in the AI Era — Advanced Level" },
+  "accounting-bundle":   { amount: 1000, label: "Accounting in the AI Era — Basic + Advanced Bundle" },
 };
 
+// PHP via PayMongo (amounts in centavos)
 const PAYMONGO_PRICES: Record<string, { amount: number; label: string }> = {
-  "1": { amount: 28000,  label: "Level 1 — Basic" },
-  "2": { amount: 39500,  label: "Level 2 — Advanced" },
-  "3": { amount: 56000, label: "Level 3 — Master" },
-  "bundle": { amount: 85000, label: "All 3 Levels Bundle" },
-  "bundle23": { amount: 67500, label: "Level 2 + Level 3 Bundle" },
+  "accounting-basic":    { amount: 28000,  label: "Accounting in the AI Era — Basic Level" },
+  "accounting-advanced": { amount: 39500,  label: "Accounting in the AI Era — Advanced Level" },
+  "accounting-bundle":   { amount: 56000,  label: "Accounting in the AI Era — Basic + Advanced Bundle" },
 };
 
 function requireAuth(req: Request, res: Response, next: NextFunction) {
@@ -54,7 +53,7 @@ export function registerRoutes(httpServer: Server, app: Express) {
     if (event.type === "checkout.session.completed") {
       const session = event.data.object as Stripe.Checkout.Session;
       const email = session.customer_details?.email || session.customer_email;
-      const level = session.metadata?.level || "bundle";
+      const level = session.metadata?.level || "accounting-bundle";
       if (email) storage.recordPurchase(email, level, session.id, session.payment_intent as string | null, session.amount_total || 0);
     }
     res.json({ received: true });
@@ -67,7 +66,7 @@ export function registerRoutes(httpServer: Server, app: Express) {
     if (event?.data?.attributes?.type === "checkout_session.payment.paid") {
       const s = event.data.attributes.data;
       const email = s.attributes.metadata?.email || s.attributes.billing?.email;
-      const level = s.attributes.metadata?.level || "bundle";
+      const level = s.attributes.metadata?.level || "accounting-bundle";
       const amount = s.attributes.line_items[0]?.amount || 0; 
       if (email) storage.recordPurchase(email, level, s.id, null, amount);
     }
@@ -77,7 +76,7 @@ export function registerRoutes(httpServer: Server, app: Express) {
   // ========== AUTH & SESSIONS ==========
   const isProd = process.env.NODE_ENV === "production";
   app.use(session({
-    secret: process.env.SESSION_SECRET || "ai-sprint-secret",
+    secret: process.env.SESSION_SECRET || "accounting-sprint-secret",
     resave: false, saveUninitialized: false,
     cookie: { maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true, sameSite: isProd ? "none" : "lax", secure: isProd },
   }));
@@ -89,7 +88,7 @@ export function registerRoutes(httpServer: Server, app: Express) {
     passport.use(new GoogleStrategy({
         clientID: process.env.GOOGLE_CLIENT_ID,
         clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-        callbackURL: isProd ? "https://ai-sprint-app-production.up.railway.app/api/auth/google/callback" : "/api/auth/google/callback",
+        callbackURL: isProd ? "https://ai-sprint-l1-accounting-production.up.railway.app/api/auth/google/callback" : "/api/auth/google/callback",
         proxy: true
       },
       (accessToken, refreshToken, profile, done) => {
@@ -144,13 +143,13 @@ export function registerRoutes(httpServer: Server, app: Express) {
     const b = z.object({ plan: z.string() }).safeParse(req.body);
     const user = storage.getUserById(req.session.userId!);
     try {
-      const planKey = b.data?.plan || "bundle";
-      const priceInfo = PRICES[planKey] || PRICES["bundle"];
+      const planKey = b.data?.plan || "accounting-bundle";
+      const priceInfo = PRICES[planKey] || PRICES["accounting-bundle"];
       const session = await stripe.checkout.sessions.create({
         mode: "payment", customer_email: user!.email, metadata: { level: planKey }, 
         line_items: [{ price_data: { currency: "usd", product_data: { name: priceInfo.label }, unit_amount: priceInfo.amount }, quantity: 1 }],
-        success_url: `https://ai-sprint-app-production.up.railway.app/#/purchase-success?session_id={CHECKOUT_SESSION_ID}`,
-        cancel_url: `https://ai-sprint-app-production.up.railway.app/#/pricing`,
+        success_url: `https://ai-sprint-l1-accounting-production.up.railway.app/#/purchase-success?session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: `https://ai-sprint-l1-accounting-production.up.railway.app/#/pricing`,
       });
       res.json({ url: session.url });
     } catch (err: any) { res.status(500).json({ error: err.message }); }
@@ -161,8 +160,8 @@ export function registerRoutes(httpServer: Server, app: Express) {
     const user = storage.getUserById(req.session.userId!);
     const KEY = process.env.PAYMONGO_SECRET_KEY || "";
     try {
-      const planKey = b.data?.plan || "bundle";
-      const priceInfo = PAYMONGO_PRICES[planKey] || PAYMONGO_PRICES["bundle"];
+      const planKey = b.data?.plan || "accounting-bundle";
+      const priceInfo = PAYMONGO_PRICES[planKey] || PAYMONGO_PRICES["accounting-bundle"];
       const auth = `Basic ${Buffer.from(KEY + ":").toString("base64")}`;
       const response = await fetch("https://api.paymongo.com/v1/checkout_sessions", {
         method: "POST", headers: { "Content-Type": "application/json", "Authorization": auth },
@@ -170,8 +169,8 @@ export function registerRoutes(httpServer: Server, app: Express) {
           data: { attributes: {
               billing: { email: user!.email, name: user!.displayName },
               send_email_receipt: true, show_description: true, show_line_items: true,
-              cancel_url: `https://ai-sprint-app-production.up.railway.app/#/pricing`,
-              success_url: `https://ai-sprint-app-production.up.railway.app/#/purchase-success`,
+              cancel_url: `https://ai-sprint-l1-accounting-production.up.railway.app/#/pricing`,
+              success_url: `https://ai-sprint-l1-accounting-production.up.railway.app/#/purchase-success`,
               description: priceInfo.label,
               payment_method_types: ["gcash", "paymaya", "card", "grab_pay"],
               line_items: [{ currency: "PHP", amount: priceInfo.amount, name: priceInfo.label, quantity: 1 }],
@@ -317,7 +316,7 @@ export function registerRoutes(httpServer: Server, app: Express) {
     res.json({ ok: true });
   });
 
-  // ========== NEW: REMOVE USER ==========
+  // ========== REMOVE USER ==========
   // Deletes the user row + their progress from the DB.
   // Purchase records are intentionally kept for accounting purposes.
   // Only admins can call this. Admins cannot delete themselves.
@@ -339,26 +338,20 @@ export function registerRoutes(httpServer: Server, app: Express) {
 
     const targetUser = storage.getUserByEmail(targetEmail);
     if (!targetUser) {
-      // No registered account found — still return ok (may be unregistered buyer in purchases only)
       return res.json({ ok: true });
     }
 
-    // Delete their progress records first (foreign key safety)
     db.delete(schema.dayProgress)
       .where(eq(schema.dayProgress.userId, targetUser.id))
       .run();
 
-    // Delete their API settings
     db.delete(schema.apiSettings)
       .where(eq(schema.apiSettings.userId, targetUser.id))
       .run();
 
-    // Delete the user account itself
     db.delete(schema.users)
       .where(eq(schema.users.id, targetUser.id))
       .run();
-
-    // NOTE: purchases are intentionally NOT deleted — kept for accounting records.
 
     res.json({ ok: true });
   });
