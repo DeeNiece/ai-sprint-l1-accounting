@@ -29,33 +29,36 @@ import type { DayProgress } from "@shared/schema";
 import { useLanguage } from "@/i18n";
 import { useAuth } from "@/components/auth-provider";
 
-type FilterType = "all" | "design-graphics" | "automation-coding" | "rendering";
+// ── Accounting-specific filter types ─────────────────────────────────────────
+type FilterType = "all" | "foundations" | "bookkeeping" | "reporting" | "controls-ethics" | "tax-compliance";
 
 const TOTAL_DAYS = 28;
 
 const categoryColors: Record<Category, string> = {
-  Design: "#7a5fc0",
-  Graphics: "#c07a2f",
-  Rendering: "#2f8c5c",
-  Automation: "#4f98a3",
-  Coding: "#1d6fa5",
-  Mixed: "#8c4a2f",
+  Foundations:        "#0d7c8a",
+  Bookkeeping:        "#2f6fa8",
+  Reporting:          "#7a5fc0",
+  "Tax & Compliance": "#c07a2f",
+  "Controls & Ethics":"#2f8c5c",
+  Mixed:              "#8c4a2f",
 };
 
 const categoryLabels: Record<Category, string> = {
-  Design: "Design",
-  Graphics: "Graphics",
-  Rendering: "Rendering",
-  Automation: "Automation",
-  Coding: "Coding",
-  Mixed: "Mixed",
+  Foundations:        "Foundations",
+  Bookkeeping:        "Bookkeeping",
+  Reporting:          "Reporting",
+  "Tax & Compliance": "Tax & Compliance",
+  "Controls & Ethics":"Controls & Ethics",
+  Mixed:              "Mixed",
 };
 
 function matchesFilter(day: DayLesson, filter: FilterType) {
   if (filter === "all") return true;
-  if (filter === "design-graphics") return ["Design", "Graphics"].includes(day.category);
-  if (filter === "automation-coding") return ["Automation", "Coding"].includes(day.category);
-  if (filter === "rendering") return day.category === "Rendering";
+  if (filter === "foundations") return day.category === "Foundations";
+  if (filter === "bookkeeping") return day.category === "Bookkeeping";
+  if (filter === "reporting") return day.category === "Reporting";
+  if (filter === "controls-ethics") return day.category === "Controls & Ethics";
+  if (filter === "tax-compliance") return day.category === "Tax & Compliance";
   return true;
 }
 
@@ -66,16 +69,13 @@ export default function HomePage() {
   const [expandedWeek, setExpandedWeek] = useState<number | null>(1);
   const [animatedPct, setAnimatedPct] = useState(0);
 
-  // ✅ LICENSE GUARD: If the user does not own Level 1, send them to /pricing.
-  // This is the root cause fix — home.tsx was rendering for any logged-in user
-  // regardless of whether they had purchased a subscription.
+  // LICENSE GUARD: If the user does not own accounting-basic, send them to /pricing.
   useEffect(() => {
-    if (user && !user.licensedLevels?.includes("1")) {
+    if (user && !user.licensedLevels?.includes("accounting-basic") && !user.licensedLevels?.includes("accounting-bundle")) {
       window.location.hash = "/pricing";
     }
   }, [user]);
 
-  // ✨ Scroll Indicator State & Ref
   const [showArrow, setShowArrow] = useState(true);
   const lessonsRef = useRef<HTMLElement>(null);
 
@@ -104,7 +104,6 @@ export default function HomePage() {
   const pct = Math.round((completedCount / TOTAL_DAYS) * 100);
   const weeks = [1, 2, 3, 4];
 
-  // ✨ Intersection Observer for the Scroll Arrow
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
@@ -114,22 +113,12 @@ export default function HomePage() {
           setShowArrow(true);
         }
       },
-      {
-        root: null,
-        threshold: 0.05,
-      }
+      { root: null, threshold: 0.05 }
     );
-
-    if (lessonsRef.current) {
-      observer.observe(lessonsRef.current);
-    }
-
-    return () => {
-      if (lessonsRef.current) observer.unobserve(lessonsRef.current);
-    };
+    if (lessonsRef.current) observer.observe(lessonsRef.current);
+    return () => { if (lessonsRef.current) observer.unobserve(lessonsRef.current); };
   }, []);
 
-  // ✨ Smooth Scroll Function
   const scrollToLessons = () => {
     if (lessonsRef.current) {
       lessonsRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -140,18 +129,13 @@ export default function HomePage() {
     let frame: number;
     let startTimestamp: number | null = null;
     const duration = 700;
-
     const animate = (timestamp: number) => {
       if (!startTimestamp) startTimestamp = timestamp;
       const progress = Math.min((timestamp - startTimestamp) / duration, 1);
       const eased = 1 - Math.pow(1 - progress, 3);
       setAnimatedPct(Math.round(pct * eased));
-
-      if (progress < 1) {
-        frame = window.requestAnimationFrame(animate);
-      }
+      if (progress < 1) frame = window.requestAnimationFrame(animate);
     };
-
     frame = window.requestAnimationFrame(animate);
     return () => window.cancelAnimationFrame(frame);
   }, [pct]);
@@ -165,31 +149,24 @@ export default function HomePage() {
       .filter((p) => p.completed)
       .map((p) => p.dayNumber)
       .sort((a, b) => a - b);
-
     let count = 0;
     for (let i = 0; i < completedDays.length; i++) {
-      if (completedDays[i] === i + 1) {
-        count += 1;
-      } else {
-        break;
-      }
+      if (completedDays[i] === i + 1) count += 1;
+      else break;
     }
     return count;
   }, [progressData]);
 
-  const handleLevelJump = (url: string, levelName: string) => {
+  const handleTrackJump = (url: string, trackName: string) => {
     const message =
       pct < 100
-        ? `You've completed ${pct}% of Level 1. Finishing Level 1 first makes ${levelName} much easier!\n\nIf you see a blank screen there, it means you need to purchase that level first.\n\nGo to ${levelName}?`
-        : `Ready for ${levelName}? Let's go!`;
-
-    if (window.confirm(message)) {
-      window.location.href = url;
-    }
+        ? `You've completed ${pct}% of the Basic track. Finishing Basic first makes ${trackName} much easier!\n\nIf you see a blank screen, you may need to purchase that track first.\n\nGo to ${trackName}?`
+        : `Ready for ${trackName}? Let's go!`;
+    if (window.confirm(message)) window.location.href = url;
   };
 
-  // ✅ Render nothing while the license redirect is in progress
-  if (user && !user.licensedLevels?.includes("1")) {
+  // Render nothing while the license redirect is in progress
+  if (user && !user.licensedLevels?.includes("accounting-basic") && !user.licensedLevels?.includes("accounting-bundle")) {
     return null;
   }
 
@@ -231,7 +208,7 @@ export default function HomePage() {
           </div>
         </div>
 
-        <p className="tagline-strip">Learn AI Fast. Stay Ahead Forever.</p>
+        <p className="tagline-strip">Master Accounting. Leverage AI. Stay Ahead.</p>
       </section>
 
       {nextLesson && (
@@ -260,7 +237,6 @@ export default function HomePage() {
                 >
                   {categoryLabels[nextLesson.category]}
                 </span>
-
                 {nextLesson.tools?.[0] && (
                   <span className="resume-pill subtle">{nextLesson.tools[0]}</span>
                 )}
@@ -306,6 +282,7 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* ── Accounting-specific filters ───────────────────────────────────── */}
       <section className="filters-section">
         <div className="filters-inner">
           <span className="filters-label">
@@ -313,21 +290,25 @@ export default function HomePage() {
             {t("home.filterBy")}
           </span>
 
-          {(["all", "design-graphics", "automation-coding", "rendering"] as FilterType[]).map(
+          {(["all", "foundations", "bookkeeping", "reporting", "controls-ethics", "tax-compliance"] as FilterType[]).map(
             (f) => (
               <button
                 key={f}
                 className={`filter-btn ${filter === f ? "active" : ""}`}
                 onClick={() => setFilter(f)}
               >
-                {f === "all" ? t("home.allDays") : t(`home.${f.replace("-", "")}` as any)}
+                {f === "all"              ? "All Days"
+                : f === "foundations"    ? "Foundations"
+                : f === "bookkeeping"    ? "Bookkeeping"
+                : f === "reporting"      ? "Reporting"
+                : f === "controls-ethics"? "Controls & Ethics"
+                : "Tax & Compliance"}
               </button>
             )
           )}
         </div>
       </section>
 
-      {/* ✨ Attached the lessonsRef to the main curriculum wrapper */}
       <main ref={lessonsRef} className="main-content">
         {weeks.map((week) => {
           const weekDays = curriculum.filter(
@@ -351,7 +332,6 @@ export default function HomePage() {
 
                   <div>
                     <div className="week-title">{overview.title}</div>
-
                     <div className="week-progress-text">
                       {completedInWeek}/{weekDays.length} days complete
                     </div>
@@ -363,13 +343,9 @@ export default function HomePage() {
                   onClick={() => setExpandedWeek(isExpanded ? null : week)}
                 >
                   {isExpanded ? (
-                    <>
-                      Week overview <ChevronUp size={14} />
-                    </>
+                    <>Week overview <ChevronUp size={14} /></>
                   ) : (
-                    <>
-                      Week overview <ChevronDown size={14} />
-                    </>
+                    <>Week overview <ChevronDown size={14} /></>
                   )}
                 </button>
               </div>
@@ -389,10 +365,7 @@ export default function HomePage() {
                   <ul className="week-outcomes">
                     {overview.outcomes.map((outcome, idx) => (
                       <li key={idx} className="week-outcome">
-                        <span
-                          className="outcome-dot"
-                          style={{ background: overview.color }}
-                        />
+                        <span className="outcome-dot" style={{ background: overview.color }} />
                         <span>{outcome}</span>
                       </li>
                     ))}
@@ -481,44 +454,33 @@ export default function HomePage() {
         })}
       </main>
 
+      {/* ── Two-Track Journey ─────────────────────────────────────────────── */}
       <section className="level-path py-12">
         <div className="level-path-inner">
-          <h2 className="level-path-title">{t("home.journeyTitle")}</h2>
+          <h2 className="level-path-title">Your Two-Track Journey</h2>
 
           <div className="level-cards">
             <div className="level-card current">
-              <div className="level-card-num">Level 1</div>
-              <h3 className="level-card-name">Basic</h3>
-              <p className="level-card-desc">Foundations & first practical uses.</p>
+              <div className="level-card-num">Basic Track</div>
+              <h3 className="level-card-name">28 Days</h3>
+              <p className="level-card-desc">
+                Accounting fundamentals, bookkeeping workflows, controls, and AI-assisted reporting.
+              </p>
               <span className="level-card-tag">You are here</span>
             </div>
 
             <div
               className="level-card level-card-next"
               onClick={() =>
-                handleLevelJump("https://ai-sprint-l2-production.up.railway.app", "Level 2")
+                handleTrackJump("https://ai-sprint-l2-accounting-production.up.railway.app", "Advanced Track")
               }
             >
-              <div className="level-card-num">Level 2</div>
-              <h3 className="level-card-name">Advanced</h3>
+              <div className="level-card-num">Advanced Track</div>
+              <h3 className="level-card-name">28 Days</h3>
               <p className="level-card-desc">
-                Stronger client-style work, systems, and higher-value services.
+                AI-assisted close design, anomaly detection, forecasting, governance, and finance transformation.
               </p>
-              <div className="level-card-cta">Explore Level 2 →</div>
-            </div>
-
-            <div
-              className="level-card level-card-next"
-              onClick={() =>
-                handleLevelJump("https://ai-sprint-l3-production.up.railway.app", "Level 3")
-              }
-            >
-              <div className="level-card-num">Level 3</div>
-              <h3 className="level-card-name">Master</h3>
-              <p className="level-card-desc">
-                Systems, reliability, and professional client outcomes at scale.
-              </p>
-              <div className="level-card-cta">Explore Level 3 →</div>
+              <div className="level-card-cta">Explore Advanced →</div>
             </div>
           </div>
         </div>
@@ -528,11 +490,7 @@ export default function HomePage() {
         <div className="footer-inner">
           <div className="footer-brand">
             <div className="footer-brand-row">
-              <img
-                src={aiSprintLogo}
-                alt="AI Sprint logo"
-                className="footer-logo-img"
-              />
+              <img src={aiSprintLogo} alt="AI Sprint logo" className="footer-logo-img" />
               <div className="footer-brand-text">
                 <p className="footer-title">{t("home.footerTitle")}</p>
                 <p className="footer-sub">{t("home.footerDesc")}</p>
@@ -563,7 +521,6 @@ export default function HomePage() {
         </div>
       </footer>
 
-      {/* ✨ The Floating Scroll Indicator */}
       <div
         className={`scroll-indicator ${showArrow ? "visible" : "hidden"}`}
         onClick={scrollToLessons}
