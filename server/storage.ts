@@ -32,15 +32,24 @@ export class Storage {
   }
 
   getLicensedLevels(email: string): string[] {
-    if (this.isFreePass(email)) return ["1", "2", "3"];
+    // ✅ Free pass / admin users get access to all accounting levels
+    if (this.isFreePass(email)) {
+      return ["1", "2", "3", "accounting-basic", "accounting-advanced", "accounting-bundle"];
+    }
+
     const purchases = db.select().from(schema.purchases)
       .where(eq(schema.purchases.email, email.toLowerCase().trim())).all();
-    
+
     const levels = new Set<string>();
     purchases.forEach(p => {
-      if (p.level === "bundle") { levels.add("1"); levels.add("2"); levels.add("3"); }
-      else if (p.level === "bundle23") { levels.add("2"); levels.add("3"); }
-      else { levels.add(p.level); }
+      if (p.level === "accounting-bundle") {
+        levels.add("accounting-basic");
+        levels.add("accounting-advanced");
+        levels.add("accounting-bundle");
+      } else {
+        // handles "accounting-basic", "accounting-advanced", and legacy "1","2","3"
+        levels.add(p.level);
+      }
     });
     return Array.from(levels);
   }
@@ -57,14 +66,14 @@ export class Storage {
       const u = users.find(user => user.email.toLowerCase().trim() === email);
       const userPurchases = purchases.filter(p => p.email.toLowerCase().trim() === email);
       const totalAmount = userPurchases.reduce((sum, p) => sum + (p.amountCents || 0), 0) / 100;
-      
+
       let displayPlan = "";
       if (this.isAdmin(email)) displayPlan = "Admin";
       else if (this.isFreePass(email)) displayPlan = "Free Pass";
       else if (userPurchases.length > 0) {
-        displayPlan = userPurchases.some(p => p.level.includes("bundle")) 
-          ? "Paid Users (Bundle)" 
-          : `Paid Users (${userPurchases.map(p => p.level.replace("level", "Level ")).join(" + ")})`;
+        displayPlan = userPurchases.some(p => p.level.includes("bundle"))
+          ? "Bundle"
+          : userPurchases.map(p => p.level).join(" + ");
       } else if (u) displayPlan = "Only registered";
       else displayPlan = "Unregistered Buyer";
 
@@ -82,7 +91,12 @@ export class Storage {
     const salt = randomBytes(16).toString("hex");
     const passwordHash = createHash("sha256").update(password + salt).digest("hex") + ":" + salt;
     try {
-      db.insert(schema.users).values({ email: email.toLowerCase().trim(), passwordHash, displayName: displayName.trim(), createdAt: new Date().toISOString() }).run();
+      db.insert(schema.users).values({
+        email: email.toLowerCase().trim(),
+        passwordHash,
+        displayName: displayName.trim(),
+        createdAt: new Date().toISOString()
+      }).run();
       return this.getUserByEmail(email);
     } catch { return null; }
   }
@@ -95,56 +109,78 @@ export class Storage {
     return inputHash === storedHash ? user : null;
   }
 
-  getUserByEmail(email: string): User | null { return db.select().from(schema.users).where(eq(schema.users.email, email.toLowerCase().trim())).get() || null; }
-  getUserById(id: number): User | null { return db.select().from(schema.users).where(eq(schema.users.id, id)).get() || null; }
-
-  recordPurchase(email: string, level: string, sessionId: string, paymentIntentId: string | null, amountCents: number) {
-    db.insert(schema.purchases).values({ email: email.toLowerCase().trim(), level, stripeSessionId: sessionId, stripePaymentIntentId: paymentIntentId, amountCents, createdAt: new Date().toISOString() }).run();
+  getUserByEmail(email: string): User | null {
+    return db.select().from(schema.users).where(eq(schema.users.email, email.toLowerCase().trim())).get() || null;
   }
 
-  getApiSettings(userId: number): ApiSettings | null { return db.select().from(schema.apiSettings).where(eq(schema.apiSettings.userId, userId)).get() || null; }
-  
+  getUserById(id: number): User | null {
+    return db.select().from(schema.users).where(eq(schema.users.id, id)).get() || null;
+  }
+
+  recordPurchase(email: string, level: string, sessionId: string, paymentIntentId: string | null, amountCents: number) {
+    db.insert(schema.purchases).values({
+      email: email.toLowerCase().trim(),
+      level,
+      stripeSessionId: sessionId,
+      stripePaymentIntentId: paymentIntentId,
+      amountCents,
+      createdAt: new Date().toISOString()
+    }).run();
+  }
+
+  getApiSettings(userId: number): ApiSettings | null {
+    return db.select().from(schema.apiSettings).where(eq(schema.apiSettings.userId, userId)).get() || null;
+  }
+
   saveApiSettings(userId: number, provider: string, apiKey: string, baseUrl: string, model: string): ApiSettings {
     const existing = this.getApiSettings(userId);
     const data = { provider: provider || "openai", apiKey: apiKey || "", baseUrl: baseUrl || "", model: model || "" };
-    if (existing) { db.update(schema.apiSettings).set(data).where(eq(schema.apiSettings.userId, userId)).run(); } 
-    else { db.insert(schema.apiSettings).values({ userId, ...data }).run(); }
+    if (existing) {
+      db.update(schema.apiSettings).set(data).where(eq(schema.apiSettings.userId, userId)).run();
+    } else {
+      db.insert(schema.apiSettings).values({ userId, ...data }).run();
+    }
     return this.getApiSettings(userId)!;
   }
 
-  // ✅ Delete a user's API settings (called when they click "Remove Key")
   deleteApiSettings(userId: number): void {
     db.delete(schema.apiSettings).where(eq(schema.apiSettings.userId, userId)).run();
   }
 
-  getAllProgress(userId: number): DayProgress[] { return db.select().from(schema.dayProgress).where(eq(schema.dayProgress.userId, userId)).all(); }
+  getAllProgress(userId: number): DayProgress[] {
+    return db.select().from(schema.dayProgress).where(eq(schema.dayProgress.userId, userId)).all();
+  }
+
   setDayComplete(userId: number, dayNumber: number, completed: boolean): DayProgress {
-    const existing = db.select().from(schema.dayProgress).where(and(eq(schema.dayProgress.userId, userId), eq(schema.dayProgress.dayNumber, dayNumber))).get();
-    if (existing) { db.update(schema.dayProgress).set({ completed: completed ? 1 : 0 }).where(and(eq(schema.dayProgress.userId, userId), eq(schema.dayProgress.dayNumber, dayNumber))).run(); } 
-    else { db.insert(schema.dayProgress).values({ userId, dayNumber, completed: completed ? 1 : 0 }).run(); }
-    return db.select().from(schema.dayProgress).where(and(eq(schema.dayProgress.userId, userId), eq(schema.dayProgress.dayNumber, dayNumber))).get() as DayProgress;
+    const existing = db.select().from(schema.dayProgress)
+      .where(and(eq(schema.dayProgress.userId, userId), eq(schema.dayProgress.dayNumber, dayNumber))).get();
+    if (existing) {
+      db.update(schema.dayProgress).set({ completed: completed ? 1 : 0 })
+        .where(and(eq(schema.dayProgress.userId, userId), eq(schema.dayProgress.dayNumber, dayNumber))).run();
+    } else {
+      db.insert(schema.dayProgress).values({ userId, dayNumber, completed: completed ? 1 : 0 }).run();
+    }
+    return db.select().from(schema.dayProgress)
+      .where(and(eq(schema.dayProgress.userId, userId), eq(schema.dayProgress.dayNumber, dayNumber))).get() as DayProgress;
   }
 
   // ========== REVIEWS ==========
 
-  // Submit a new review — always starts as unapproved
   submitReview(name: string, email: string, review: string, rating: number): Review {
     db.insert(schema.reviews).values({
       name: name.trim(),
       email: email.toLowerCase().trim(),
       review: review.trim(),
-      rating: Math.min(5, Math.max(1, rating)), // clamp 1–5
+      rating: Math.min(5, Math.max(1, rating)),
       approved: false,
       createdAt: new Date().toISOString(),
     }).run();
-    // Return the newly inserted row
     return db.select().from(schema.reviews)
       .where(eq(schema.reviews.email, email.toLowerCase().trim()))
       .all()
       .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0];
   }
 
-  // Public — only approved reviews
   getApprovedReviews(): Review[] {
     return db.select().from(schema.reviews)
       .where(eq(schema.reviews.approved, true))
@@ -152,14 +188,12 @@ export class Storage {
       .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   }
 
-  // Admin — all reviews including pending
   getAllReviews(): Review[] {
     return db.select().from(schema.reviews)
       .all()
       .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   }
 
-  // Admin — approve a review by ID
   approveReview(id: number): boolean {
     const review = db.select().from(schema.reviews).where(eq(schema.reviews.id, id)).get();
     if (!review) return false;
@@ -167,7 +201,6 @@ export class Storage {
     return true;
   }
 
-  // Admin — delete a review by ID
   deleteReview(id: number): boolean {
     const review = db.select().from(schema.reviews).where(eq(schema.reviews.id, id)).get();
     if (!review) return false;
