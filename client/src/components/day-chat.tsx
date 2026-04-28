@@ -20,34 +20,41 @@ Why it matters: ${day.whyItMatters}`;
 }
 
 const STARTER_QUESTIONS: Record<number, string[]> = {
-  1: ["Can you show me an example conversation with ChatGPT?", "What's the difference between ChatGPT and Claude?", "How do I sign up for ChatGPT for free?"],
-  2: ["Can you show me an example of a good vs bad prompt?", "What does 'role + format' mean in a prompt?", "Give me a prompt template I can use for Instagram captions"],
-  3: ["Can you draft a social post example for a coffee shop?", "How do I add my own voice to AI-written text?", "What's the difference between ChatGPT and Notion AI?"],
-  4: ["Walk me through Canva's interface step by step", "What's the best Canva template for Instagram posts?", "How do I export from Canva as a PNG?"],
-  5: ["Show me an example of a 3-color palette for a bakery brand", "What's a good font pair for a professional service business?", "How does Coolors.co work?"],
-  6: ["Write me an example AI image prompt for a calm nature background", "What does 'photorealistic style' mean in an image prompt?", "How is Adobe Firefly different from Canva AI?"],
-  7: ["Can you give me an example Instagram caption for a pet groomer?", "What should a social media starter pack include?", "How do I ZIP files to send to a client?"],
-  8: ["Show me what makes a good YouTube thumbnail with an example", "What size should a YouTube thumbnail be?", "How do I make text stand out on a thumbnail?"],
-  9: ["How does background removal work in Canva?", "When would a client need background removal done?", "What's the difference between Remove.bg and Canva's tool?"],
-  10: ["What does a simple brand kit document look like?", "How do I find the hex code for a color?", "Can you give me an example brand kit for a yoga studio?"],
-  11: ["How do I structure a 10-slide presentation?", "Can you outline a presentation on 'How AI helps small businesses'?", "What's the 'one idea per slide' rule?"],
-  12: ["What is Canva Magic Design and how does it work?", "Should I use AI slides or design from scratch for a client?", "Show me a before/after example of AI slide improvement"],
-  13: ["What makes a logo simple and effective?", "Give me an example logo brief I could give to Adobe Firefly", "What formats do clients usually need for logos?"],
-  14: ["What should a creator media kit include?", "Can you write a sample bio for a fictional YouTube creator?", "How many pages should a media kit be?"],
-  15: ["Can you explain a Zapier trigger vs action with an example?", "What's the difference between Zapier and Make?", "Give me 3 automations a VA could sell to clients"],
-  16: ["Walk me through setting up this Zap step by step", "What is a Gmail label and how do I create one?", "What else could I log to a Google Sheet automatically?"],
-  17: ["How do I set up a content calendar in Buffer?", "Show me a sample week of scheduled posts for a bakery", "What's the best posting schedule for Instagram?"],
-  18: ["Can you write a target audience persona for a fitness coach?", "Give me 10 content ideas for a pet products business", "How do I verify if AI research facts are accurate?"],
-  19: ["Can you show me a simple HTML page example?", "What's the difference between HTML, CSS, and JavaScript?", "Why would a VA need to know basic coding?"],
-  20: ["Write me a simple HTML business card for a fictional VA", "What common website fixes do clients need help with?", "Show me how to change a button color with CSS"],
-  21: ["Write a welcome email template for a new coaching client", "How do I test a Zapier workflow end-to-end?", "What should a client intake form ask for?"],
-  22: ["Can you give me an example client brief and show me the questions to ask?", "What's the most common mistake VAs make with client briefs?", "How do I write a professional question to a client?"],
-  23: ["Write 2 Instagram captions about plant care tips", "How do I stay consistent with a client's brand voice?", "What makes a social media post 'thumb-stopping'?"],
-  24: ["When should I use PNG vs PDF for a client?", "What does 300dpi mean and why does it matter for print?", "Can you explain what an animated MP4 export is used for?"],
-  25: ["What's the best free tool to upscale a blurry photo?", "How much better does AI upscaling actually make an image?", "When would a client need image enhancement?"],
-  26: ["Help me write a service description for social media graphics", "What should I charge as a beginner VA for Canva graphics?", "How many services should I offer when starting out?"],
-  27: ["Can you write a 3-sentence VA bio I can edit?", "What should I put in my portfolio if I have no real clients?", "How do I present mock projects professionally?"],
-  28: ["Help me write a welcome email for the fictional yoga client", "What should a full client handoff folder include?", "Give me feedback on how to present this project to a client"],
+  // Week 1 — Foundations
+  1: ["How is AI actually being used in accounting firms right now?", "What repetitive accounting tasks can AI handle today?", "What should I expect to learn in this 28-day challenge?"],
+  2: ["Can you give me a quick example of a debit and credit entry?", "What is the accounting equation and why does it matter?", "How does AI help with transaction coding in practice?"],
+  3: ["Can you walk me through a journal entry flowing into a ledger?", "What does a trial balance actually check for?", "How do cloud accounting systems like Xero handle this automatically?"],
+  4: ["Can you generate a simple income statement for a fictional business?", "What is the difference between the income statement and cash flow statement?", "How do the three financial statements connect to each other?"],
+  5: ["What AI features does Xero have built in right now?", "What is a bank feed and how does it save time?", "How does Microsoft Copilot work inside Excel for accounting?"],
+  6: ["Can you draft a client email about an overdue invoice for me?", "What accounting tasks is AI genuinely good at vs. overhyped for?", "Can you summarise last month's expenses in plain English from these numbers?"],
+  7: ["Can you produce a journal entry for a lease payment so I can review it?", "What is the difference between capital and revenue expenditure?", "Help me build my 5-rule AI review checklist for accounting outputs."],
+
+  // Week 2 — Bookkeeping Workflows
+  8: ["What should my review checklist for AI-suggested GL codes include?", "How does Xero learn from corrections I make to transaction categories?", "Give me an example of a transaction that AI commonly miscodes and why."],
+  9: ["What is the minimum data an AI should extract from an invoice?", "How does OCR work in tools like Dext or Hubdoc?", "Write a prompt that extracts invoice data and flags missing fields."],
+  10: ["Can you write me 3 reconciliation rules as AI prompts I can reuse?", "What is a timing difference in bank reconciliation and how does AI spot it?", "How do I set up bank rules in Xero to automate matching?"],
+  11: ["What are the most common bookkeeping errors AI can help catch?", "Can you write a prompt that checks for duplicate payments in a transaction list?", "How do I spot a transposition error in a trial balance?"],
+  12: ["Can you show me a weak prompt vs a strong prompt for the same accounting task?", "Help me write a prompt that turns variance bullet points into a board summary.", "What context should I always include in an accounting prompt?"],
+  13: ["Can you write an Excel formula to standardise inconsistent vendor names?", "How do I use AI to clean a messy CSV export from my accounting software?", "What does a 5-step data cleaning SOP look like for accounting data?"],
+  14: ["Generate a fictional mini dataset of 15 transactions I can practice with.", "What are the 2 most common bank reconciliation discrepancies I should look for?", "Can you write a plain-English summary of a month's transactions for a business owner?"],
+
+  // Week 3 — Month-End, Controls & Ethics
+  15: ["Can you explain the difference between an accrual and a prepayment with examples?", "Write a prompt that reviews a list of expenses and flags likely accruals.", "What adjusting entries are most commonly missed at month end?"],
+  16: ["What are the 3 steps in the AP process where human approval is non-negotiable?", "How does AI help with invoice matching in accounts payable?", "What fraud risks exist in an automated AP workflow?"],
+  17: ["Can you draft a 30-day overdue payment chaser email for me to edit?", "What does an AI-assisted debtor aging report look like?", "How do I keep my payment chasers professional but firm?"],
+  18: ["Write an AI prompt that checks expense claims against a policy I describe.", "What are the most common types of expense fraud in small businesses?", "What should a 5-rule expense policy for a small business include?"],
+  19: ["Can you draft a 5-step AI-assisted month-end close checklist?", "Write a prompt that turns variance bullet points into a 150-word management commentary.", "What should the human review step look like in an AI-assisted close?"],
+  20: ["What is segregation of duties and why does it still matter with AI?", "Can you map a purchase-to-pay process with control points at each step?", "How do I make sure AI doesn't bypass an approval gate in my workflow?"],
+  21: ["Help me write my personal 5-rule AI usage policy for finance work.", "What data should I never paste into a public AI tool?", "What are the main confidentiality risks of using AI in accounting?"],
+
+  // Week 4 — Reporting, Communication & Capstone
+  22: ["Write a prompt that summarises a tax process and lists official sources to verify.", "Where does AI genuinely help with tax research vs where is it dangerous?", "What should I always check before relying on AI output for tax questions?"],
+  23: ["Turn these variance bullets into a 150-word board commentary: Revenue up 15% new client, Wages up 9% two new hires, Travel down 60% no trips.", "What makes management commentary useful to a non-finance reader?", "How do I give AI the right context to write in my voice?"],
+  24: ["Can you draft a monthly financial update email for a small business owner?", "How do I explain in plain English why cash dropped despite showing a profit?", "Write a paragraph summarising action items from a fictional finance meeting."],
+  25: ["What are the 5 most common data quality problems in accounting systems?", "How does a messy chart of accounts affect AI output quality?", "What does good vendor master data look like vs bad?"],
+  26: ["How do I calculate and interpret debtor days for a small business?", "Write a prompt that calculates gross margin and explains what it means.", "What 5 KPIs should every small business finance team track monthly?"],
+  27: ["Help me build a prompt library entry for month-end variance commentary.", "What categories should my accountant prompt library cover?", "Can you give me an example of a reusable prompt for chasing overdue invoices?"],
+  28: ["Help me map my 6-step AI-assisted monthly accounting workflow.", "What should my personal AI usage rules include based on what I have learned?", "Can you review my workflow and suggest one improvement for each step?"],
 };
 
 export default function DayChat({ day }: { day: DayLesson }) {
