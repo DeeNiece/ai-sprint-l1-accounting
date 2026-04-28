@@ -13,7 +13,7 @@ import { useLanguage } from "@/i18n";
 import { useQuery } from "@tanstack/react-query";
 import type { DayProgress } from "@shared/schema";
 
-const THEME_COLOR = "#0d7c8a"; // 🟢 Level 1 Teal
+const THEME_COLOR = "#0d7c8a"; // Accounting Teal
 
 // --- Helper Functions ---
 const LAUNCH_DATE = new Date("2026-04-15T00:00:00Z").getTime();
@@ -22,10 +22,10 @@ function getDaysPassed() { return Math.max(0, Math.floor((Date.now() - LAUNCH_DA
 function getDynamicTicker() {
   const days = getDaysPassed();
   return [
-    `🔥 Sarah just finished Day ${Math.min(30, 4 + Math.floor(days / 3))}!`,
+    `🔥 Sarah just finished Day ${Math.min(28, 4 + Math.floor(days / 3))}!`,
     `🏆 Alex unlocked 'Prompt Pro'!`,
-    `🚀 Emily started the Master track!`,
-    `🔥 Dee_Niece is on a ${Math.min(30, 3 + Math.floor(days / 5))}-day streak!`,
+    `🚀 Emily started the Advanced track!`,
+    `🔥 Dee_Niece is on a ${Math.min(28, 3 + Math.floor(days / 5))}-day streak!`,
   ];
 }
 
@@ -49,11 +49,11 @@ export default function Nav() {
   const completedCount = progressData.filter((p) => p.completed).length;
 
   // Rank Logic
-  let rankTitle = "Advanced Novice";
-  if (completedCount >= 28) { rankTitle = "AI Legend"; }
-  else if (completedCount >= 21) { rankTitle = "Workflow Master"; }
-  else if (completedCount >= 14) { rankTitle = "Automation Architect"; }
-  else if (completedCount >= 7) { rankTitle = "Prompt Pro"; }
+  let rankTitle = "AI Curious";
+  if (completedCount >= 28) { rankTitle = "AI Accounting Legend"; }
+  else if (completedCount >= 21) { rankTitle = "Advisory Pro"; }
+  else if (completedCount >= 14) { rankTitle = "Workflow Architect"; }
+  else if (completedCount >= 7) { rankTitle = "Prompt Accountant"; }
 
   const tickerMessages = getDynamicTicker();
   const [tickerIdx, setTickerIdx] = useState(0);
@@ -285,7 +285,7 @@ export default function Nav() {
             <Link href="/" className="nav-logo">
               <img src={logoImg} alt="AI Sprint" className="nav-logo-img" />
               <div className="nav-logo-sub" style={{ fontSize: "var(--text-xs)", color: "var(--color-text-muted)", fontWeight: 700 }}>
-                Level 1 · Basic
+                Accounting · Basic
               </div>
             </Link>
           </div>
@@ -327,13 +327,16 @@ export default function Nav() {
             {user && (
               <div className="level-switcher">
                 <button className="level-switcher-btn" onClick={() => { setLevelOpen(!levelOpen); setUserMenuOpen(false); }}>
-                  <Layers size={12} /> Level 1 ▾
+                  <Layers size={12} /> Accounting ▾
                 </button>
                 {levelOpen && (
                   <div className="level-switcher-dropdown" onMouseLeave={() => setLevelOpen(false)}>
-                    <a className="level-switcher-item active" href="#" onClick={(e) => e.preventDefault()}><span className="level-switcher-dot" style={{ background: THEME_COLOR }} /> Level 1 · Basic</a>
-                    <a className="level-switcher-item" href="https://ai-sprint-l2-production.up.railway.app"><span className="level-switcher-dot" style={{ background: "#7c3aed" }} /> Level 2 · Advanced</a>
-                    <a className="level-switcher-item" href="https://ai-sprint-l3-production.up.railway.app"><span className="level-switcher-dot" style={{ background: "#b8630a" }} /> Level 3 · Master</a>
+                    <a className="level-switcher-item active" href="#" onClick={(e) => e.preventDefault()}>
+                      <span className="level-switcher-dot" style={{ background: THEME_COLOR }} /> Basic · Days 1–14
+                    </a>
+                    <a className="level-switcher-item" href="#" onClick={(e) => e.preventDefault()} style={{ opacity: 0.5, cursor: 'not-allowed' }}>
+                      <span className="level-switcher-dot" style={{ background: "#7a5fc0" }} /> Advanced · Days 15–28
+                    </a>
                   </div>
                 )}
               </div>
@@ -367,7 +370,7 @@ export default function Nav() {
                       <CreditCard size={14} />
                       <div style={{ display: 'flex', flexDirection: 'column' }}>
                         <span style={{ fontSize: '10px', textTransform: 'uppercase', color: 'var(--color-text-faint)' }}>Current Plan</span>
-                        <span style={{ fontSize: 'var(--text-sm)', fontWeight: 700, color: THEME_COLOR }}>Level 1 · Basic</span>
+                        <span style={{ fontSize: 'var(--text-sm)', fontWeight: 700, color: THEME_COLOR }}>Accounting · Basic</span>
                       </div>
                     </div>
 
@@ -424,7 +427,7 @@ export default function Nav() {
           <Link href="/" className="nav-logo" onClick={() => setMobileMenuOpen(false)}>
             <img src={logoImg} alt="AI Sprint" className="nav-logo-img" />
             <div style={{ fontSize: "var(--text-xs)", color: "var(--color-text-muted)", fontWeight: 700 }}>
-              Level 1 · Basic
+              Accounting · Basic
             </div>
           </Link>
           <button className="icon-btn" onClick={() => setMobileMenuOpen(false)} aria-label="Close menu">
@@ -451,15 +454,12 @@ export default function Nav() {
 
           {user && (
             <>
-              <div className="mobile-section-label">Switch Level</div>
+              <div className="mobile-section-label">Track</div>
               <a className="mobile-nav-item active" href="#" onClick={(e) => e.preventDefault()} style={{ color: THEME_COLOR }}>
-                <span style={{ width: 8, height: 8, borderRadius: "50%", background: THEME_COLOR, flexShrink: 0 }} /> Level 1 · Basic (current)
+                <span style={{ width: 8, height: 8, borderRadius: "50%", background: THEME_COLOR, flexShrink: 0 }} /> Basic · Days 1–14 (current)
               </a>
-              <a className="mobile-nav-item" href="https://ai-sprint-l2-production.up.railway.app">
-                <span style={{ width: 8, height: 8, borderRadius: "50%", background: "#7c3aed", flexShrink: 0 }} /> Level 2 · Advanced
-              </a>
-              <a className="mobile-nav-item" href="https://ai-sprint-l3-production.up.railway.app">
-                <span style={{ width: 8, height: 8, borderRadius: "50%", background: "#b8630a", flexShrink: 0 }} /> Level 3 · Master
+              <a className="mobile-nav-item" href="#" onClick={(e) => e.preventDefault()} style={{ opacity: 0.5, cursor: 'not-allowed' }}>
+                <span style={{ width: 8, height: 8, borderRadius: "50%", background: "#7a5fc0", flexShrink: 0 }} /> Advanced · Days 15–28
               </a>
             </>
           )}
