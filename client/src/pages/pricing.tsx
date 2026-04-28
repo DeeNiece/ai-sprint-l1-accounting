@@ -1,92 +1,64 @@
 import { useState } from "react";
 import { useAuth } from "@/components/auth-provider";
 import Nav from "@/components/nav";
-import { CheckCircle2, Zap, Lock, Star, Layers, BookOpen, CreditCard, Wallet, Mail, Send, AlertCircle, UserCircle } from "lucide-react";
+import { CheckCircle2, Zap, Lock, Star, BookOpen, CreditCard, Wallet, Mail, Send, AlertCircle, UserCircle } from "lucide-react";
 
 // PHP Price display reference
 const PHP_PRICES: Record<string, string> = {
-  "level1": "₱280",
-  "level2": "₱395",
-  "level3": "₱560",
-  "bundle": "₱850",
-  "bundle23": "₱675",
+  "accounting-basic":    "₱280",
+  "accounting-advanced": "₱395",
+  "accounting-bundle":   "₱560",
 };
 
 const PLANS = [
   {
-    id: "level1",
-    level: "1",
-    name: "Level 1",
-    subtitle: "Basic",
+    id: "accounting-basic",
+    level: "accounting-basic",
+    name: "Basic",
+    subtitle: "Days 1–14",
     price: "$5",
     color: "#0d7c8a",
     colorLight: "#0d7c8a22",
     icon: <BookOpen size={22} />,
     features: [
-      "28-day AI basics curriculum",
-      "Prompting, Canva, content creation",
+      "14-day accounting foundations",
+      "AI prompting for accountants",
+      "Bookkeeping & reconciliation workflows",
+      "Month-end close with AI",
       "AI Coach on every lesson",
-      "Progress tracking",
-      "Portfolio targets",
-      "Starter toolkit",
+      "Progress tracking & toolkit",
     ],
   },
   {
-    id: "level2",
-    level: "2",
-    name: "Level 2",
-    subtitle: "Advanced",
+    id: "accounting-advanced",
+    level: "accounting-advanced",
+    name: "Advanced",
+    subtitle: "Days 15–28",
     price: "$7",
     color: "#7a5fc0",
     colorLight: "#7a5fc022",
     icon: <Zap size={22} />,
     features: [
-      "28-day advanced AI curriculum",
-      "Client services & deliverables",
-      "Automation & workflow design",
-      "Sellable skill breakdown per day",
-      "Service packaging guide",
-      "Advanced portfolio targets",
+      "14-day advanced accounting track",
+      "Fraud detection & anomaly analysis",
+      "Financial reporting & disclosures",
+      "FP&A, forecasting & scenario analysis",
+      "AI governance & controls framework",
+      "Capstone: AI-Ready Accounting Blueprint",
     ],
     recommended: true,
-  },
-  {
-    id: "level3",
-    level: "3",
-    name: "Level 3",
-    subtitle: "Master",
-    price: "$10",
-    color: "#b8630a",
-    colorLight: "#b8630a22",
-    icon: <Layers size={22} />,
-    features: [
-      "28-day master AI curriculum",
-      "AI systems & automation mastery",
-      "Design-to-income pipeline",
-      "System Created Today tracker",
-      "Agency-level portfolio targets",
-      "Full freelance launch prep",
-    ],
   },
 ];
 
 const BUNDLE = {
-  id: "bundle",
-  price: "$15",
-  originalPrice: "$22",
-  savings: "Save $7",
-  savingsPct: "32% off",
+  id: "accounting-bundle",
+  price: "$10",
+  originalPrice: "$12",
+  savings: "Save $2",
+  savingsPct: "17% off",
 };
 
-const BUNDLE23 = {
-  id: "bundle23",
-  price: "$12",
-  originalPrice: "$17",
-  savings: "Save $5",
-  savingsPct: "29% off",
-};
-
-// ── Contact Support Section (teal — Level 1 theme) ─────────────
+// ── Contact Support Section ─────────────────────────────────────────────────
 function ContactSection() {
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -141,8 +113,8 @@ function ContactSection() {
           <form onSubmit={handleSubmit} style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 16, padding: "36px 32px", display: "flex", flexDirection: "column", gap: 18 }}>
             <input type="hidden" name="access_key" value="9354c53d-f37d-4c31-845b-88286c03d1d4" />
             <input type="hidden" name="to" value="aisprint.app@outlook.com" />
-            <input type="hidden" name="subject" value="AI Sprint Support Request" />
-            <input type="hidden" name="from_name" value="AI Sprint Pricing Page" />
+            <input type="hidden" name="subject" value="Accounting Sprint Support Request" />
+            <input type="hidden" name="from_name" value="AI Sprint Accounting Pricing Page" />
 
             {error && (
               <div style={{ background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.2)", color: "#ef4444", padding: "10px 14px", borderRadius: 8, fontSize: "0.875rem", display: "flex", alignItems: "center", gap: 8 }}>
@@ -205,34 +177,43 @@ export default function PricingPage() {
     }
   }
 
+  // Check ownership using accounting-specific level keys
+  const ownsBasic    = licensed.includes("accounting-basic");
+  const ownsAdvanced = licensed.includes("accounting-advanced");
+  const ownsBundle   = licensed.includes("accounting-bundle");
+  const ownsAll      = (ownsBasic || ownsBundle) && (ownsAdvanced || ownsBundle);
+
   return (
     <div className="page-wrap">
       <Nav />
       <main className="pricing-page">
         <div className="pricing-header">
           <div className="pricing-badge">One-Time Payment · Lifetime Access</div>
-          <h1 className="pricing-title">Unlock Your AI Sprint Journey</h1>
+          <h1 className="pricing-title">Unlock Accounting in the AI Era</h1>
           <p className="pricing-desc">
             Pay once. Learn at your own pace. No subscriptions, no renewals.
           </p>
           {licensed.length > 0 && (
             <div className="pricing-owned-note" style={{ background: '#1a7a4a22', color: '#1a7a4a', padding: '10px', borderRadius: '8px', display: 'inline-block', marginTop: '10px' }}>
               <CheckCircle2 size={16} style={{ display: 'inline', verticalAlign: 'text-bottom', marginRight: '5px' }} />
-              You already own: {licensed.map(l => `Level ${l}`).join(", ")}
+              You already own: {[
+                ownsBasic || ownsBundle ? "Basic" : null,
+                ownsAdvanced || ownsBundle ? "Advanced" : null,
+              ].filter(Boolean).join(", ")}
             </div>
           )}
         </div>
 
-        {/* All 3 Levels Bundle card */}
+        {/* Basic + Advanced Bundle card */}
         <div className="bundle-card">
           <div className="bundle-badge"><Star size={14} /> Best Value</div>
           <div className="bundle-content">
             <div className="bundle-left">
-              <div className="bundle-title">All 3 Levels Bundle</div>
-              <div className="bundle-desc">Complete AI mastery — Basic → Advanced → Master</div>
+              <div className="bundle-title">Basic + Advanced Bundle</div>
+              <div className="bundle-desc">Complete 28-day accounting transformation — Days 1 through 28</div>
               <ul className="bundle-perks">
-                <li><CheckCircle2 size={13} /> All 84 lessons across 3 levels</li>
-                <li><CheckCircle2 size={13} /> Single account, all levels</li>
+                <li><CheckCircle2 size={13} /> All 28 lessons across both levels</li>
+                <li><CheckCircle2 size={13} /> Foundations through advisory skills</li>
                 <li><CheckCircle2 size={13} /> Lifetime access</li>
               </ul>
             </div>
@@ -243,55 +224,17 @@ export default function PricingPage() {
               </div>
               <div className="bundle-save">{BUNDLE.savings} <span className="bundle-pct">· {BUNDLE.savingsPct}</span></div>
 
-              {licensed.length === 3 ? (
+              {ownsAll ? (
                 <div className="plan-owned-btn" style={{ marginTop: '15px' }}><CheckCircle2 size={16} /> Owned</div>
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '15px', width: '100%' }}>
-                  <button className="bundle-buy-btn" onClick={() => handlePurchase("bundle", "stripe")} disabled={!!loading} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px' }}>
+                  <button className="bundle-buy-btn" onClick={() => handlePurchase("accounting-bundle", "stripe")} disabled={!!loading} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px' }}>
                     <CreditCard size={16} />
-                    {loading === "stripe-bundle" ? "Redirecting…" : "Pay with Card (USD)"}
+                    {loading === "stripe-accounting-bundle" ? "Redirecting…" : "Pay with Card (USD)"}
                   </button>
-                  <button className="bundle-buy-btn" onClick={() => handlePurchase("bundle", "paymongo")} disabled={!!loading} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px', background: '#3b82f6', color: 'white' }}>
+                  <button className="bundle-buy-btn" onClick={() => handlePurchase("accounting-bundle", "paymongo")} disabled={!!loading} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px', background: '#3b82f6', color: 'white' }}>
                     <Wallet size={16} />
-                    {loading === "paymongo-bundle" ? "Redirecting…" : `GCash / PayMaya (${PHP_PRICES["bundle"]})`}
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-
-        {/* Level 2 + Level 3 Bundle card */}
-        <div className="bundle-card bundle-card--l23">
-          <div className="bundle-badge bundle-badge--purple"><Zap size={14} /> Advanced + Master</div>
-          <div className="bundle-content">
-            <div className="bundle-left">
-              <div className="bundle-title">Level 2 + Level 3 Bundle</div>
-              <div className="bundle-desc">Advanced & Master track — skip if you already own Level 1</div>
-              <ul className="bundle-perks">
-                <li><CheckCircle2 size={13} /> 56 lessons across Level 2 &amp; 3</li>
-                <li><CheckCircle2 size={13} /> Client services, automation &amp; agency-level skills</li>
-                <li><CheckCircle2 size={13} /> Lifetime access</li>
-              </ul>
-            </div>
-            <div className="bundle-right">
-              <div className="bundle-price">
-                <span className="bundle-amount">{BUNDLE23.price}</span>
-                <span className="bundle-original">{BUNDLE23.originalPrice}</span>
-              </div>
-              <div className="bundle-save">{BUNDLE23.savings} <span className="bundle-pct">· {BUNDLE23.savingsPct}</span></div>
-
-              {licensed.includes("2") && licensed.includes("3") ? (
-                <div className="plan-owned-btn" style={{ marginTop: '15px' }}><CheckCircle2 size={16} /> Owned</div>
-              ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '15px', width: '100%' }}>
-                  <button className="bundle-buy-btn bundle-buy-btn--purple" onClick={() => handlePurchase("bundle23", "stripe")} disabled={!!loading} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px' }}>
-                    <CreditCard size={16} />
-                    {loading === "stripe-bundle23" ? "Redirecting…" : "Pay with Card (USD)"}
-                  </button>
-                  <button className="bundle-buy-btn" onClick={() => handlePurchase("bundle23", "paymongo")} disabled={!!loading} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px', background: '#3b82f6', color: 'white' }}>
-                    <Wallet size={16} />
-                    {loading === "paymongo-bundle23" ? "Redirecting…" : `GCash / PayMaya (${PHP_PRICES["bundle23"]})`}
+                    {loading === "paymongo-accounting-bundle" ? "Redirecting…" : `GCash / PayMaya (${PHP_PRICES["accounting-bundle"]})`}
                   </button>
                 </div>
               )}
@@ -302,7 +245,7 @@ export default function PricingPage() {
         {/* Individual plan cards */}
         <div className="pricing-grid">
           {PLANS.map((plan) => {
-            const isOwned = licensed.includes(plan.level);
+            const isOwned = licensed.includes(plan.level) || ownsBundle;
             return (
               <div
                 key={plan.id}
@@ -357,7 +300,6 @@ export default function PricingPage() {
         </div>
       </main>
 
-      {/* ✅ Contact Support — appended below pricing, teal Level 1 theme */}
       <ContactSection />
     </div>
   );
