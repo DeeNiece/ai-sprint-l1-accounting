@@ -20,13 +20,14 @@ declare module "http" {
 // Safe to run repeatedly — uses "if not exists" semantics via Drizzle push.
 function initDb() {
   try {
+    // Matches schema.ts exactly — column names must align with Drizzle definitions
     db.run(`
       CREATE TABLE IF NOT EXISTS users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         email TEXT NOT NULL UNIQUE,
-        password TEXT NOT NULL,
-        display_name TEXT NOT NULL DEFAULT '',
-        created_at INTEGER NOT NULL DEFAULT (unixepoch())
+        password_hash TEXT NOT NULL,
+        display_name TEXT NOT NULL,
+        created_at TEXT NOT NULL
       )
     `);
     db.run(`
@@ -34,30 +35,36 @@ function initDb() {
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         email TEXT NOT NULL,
         level TEXT NOT NULL,
-        stripe_session_id TEXT,
-        payment_intent TEXT,
-        amount INTEGER NOT NULL DEFAULT 0,
-        created_at INTEGER NOT NULL DEFAULT (unixepoch())
+        stripe_session_id TEXT NOT NULL UNIQUE,
+        stripe_payment_intent TEXT,
+        amount_cents INTEGER NOT NULL,
+        created_at TEXT NOT NULL
       )
     `);
     db.run(`
       CREATE TABLE IF NOT EXISTS day_progress (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        user_id INTEGER NOT NULL,
-        day INTEGER NOT NULL,
-        completed INTEGER NOT NULL DEFAULT 0,
-        completed_at INTEGER,
-        UNIQUE(user_id, day)
+        user_id INTEGER NOT NULL REFERENCES users(id),
+        day_number INTEGER NOT NULL,
+        completed INTEGER NOT NULL DEFAULT 0
       )
     `);
     db.run(`
       CREATE TABLE IF NOT EXISTS api_settings (
+        user_id INTEGER PRIMARY KEY REFERENCES users(id),
+        provider TEXT NOT NULL,
+        api_key TEXT NOT NULL,
+        base_url TEXT NOT NULL,
+        model TEXT NOT NULL
+      )
+    `);
+    db.run(`
+      CREATE TABLE IF NOT EXISTS password_resets (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        user_id INTEGER NOT NULL UNIQUE,
-        provider TEXT NOT NULL DEFAULT 'openai',
-        api_key TEXT NOT NULL DEFAULT '',
-        base_url TEXT NOT NULL DEFAULT '',
-        model TEXT NOT NULL DEFAULT ''
+        email TEXT NOT NULL,
+        token TEXT NOT NULL,
+        expires_at TEXT NOT NULL,
+        used INTEGER NOT NULL DEFAULT 0
       )
     `);
     db.run(`
@@ -68,7 +75,7 @@ function initDb() {
         review TEXT NOT NULL,
         rating INTEGER NOT NULL DEFAULT 5,
         approved INTEGER NOT NULL DEFAULT 0,
-        created_at INTEGER NOT NULL DEFAULT (unixepoch())
+        created_at TEXT NOT NULL
       )
     `);
     console.log("[db] Tables initialised successfully");
