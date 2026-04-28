@@ -122,12 +122,12 @@ type DayPageProps = {
 
 // 🎨 Level 1 Primary Colors
 const categoryColors: Record<string, string> = {
-  Design: "#0d7c8a",
-  Graphics: "#c07a2f",
-  Rendering: "#2fb87a",
-  Automation: "#0d7c8a",
-  Coding: "#1d6fa5",
-  Mixed: "#8c4a2f",
+  Foundations:          "#0d7c8a",
+  Bookkeeping:          "#2f6fa8",
+  Reporting:            "#7a5fc0",
+  "Tax & Compliance":   "#c07a2f",
+  "Controls & Ethics":  "#2f8c5c",
+  Mixed:                "#8c4a2f",
 };
 
 function getWhatYouLearned(day: {
@@ -204,15 +204,15 @@ export default function DayPage({ params: propParams }: DayPageProps) {
         // ✨ 5-TIER GAMIFICATION LOGIC (Level 1 Specific Copy & Teal Colors)
         if (dayNum === 28) {
           setCelebrationMsg({
-            main: "LEVEL 1 COMPLETE!",
-            sub: "Congratulations, you have mastered the AI Basics! You are now ready for advanced systems in Level 2."
+            main: "BASIC COMPLETE!",
+            sub: "Congratulations! You have completed the 28-day Basic Accounting challenge. You are ready for the Advanced track."
           });
           (window as any).confetti({ particleCount: 400, spread: 160, origin: { y: 0.4 }, colors: ["#0d7c8a", "#14b8a6", "#ffffff"] });
         } 
         else if (dayNum === 1) { 
           setCelebrationMsg({
-            main: "LEVEL 1 UNLOCKED!",
-            sub: "Welcome to the Basic track. 15 minutes a day to build your AI foundation. Let's get started."
+            main: "CHALLENGE UNLOCKED!",
+            sub: "Welcome to Mastering Accounting in 28 Days. 15 minutes a day to build your AI-ready accounting skills. Let's go."
           });
           (window as any).confetti({ particleCount: 150, spread: 90, origin: { y: 0.5 }, colors: ["#0d7c8a", "#14b8a6", "#ffffff"] });
         }
@@ -342,7 +342,7 @@ export default function DayPage({ params: propParams }: DayPageProps) {
                   key={day.day}
                   dayTitle={day.title}
                   badExample={`I need to finish the task for Day ${day.day}. Help me.`}
-                  goodExample={`I am working on Day ${day.day} of the Level 1 AI Sprint: "${day.title}". The task is: ${day.task}. Give me a structured step-by-step framework to execute this successfully.`}
+                  goodExample={`I am working on Day ${day.day} of the Mastering Accounting in 28 Days — Basic challenge: "${day.title}". The task is: ${day.task}. Give me a structured step-by-step framework to execute this successfully as an accountant.`}
                 />
               </section>
 
@@ -584,7 +584,7 @@ export default function DayPage({ params: propParams }: DayPageProps) {
         </div>
 
         <aside className="day-lesson-list-col">
-          <div className="lesson-list-header">Level 1 Curriculum</div>
+          <div className="lesson-list-header">Accounting · Basic Curriculum</div>
           {weekGroups.map(({ week, days, overview }) => (
             <div key={week}>
               <div className="lesson-list-week" style={{ color: overview?.color }}>
