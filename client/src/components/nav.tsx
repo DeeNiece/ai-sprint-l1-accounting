@@ -332,10 +332,10 @@ export default function Nav() {
                 {levelOpen && (
                   <div className="level-switcher-dropdown" onMouseLeave={() => setLevelOpen(false)}>
                     <a className="level-switcher-item active" href="#" onClick={(e) => e.preventDefault()}>
-                      <span className="level-switcher-dot" style={{ background: THEME_COLOR }} /> Basic · Days 1–14
+                      <span className="level-switcher-dot" style={{ background: THEME_COLOR }} /> Basic Track (current)
                     </a>
                     <a className="level-switcher-item" href="#" onClick={(e) => e.preventDefault()} style={{ opacity: 0.5, cursor: 'not-allowed' }}>
-                      <span className="level-switcher-dot" style={{ background: "#7a5fc0" }} /> Advanced · Days 15–28
+                      <span className="level-switcher-dot" style={{ background: "#7a5fc0" }} /> Advanced Track
                     </a>
                   </div>
                 )}
@@ -456,10 +456,10 @@ export default function Nav() {
             <>
               <div className="mobile-section-label">Track</div>
               <a className="mobile-nav-item active" href="#" onClick={(e) => e.preventDefault()} style={{ color: THEME_COLOR }}>
-                <span style={{ width: 8, height: 8, borderRadius: "50%", background: THEME_COLOR, flexShrink: 0 }} /> Basic · Days 1–14 (current)
+                <span style={{ width: 8, height: 8, borderRadius: "50%", background: THEME_COLOR, flexShrink: 0 }} /> Basic Track (current)
               </a>
               <a className="mobile-nav-item" href="#" onClick={(e) => e.preventDefault()} style={{ opacity: 0.5, cursor: 'not-allowed' }}>
-                <span style={{ width: 8, height: 8, borderRadius: "50%", background: "#7a5fc0", flexShrink: 0 }} /> Advanced · Days 15–28
+                <span style={{ width: 8, height: 8, borderRadius: "50%", background: "#7a5fc0", flexShrink: 0 }} /> Advanced Track
               </a>
             </>
           )}
