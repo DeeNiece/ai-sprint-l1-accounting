@@ -15,7 +15,8 @@ declare module "express-session" {
   interface SessionData { userId: number; }
 }
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "", { apiVersion: "2023-10-16" });
+const stripeKey = process.env.STRIPE_SECRET_KEY || "";
+const stripe = stripeKey ? new Stripe(stripeKey, { apiVersion: "2023-10-16" }) : null as any;
 
 // ── Accounting Course Pricing ─────────────────────────────────────────────
 // USD via Stripe (amounts in cents)
