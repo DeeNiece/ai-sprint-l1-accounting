@@ -20,16 +20,16 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "", { apiVersion: "20
 // ── Accounting Course Pricing ─────────────────────────────────────────────
 // USD via Stripe (amounts in cents)
 const PRICES: Record<string, { amount: number; label: string }> = {
-  "accounting-basic":    { amount: 500,  label: "Accounting in the AI Era — Basic Level" },
-  "accounting-advanced": { amount: 700,  label: "Accounting in the AI Era — Advanced Level" },
-  "accounting-bundle":   { amount: 1000, label: "Accounting in the AI Era — Basic + Advanced Bundle" },
+  "accounting-basic":    { amount: 1000,  label: "Accounting in the AI Era — Basic Level" },
+  "accounting-advanced": { amount: 1500,  label: "Accounting in the AI Era — Advanced Level" },
+  "accounting-bundle":   { amount: 2200,  label: "Accounting in the AI Era — Basic + Advanced Bundle" },
 };
 
 // PHP via PayMongo (amounts in centavos)
 const PAYMONGO_PRICES: Record<string, { amount: number; label: string }> = {
-  "accounting-basic":    { amount: 28000,  label: "Accounting in the AI Era — Basic Level" },
-  "accounting-advanced": { amount: 39500,  label: "Accounting in the AI Era — Advanced Level" },
-  "accounting-bundle":   { amount: 56000,  label: "Accounting in the AI Era — Basic + Advanced Bundle" },
+  "accounting-basic":    { amount: 58000,  label: "Accounting in the AI Era — Basic Level" },
+  "accounting-advanced": { amount: 87000,  label: "Accounting in the AI Era — Advanced Level" },
+  "accounting-bundle":   { amount: 127600, label: "Accounting in the AI Era — Basic + Advanced Bundle" },
 };
 
 function requireAuth(req: Request, res: Response, next: NextFunction) {
@@ -78,7 +78,7 @@ export function registerRoutes(httpServer: Server, app: Express) {
   app.use(session({
     secret: process.env.SESSION_SECRET || "accounting-sprint-secret",
     resave: false, saveUninitialized: false,
-    cookie: { maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true, sameSite: isProd ? "none" : "lax", secure: isProd },
+    cookie: { maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true, sameSite: process.env.NODE_ENV === "production" ? "none" : "lax", secure: process.env.NODE_ENV === "production" },
   }));
 
   app.use(passport.initialize());
@@ -142,11 +142,12 @@ export function registerRoutes(httpServer: Server, app: Express) {
   app.post("/api/stripe/checkout", requireAuth, async (req, res) => {
     const b = z.object({ plan: z.string() }).safeParse(req.body);
     const user = storage.getUserById(req.session.userId!);
+    if (!user) return res.status(401).json({ error: "Not logged in. Please log in and try again." });
     try {
       const planKey = b.data?.plan || "accounting-bundle";
       const priceInfo = PRICES[planKey] || PRICES["accounting-bundle"];
       const session = await stripe.checkout.sessions.create({
-        mode: "payment", customer_email: user!.email, metadata: { level: planKey }, 
+        mode: "payment", customer_email: user.email, metadata: { level: planKey }, 
         line_items: [{ price_data: { currency: "usd", product_data: { name: priceInfo.label }, unit_amount: priceInfo.amount }, quantity: 1 }],
         success_url: `https://ai-sprint-l1-accounting-production.up.railway.app/#/purchase-success?session_id={CHECKOUT_SESSION_ID}`,
         cancel_url: `https://ai-sprint-l1-accounting-production.up.railway.app/#/pricing`,
@@ -167,7 +168,7 @@ export function registerRoutes(httpServer: Server, app: Express) {
         method: "POST", headers: { "Content-Type": "application/json", "Authorization": auth },
         body: JSON.stringify({
           data: { attributes: {
-              billing: { email: user!.email, name: user!.displayName },
+              billing: { email: user.email, name: user.displayName },
               send_email_receipt: true, show_description: true, show_line_items: true,
               cancel_url: `https://ai-sprint-l1-accounting-production.up.railway.app/#/pricing`,
               success_url: `https://ai-sprint-l1-accounting-production.up.railway.app/#/purchase-success`,
