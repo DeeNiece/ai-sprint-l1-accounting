@@ -5,18 +5,18 @@ import { CheckCircle2, Zap, Lock, Star, BookOpen, CreditCard, Wallet, Mail, Send
 
 // ── USD base prices (cents for Stripe, display only here) ────────────────────
 const USD_PRICES: Record<string, number> = {
-  "accounting-basic":    5,
-  "accounting-advanced": 7,
-  "accounting-bundle":   10,
+  "accounting-basic":    10,
+  "accounting-advanced": 15,
+  "accounting-bundle":   22,
 };
 
 // ── PayMongo fixed PHP amounts (centavos) — always used for actual checkout ──
 // These are the authoritative amounts sent to PayMongo.
 // The live rate below is display-only to show the approximate PHP equivalent.
 const PAYMONGO_PHP_FIXED: Record<string, number> = {
-  "accounting-basic":    28000,
-  "accounting-advanced": 39500,
-  "accounting-bundle":   56000,
+  "accounting-basic":    58000,
+  "accounting-advanced": 87000,
+  "accounting-bundle":   127600,
 };
 
 function formatPhp(amount: number) {
@@ -66,7 +66,7 @@ const PLANS = [
     level: "accounting-basic",
     name: "Basic",
     subtitle: "28-Day Challenge",
-    usd: 5,
+    usd: 10,
     color: "#0d7c8a",
     colorLight: "#0d7c8a22",
     icon: <BookOpen size={22} />,
@@ -84,7 +84,7 @@ const PLANS = [
     level: "accounting-advanced",
     name: "Advanced",
     subtitle: "28-Day Challenge",
-    usd: 7,
+    usd: 15,
     color: "#7a5fc0",
     colorLight: "#7a5fc022",
     icon: <Zap size={22} />,
@@ -100,8 +100,8 @@ const PLANS = [
   },
 ];
 
-const BUNDLE_USD     = 10;
-const BUNDLE_ORIG_USD = 12;
+const BUNDLE_USD     = 22;
+const BUNDLE_ORIG_USD = 25;
 
 // ── Contact Support Section ───────────────────────────────────────────────────
 function ContactSection() {
@@ -244,7 +244,7 @@ export default function PricingPage() {
   function livePhp(usd: number): string {
     if (!rate) {
       // Fall back to fixed PayMongo amounts converted to display
-      const fixedMap: Record<number, number> = { 5: 280, 7: 395, 10: 560, 12: 672 };
+      const fixedMap: Record<number, number> = { 10: 580, 15: 870, 22: 1276, 25: 1450 };
       return formatPhp(fixedMap[usd] ?? usd * 56);
     }
     return formatPhp(Math.round(usd * rate));
