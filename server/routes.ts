@@ -174,7 +174,7 @@ export function registerRoutes(httpServer: Server, app: Express) {
               cancel_url: `https://ai-sprint-l1-accounting-production.up.railway.app/#/pricing`,
               success_url: `https://ai-sprint-l1-accounting-production.up.railway.app/#/purchase-success`,
               description: priceInfo.label,
-              payment_method_types: ["gcash", "paymaya", "card", "grab_pay"],
+              payment_method_types: ["qrph"],
               line_items: [{ currency: "PHP", amount: priceInfo.amount, name: priceInfo.label, quantity: 1 }],
               metadata: { level: planKey, email: user!.email }
             }
