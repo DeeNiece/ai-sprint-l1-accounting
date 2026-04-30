@@ -148,7 +148,7 @@ app.use((req, res, next) => {
   initDb();
 
   // ─── 5. Register API Routes ───────────────────────────────────────────────
-  await registerRoutes(httpServer, app);
+ const server = await registerRoutes(app);
 
   // ─── 6. Global Error Handler ──────────────────────────────────────────────
   app.use((err: any, _req: Request, res: Response, next: NextFunction) => {
