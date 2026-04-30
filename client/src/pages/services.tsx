@@ -21,8 +21,9 @@ export default function ServicesPage() {
   const THEME_ALPHA = activeLevel === "2" ? "rgba(232,130,12,0.08)" : "rgba(13,124,138,0.08)";
   const THEME_BORDER = activeLevel === "2" ? "rgba(232,130,12,0.15)" : "rgba(13,124,138,0.15)";
 
+  const activeLevelNum = activeLevel === "both" ? "both" : parseInt(activeLevel);
   const filteredServices = serviceLadder.filter(
-    (s) => s.level === activeLevel || s.level === "both"
+    (s) => activeLevel === "both" ? true : s.level === activeLevelNum || s.level === "both"
   );
 
   const levelLabel = activeLevel === "1"
