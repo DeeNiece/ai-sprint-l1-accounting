@@ -612,3 +612,140 @@ export const portfolioTargets: PortfolioTarget[] = [
   { title:"End-to-End Automation Design", week:4, level:2, desc:"Complete automation design for one process: as-is, to-be, tool selection, controls, and implementation plan." },
   { title:"AI-Ready Accounting Operating Model", week:4, level:2, desc:"28-day capstone: an 8-section strategic document covering vision, use cases, governance, workflows, and 90-day roadmap." },
 ];
+
+// ─────────────────────────────────────────────
+// SERVICE LADDER
+// ─────────────────────────────────────────────
+
+export interface ServiceTier {
+  tier: number;
+  name: string;
+  description: string;
+  price: string;
+  level: 1 | 2 | "both";
+  examples: string[];
+}
+
+export const serviceLadder: ServiceTier[] = [
+
+  // ── Level 1 Basic Services ────────────────────────────────────────────────
+  {
+    tier: 1,
+    level: 1,
+    name: "AI Bookkeeping Review",
+    description: "A structured review of a client's existing bookkeeping using AI-assisted error detection and categorisation quality checks.",
+    price: "$150–350",
+    examples: [
+      "Transaction categorisation audit (up to 3 months)",
+      "AI error spotter report with findings",
+      "Reconciliation gap summary",
+      "5 recommended corrections with journal entries",
+    ],
+  },
+  {
+    tier: 2,
+    level: 1,
+    name: "Month-End Close Package",
+    description: "A done-with-you month-end close using your AI-assisted checklist — covering adjusting entries, reconciliations, and management summary.",
+    price: "$350–700",
+    examples: [
+      "AI-assisted month-end close checklist execution",
+      "Accruals and prepayments review",
+      "Bank and accounts reconciliation",
+      "One-page management summary in plain English",
+    ],
+  },
+  {
+    tier: 3,
+    level: 1,
+    name: "AI-Assisted Financial Report",
+    description: "A monthly or quarterly financial report with AI-generated variance commentary and plain-English narrative for non-finance founders or managers.",
+    price: "$500–1,000",
+    examples: [
+      "P&L, balance sheet, and cash flow summary",
+      "Key variance commentary (budget vs actual)",
+      "3–5 plain-English insights for decision-making",
+      "KPI dashboard with month-on-month comparison",
+    ],
+  },
+  {
+    tier: 4,
+    level: 1,
+    name: "Prompt Library Build",
+    description: "A custom accountant prompt library built for a specific client or industry — 15+ tested prompts across bookkeeping, reporting, and compliance tasks.",
+    price: "$400–800",
+    examples: [
+      "15+ industry-specific accounting prompts",
+      "Categorised by task: bookkeeping, tax, reporting, AR/AP",
+      "Usage guide and example outputs",
+      "One 60-minute walkthrough session",
+    ],
+  },
+
+  // ── Level 2 Advanced Services ─────────────────────────────────────────────
+  {
+    tier: 5,
+    level: 2,
+    name: "AI Finance Function Audit",
+    description: "A comprehensive assessment of a finance function's AI readiness — covering process maturity, tool stack, governance gaps, and priority use cases.",
+    price: "$800–2,000",
+    examples: [
+      "AI maturity assessment across 8 finance processes",
+      "Priority use case matrix (feasibility vs impact)",
+      "Governance gap analysis",
+      "Written recommendations report for CFO/founder",
+    ],
+  },
+  {
+    tier: 6,
+    level: 2,
+    name: "Close Process Redesign",
+    description: "A full redesign of the month-end close process with AI integrated at each step — producing a documented, audit-ready Close Process Blueprint.",
+    price: "$1,500–3,500",
+    examples: [
+      "As-is close process mapping",
+      "AI-integrated Close Process Blueprint",
+      "Human-in-the-loop control design",
+      "Estimated time savings and quality improvement metrics",
+    ],
+  },
+  {
+    tier: 7,
+    level: 2,
+    name: "AI Governance Framework",
+    description: "Design and documentation of a complete AI governance model for a finance team — covering roles, approval matrix, evidence standards, and incident response.",
+    price: "$2,000–5,000",
+    examples: [
+      "AI governance charter (roles and approval matrix)",
+      "Acceptable use policy for finance AI",
+      "Evidence pack template (audit trail standard)",
+      "Incident response protocol",
+    ],
+  },
+  {
+    tier: 8,
+    level: 2,
+    name: "Finance Transformation Roadmap",
+    description: "A 90-day AI transformation roadmap for a finance function — with prioritised use cases, resource requirements, implementation milestones, and board-ready summary.",
+    price: "$3,000–8,000",
+    examples: [
+      "90-day roadmap (3 phases, actions, owners, metrics)",
+      "AI use case business cases with ROI estimates",
+      "Board-ready executive summary",
+      "One-page operating model vision",
+    ],
+  },
+  {
+    tier: 9,
+    level: "both",
+    name: "Monthly AI Finance Retainer",
+    description: "Ongoing AI-assisted accounting and advisory support — combining bookkeeping oversight, reporting, and strategic guidance in one monthly engagement.",
+    price: "$500–2,500/month",
+    examples: [
+      "Monthly AI-assisted close and reporting",
+      "Variance analysis and CFO commentary",
+      "Governance and compliance monitoring",
+      "Ad hoc advisory and prompt library updates",
+    ],
+  },
+];
