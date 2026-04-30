@@ -1,4 +1,4 @@
-import { Link, useLocation } from "wouter";
+import { Link, useLocation, useSearch } from "wouter";
 import logoImg from "@assets/ai-sprint-logo.jpg";
 import { useTheme } from "@/components/theme-provider";
 import { useAuth } from "@/components/auth-provider";
@@ -34,6 +34,11 @@ export default function Nav() {
   const { user, logout } = useAuth();
   const [loc] = useLocation();
   const { t } = useLanguage();
+
+  const search = useSearch();
+  const activeLevel = new URLSearchParams(search).get("level") === "2" ? "2" : "1";
+  const LEVEL_COLOR = activeLevel === "2" ? "#e8820c" : THEME_COLOR;
+  const LEVEL_LABEL = activeLevel === "2" ? "Advanced Track" : "Basic Track";
 
   const [levelOpen, setLevelOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
@@ -327,17 +332,25 @@ export default function Nav() {
           <div className="nav-controls" style={{ flex: 1, display: "flex", justifyContent: "flex-end", alignItems: "center", gap: "8px" }}>
             {user && (
               <div className="level-switcher">
-                <button className="level-switcher-btn" onClick={() => { setLevelOpen(!levelOpen); setUserMenuOpen(false); }}>
-                  <Layers size={12} /> Accounting ▾
+                <button className="level-switcher-btn" onClick={() => { setLevelOpen(!levelOpen); setUserMenuOpen(false); }}
+                  style={{ borderColor: LEVEL_COLOR, color: LEVEL_COLOR }}>
+                  <span style={{ width: 8, height: 8, borderRadius: "50%", background: LEVEL_COLOR, flexShrink: 0 }} />
+                  {LEVEL_LABEL} ▾
                 </button>
                 {levelOpen && (
                   <div className="level-switcher-dropdown" onMouseLeave={() => setLevelOpen(false)}>
-                    <a className="level-switcher-item active" href="#" onClick={(e) => e.preventDefault()} style={{ color: THEME_COLOR }}>
+                    <Link href="/" className="level-switcher-item"
+                      style={{ color: activeLevel === "1" ? THEME_COLOR : "var(--color-text-muted)", fontWeight: activeLevel === "1" ? 700 : 500 }}
+                      onClick={() => setLevelOpen(false)}>
                       <span className="level-switcher-dot" style={{ background: THEME_COLOR }} /> Basic Track
-                    </a>
-                    <a className="level-switcher-item" href="#" onClick={(e) => e.preventDefault()} style={{ color: "#e8820c" }}>
+                      {activeLevel === "1" && <span style={{ marginLeft: "auto", fontSize: "0.7rem", opacity: 0.7 }}>✓</span>}
+                    </Link>
+                    <Link href="/?level=2" className="level-switcher-item"
+                      style={{ color: activeLevel === "2" ? "#e8820c" : "var(--color-text-muted)", fontWeight: activeLevel === "2" ? 700 : 500 }}
+                      onClick={() => setLevelOpen(false)}>
                       <span className="level-switcher-dot" style={{ background: "#e8820c" }} /> Advanced Track
-                    </a>
+                      {activeLevel === "2" && <span style={{ marginLeft: "auto", fontSize: "0.7rem", opacity: 0.7 }}>✓</span>}
+                    </Link>
                   </div>
                 )}
               </div>
@@ -456,12 +469,16 @@ export default function Nav() {
           {user && (
             <>
               <div className="mobile-section-label">Track</div>
-              <a className="mobile-nav-item active" href="#" onClick={(e) => e.preventDefault()} style={{ color: THEME_COLOR }}>
+              <Link href="/" className={`mobile-nav-item ${activeLevel === "1" ? "active" : ""}`} onClick={() => setMobileMenuOpen(false)}
+                style={activeLevel === "1" ? { color: THEME_COLOR } : {}}>
                 <span style={{ width: 8, height: 8, borderRadius: "50%", background: THEME_COLOR, flexShrink: 0 }} /> Basic Track
-              </a>
-              <a className="mobile-nav-item" href="#" onClick={(e) => e.preventDefault()} style={{ color: "#e8820c" }}>
+                {activeLevel === "1" && <span style={{ marginLeft: "auto", fontSize: "0.7rem" }}>✓</span>}
+              </Link>
+              <Link href="/?level=2" className={`mobile-nav-item ${activeLevel === "2" ? "active" : ""}`} onClick={() => setMobileMenuOpen(false)}
+                style={activeLevel === "2" ? { color: "#e8820c" } : {}}>
                 <span style={{ width: 8, height: 8, borderRadius: "50%", background: "#e8820c", flexShrink: 0 }} /> Advanced Track
-              </a>
+                {activeLevel === "2" && <span style={{ marginLeft: "auto", fontSize: "0.7rem" }}>✓</span>}
+              </Link>
             </>
           )}
 
