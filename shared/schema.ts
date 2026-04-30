@@ -2,7 +2,6 @@ import { sqliteTable, text, integer } from "drizzle-orm/sqlite-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
-// Users table
 export const users = sqliteTable("users", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   email: text("email").notNull().unique(),
@@ -11,7 +10,6 @@ export const users = sqliteTable("users", {
   createdAt: text("created_at").notNull(),
 });
 
-// API key settings — one per user
 export const apiSettings = sqliteTable("api_settings", {
   userId: integer("user_id").primaryKey().references(() => users.id),
   provider: text("provider").notNull(),
@@ -20,26 +18,25 @@ export const apiSettings = sqliteTable("api_settings", {
   model: text("model").notNull(),
 });
 
-// Progress tracking — per user per day
+// dayNumber is TEXT to support "L1-1", "L2-7" level-prefixed IDs
+// Legacy integer-only values ("1", "28") remain valid as text strings
 export const dayProgress = sqliteTable("day_progress", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   userId: integer("user_id").notNull().references(() => users.id),
-  dayNumber: integer("day_number").notNull(),
+  dayNumber: text("day_number").notNull(),
   completed: integer("completed", { mode: "boolean" }).notNull().default(false),
 });
 
-// Purchases — tracks which levels each email has paid for
 export const purchases = sqliteTable("purchases", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   email: text("email").notNull(),
-  level: text("level").notNull(), // "1", "2", "3", or "bundle"
+  level: text("level").notNull(),
   stripeSessionId: text("stripe_session_id").notNull().unique(),
   stripePaymentIntent: text("stripe_payment_intent"),
   amountCents: integer("amount_cents").notNull(),
   createdAt: text("created_at").notNull(),
 });
 
-// Password reset tokens
 export const passwordResets = sqliteTable("password_resets", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   email: text("email").notNull(),
@@ -48,13 +45,12 @@ export const passwordResets = sqliteTable("password_resets", {
   used: integer("used", { mode: "boolean" }).notNull().default(false),
 });
 
-// Reviews — customer reviews pending approval
 export const reviews = sqliteTable("reviews", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   name: text("name").notNull(),
   email: text("email").notNull(),
   review: text("review").notNull(),
-  rating: integer("rating").notNull().default(5), // 1-5 stars
+  rating: integer("rating").notNull().default(5),
   approved: integer("approved", { mode: "boolean" }).notNull().default(false),
   createdAt: text("created_at").notNull(),
 });
