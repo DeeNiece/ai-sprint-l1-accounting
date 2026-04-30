@@ -196,6 +196,20 @@ export default function HomePage() {
     <div className="page-wrap">
       <Nav />
 
+      {/* Inject theme color as CSS variable for global class overrides */}
+      <style>{`
+        :root { --color-primary: ${THEME}; }
+        .resume-cta { background: ${THEME} !important; box-shadow: 0 4px 20px ${THEME}55 !important; }
+        .scroll-indicator { border-color: ${THEME} !important; color: ${THEME} !important; }
+        .tagline-strip { color: ${THEME} !important; }
+        .next-recommended { border-color: ${THEME} !important; box-shadow: 0 0 0 1px ${THEME} !important; }
+        .filter-btn.active { border-color: ${THEME} !important; color: ${THEME} !important; background: ${THEME}1a !important; }
+        .complete-btn.done { color: ${THEME} !important; }
+        .week-celebration { color: ${THEME} !important; border-left-color: ${THEME} !important; }
+        .view-day-btn { color: ${THEME} !important; border-color: ${THEME} !important; }
+        .progress-bar-fill { background: ${THEME} !important; }
+      `}</style>
+
       <section className="hero">
         <div className="hero-badge" style={{ color: THEME, borderColor: THEME + "44", background: THEME_ALPHA }}>
           {activeLevel === "1" ? "Accounting in the AI Era · Basic" : "Accounting in the AI Era · Advanced"}
@@ -276,7 +290,7 @@ export default function HomePage() {
           </div>
         </div>
 
-        <p className="tagline-strip">Master Accounting. Leverage AI. Stay Ahead.</p>
+        <p className="tagline-strip" style={{ color: THEME }}>Master Accounting. Leverage AI. Stay Ahead.</p>
       </section>
 
       {/* Resume strip */}
@@ -299,7 +313,8 @@ export default function HomePage() {
                 </span>
               </div>
             </div>
-            <Link href={`/day/${levelPrefix}${nextLesson.day}`} className="resume-cta">
+            <Link href={`/day/${levelPrefix}${nextLesson.day}`} className="resume-cta"
+              style={{ background: THEME, boxShadow: `0 4px 20px ${THEME}55` }}>
               Resume Lesson <ArrowUpRight size={16} />
             </Link>
           </div>
@@ -398,7 +413,8 @@ export default function HomePage() {
                   const color = catColors[day.category] || THEME;
 
                   return (
-                    <div key={dayId} className={`day-card ${done ? "done" : ""} ${day.isMiniProject ? "mini-project" : ""} ${isNextRecommended ? "next-recommended" : ""}`}>
+                    <div key={dayId} className={`day-card ${done ? "done" : ""} ${day.isMiniProject ? "mini-project" : ""} ${isNextRecommended ? "next-recommended" : ""}`}
+                      style={isNextRecommended ? { borderColor: THEME, boxShadow: `0 0 0 1px ${THEME}` } : {}}>
                       <div className="day-card-top">
                         <div className="day-num-row">
                           <span className="day-num">Day {day.day}</span>
@@ -462,7 +478,7 @@ export default function HomePage() {
             <div
               className={`level-card ${activeLevel === "1" ? "current" : "level-card-next cursor-pointer"}`}
               onClick={() => hasBasic && setActiveLevel("1")}
-              style={activeLevel === "1" ? { borderColor: L1_COLOR } : {}}
+              style={activeLevel === "1" ? { borderColor: L1_COLOR, boxShadow: `0 0 20px ${L1_COLOR}22` } : {}}
             >
               <div className="level-card-num">Basic Track</div>
               <h3 className="level-card-name">28 Days</h3>
@@ -475,7 +491,7 @@ export default function HomePage() {
             <div
               className={`level-card ${activeLevel === "2" ? "current" : "level-card-next cursor-pointer"}`}
               onClick={() => hasAdvanced ? setActiveLevel("2") : window.location.hash = "/pricing"}
-              style={activeLevel === "2" ? { borderColor: L2_COLOR } : {}}
+              style={activeLevel === "2" ? { borderColor: L2_COLOR, boxShadow: `0 0 20px ${L2_COLOR}22` } : {}}
             >
               <div className="level-card-num">Advanced Track</div>
               <h3 className="level-card-name">28 Days</h3>
