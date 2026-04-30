@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState, useRef } from "react";
-import { Link } from "wouter";
+import { Link, useSearch } from "wouter";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import Nav from "@/components/nav";
@@ -71,7 +71,14 @@ const TOTAL_DAYS = 28;
 export default function HomePage() {
   const { t } = useLanguage();
   const { user } = useAuth();
-  const [activeLevel, setActiveLevel] = useState<"1" | "2">("1");
+  const search = useSearch();
+  const urlLevel = new URLSearchParams(search).get("level") === "2" ? "2" : "1";
+  const [activeLevel, setActiveLevel] = useState<"1" | "2">(urlLevel);
+
+  // Sync with URL when it changes (nav level switcher)
+  useEffect(() => {
+    setActiveLevel(urlLevel);
+  }, [urlLevel]);
   const [filter, setFilter] = useState<FilterType>("all");
   const [expandedWeek, setExpandedWeek] = useState<number | null>(1);
   const [animatedPct, setAnimatedPct] = useState(0);
