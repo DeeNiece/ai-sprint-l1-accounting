@@ -339,18 +339,20 @@ export default function Nav() {
                 </button>
                 {levelOpen && (
                   <div className="level-switcher-dropdown" onMouseLeave={() => setLevelOpen(false)}>
-                    <Link href="/" className="level-switcher-item"
-                      style={{ color: activeLevel === "1" ? THEME_COLOR : "var(--color-text-muted)", fontWeight: activeLevel === "1" ? 700 : 500 }}
-                      onClick={() => setLevelOpen(false)}>
-                      <span className="level-switcher-dot" style={{ background: THEME_COLOR }} /> Basic Track
-                      {activeLevel === "1" && <span style={{ marginLeft: "auto", fontSize: "0.7rem", opacity: 0.7 }}>✓</span>}
-                    </Link>
-                    <Link href="/?level=2" className="level-switcher-item"
-                      style={{ color: activeLevel === "2" ? "#e8820c" : "var(--color-text-muted)", fontWeight: activeLevel === "2" ? 700 : 500 }}
-                      onClick={() => setLevelOpen(false)}>
-                      <span className="level-switcher-dot" style={{ background: "#e8820c" }} /> Advanced Track
-                      {activeLevel === "2" && <span style={{ marginLeft: "auto", fontSize: "0.7rem", opacity: 0.7 }}>✓</span>}
-                    </Link>
+                    <a href="/#/" className="level-switcher-item"
+                      style={{ color: activeLevel === "1" ? THEME_COLOR : "var(--color-text)", fontWeight: activeLevel === "1" ? 700 : 500, cursor: "pointer", textDecoration: "none" }}
+                      onClick={() => { setLevelOpen(false); window.location.href = "/#/"; }}>
+                      <span className="level-switcher-dot" style={{ background: THEME_COLOR, opacity: 1 }} />
+                      Basic Track
+                      {activeLevel === "1" && <span style={{ marginLeft: "auto", fontSize: "0.7rem" }}>✓</span>}
+                    </a>
+                    <a href="/#/?level=2" className="level-switcher-item"
+                      style={{ color: activeLevel === "2" ? "#e8820c" : "var(--color-text)", fontWeight: activeLevel === "2" ? 700 : 500, cursor: "pointer", textDecoration: "none" }}
+                      onClick={() => { setLevelOpen(false); window.location.href = "/#/?level=2"; }}>
+                      <span className="level-switcher-dot" style={{ background: "#e8820c", opacity: 1 }} />
+                      Advanced Track
+                      {activeLevel === "2" && <span style={{ marginLeft: "auto", fontSize: "0.7rem" }}>✓</span>}
+                    </a>
                   </div>
                 )}
               </div>
@@ -469,16 +471,18 @@ export default function Nav() {
           {user && (
             <>
               <div className="mobile-section-label">Track</div>
-              <Link href="/" className={`mobile-nav-item ${activeLevel === "1" ? "active" : ""}`} onClick={() => setMobileMenuOpen(false)}
-                style={activeLevel === "1" ? { color: THEME_COLOR } : {}}>
+              <a href="/#/" className={`mobile-nav-item ${activeLevel === "1" ? "active" : ""}`}
+                style={{ color: activeLevel === "1" ? THEME_COLOR : "var(--color-text)", textDecoration: "none" }}
+                onClick={() => { setMobileMenuOpen(false); window.location.href = "/#/"; }}>
                 <span style={{ width: 8, height: 8, borderRadius: "50%", background: THEME_COLOR, flexShrink: 0 }} /> Basic Track
                 {activeLevel === "1" && <span style={{ marginLeft: "auto", fontSize: "0.7rem" }}>✓</span>}
-              </Link>
-              <Link href="/?level=2" className={`mobile-nav-item ${activeLevel === "2" ? "active" : ""}`} onClick={() => setMobileMenuOpen(false)}
-                style={activeLevel === "2" ? { color: "#e8820c" } : {}}>
+              </a>
+              <a href="/#/?level=2" className={`mobile-nav-item ${activeLevel === "2" ? "active" : ""}`}
+                style={{ color: activeLevel === "2" ? "#e8820c" : "var(--color-text)", textDecoration: "none" }}
+                onClick={() => { setMobileMenuOpen(false); window.location.href = "/#/?level=2"; }}>
                 <span style={{ width: 8, height: 8, borderRadius: "50%", background: "#e8820c", flexShrink: 0 }} /> Advanced Track
                 {activeLevel === "2" && <span style={{ marginLeft: "auto", fontSize: "0.7rem" }}>✓</span>}
-              </Link>
+              </a>
             </>
           )}
 
