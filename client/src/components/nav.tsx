@@ -1,4 +1,4 @@
-import { Link, useLocation, useSearch } from "wouter";
+import { Link, useLocation } from "wouter";
 import logoImg from "@assets/ai-sprint-logo.jpg";
 import { useTheme } from "@/components/theme-provider";
 import { useAuth } from "@/components/auth-provider";
@@ -35,10 +35,20 @@ export default function Nav() {
   const [loc] = useLocation();
   const { t } = useLanguage();
 
-  const search = useSearch();
-  const activeLevel = new URLSearchParams(search).get("level") === "2" ? "2" : "1";
+  const [activeLevel, setActiveLevelState] = useState<"1" | "2">(() => {
+    try { return (localStorage.getItem("accounting_level") === "2" ? "2" : "1"); } catch { return "1"; }
+  });
   const LEVEL_COLOR = activeLevel === "2" ? "#e8820c" : THEME_COLOR;
   const LEVEL_LABEL = activeLevel === "2" ? "Advanced Track" : "Basic Track";
+
+  function switchLevel(lvl: "1" | "2") {
+    try { localStorage.setItem("accounting_level", lvl); } catch {}
+    setActiveLevelState(lvl);
+    setLevelOpen(false);
+    setMobileMenuOpen(false);
+    // Dispatch storage event so home.tsx picks it up
+    window.dispatchEvent(new StorageEvent("storage", { key: "accounting_level", newValue: lvl }));
+  }
 
   const [levelOpen, setLevelOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
@@ -339,20 +349,18 @@ export default function Nav() {
                 </button>
                 {levelOpen && (
                   <div className="level-switcher-dropdown" onMouseLeave={() => setLevelOpen(false)}>
-                    <a href="/#/" className="level-switcher-item"
-                      style={{ color: activeLevel === "1" ? THEME_COLOR : "var(--color-text)", fontWeight: activeLevel === "1" ? 700 : 500, cursor: "pointer", textDecoration: "none" }}
-                      onClick={() => { setLevelOpen(false); window.location.href = "/#/"; }}>
-                      <span className="level-switcher-dot" style={{ background: THEME_COLOR, opacity: 1 }} />
+                    <button className="level-switcher-item" onClick={() => switchLevel("1")}
+                      style={{ color: activeLevel === "1" ? THEME_COLOR : "var(--color-text)", fontWeight: activeLevel === "1" ? 700 : 500, background: "none", border: "none", cursor: "pointer", width: "100%", textAlign: "left" }}>
+                      <span className="level-switcher-dot" style={{ background: THEME_COLOR }} />
                       Basic Track
                       {activeLevel === "1" && <span style={{ marginLeft: "auto", fontSize: "0.7rem" }}>✓</span>}
-                    </a>
-                    <a href="/#/?level=2" className="level-switcher-item"
-                      style={{ color: activeLevel === "2" ? "#e8820c" : "var(--color-text)", fontWeight: activeLevel === "2" ? 700 : 500, cursor: "pointer", textDecoration: "none" }}
-                      onClick={() => { setLevelOpen(false); window.location.href = "/#/?level=2"; }}>
-                      <span className="level-switcher-dot" style={{ background: "#e8820c", opacity: 1 }} />
+                    </button>
+                    <button className="level-switcher-item" onClick={() => switchLevel("2")}
+                      style={{ color: activeLevel === "2" ? "#e8820c" : "var(--color-text)", fontWeight: activeLevel === "2" ? 700 : 500, background: "none", border: "none", cursor: "pointer", width: "100%", textAlign: "left" }}>
+                      <span className="level-switcher-dot" style={{ background: "#e8820c" }} />
                       Advanced Track
                       {activeLevel === "2" && <span style={{ marginLeft: "auto", fontSize: "0.7rem" }}>✓</span>}
-                    </a>
+                    </button>
                   </div>
                 )}
               </div>
@@ -471,18 +479,18 @@ export default function Nav() {
           {user && (
             <>
               <div className="mobile-section-label">Track</div>
-              <a href="/#/" className={`mobile-nav-item ${activeLevel === "1" ? "active" : ""}`}
-                style={{ color: activeLevel === "1" ? THEME_COLOR : "var(--color-text)", textDecoration: "none" }}
-                onClick={() => { setMobileMenuOpen(false); window.location.href = "/#/"; }}>
+              <button className={`mobile-nav-item ${activeLevel === "1" ? "active" : ""}`}
+                style={{ color: activeLevel === "1" ? THEME_COLOR : "var(--color-text)", background: "none", border: "none", cursor: "pointer", width: "100%", textAlign: "left" }}
+                onClick={() => switchLevel("1")}>
                 <span style={{ width: 8, height: 8, borderRadius: "50%", background: THEME_COLOR, flexShrink: 0 }} /> Basic Track
                 {activeLevel === "1" && <span style={{ marginLeft: "auto", fontSize: "0.7rem" }}>✓</span>}
-              </a>
-              <a href="/#/?level=2" className={`mobile-nav-item ${activeLevel === "2" ? "active" : ""}`}
-                style={{ color: activeLevel === "2" ? "#e8820c" : "var(--color-text)", textDecoration: "none" }}
-                onClick={() => { setMobileMenuOpen(false); window.location.href = "/#/?level=2"; }}>
+              </button>
+              <button className={`mobile-nav-item ${activeLevel === "2" ? "active" : ""}`}
+                style={{ color: activeLevel === "2" ? "#e8820c" : "var(--color-text)", background: "none", border: "none", cursor: "pointer", width: "100%", textAlign: "left" }}
+                onClick={() => switchLevel("2")}>
                 <span style={{ width: 8, height: 8, borderRadius: "50%", background: "#e8820c", flexShrink: 0 }} /> Advanced Track
                 {activeLevel === "2" && <span style={{ marginLeft: "auto", fontSize: "0.7rem" }}>✓</span>}
-              </a>
+              </button>
             </>
           )}
 
