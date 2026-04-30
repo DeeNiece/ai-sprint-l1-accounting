@@ -5,7 +5,7 @@ import { useAuth } from "@/components/auth-provider";
 import {
   Sun, Moon, LogOut, Settings, HelpCircle, 
   Layers, Flame, KeyRound, CreditCard, User, ChevronDown,
-  Wrench, FolderKanban, Terminal, LayoutDashboard, Rocket,
+  Wrench, FolderKanban, Terminal, LayoutDashboard, Rocket, BarChart2,
   Menu, X
 } from "lucide-react";
 import { useState, useEffect } from "react";
@@ -296,7 +296,7 @@ export default function Nav() {
 
             {/* THE BLUEPRINT DROPDOWN */}
             <div style={{ position: 'relative' }}>
-              <button onClick={() => { setBlueprintOpen(!blueprintOpen); setCommandOpen(false); }} className={`nav-link ${(loc === "/toolkit" || loc === "/portfolio" || loc === "/systems") ? "active" : ""}`} style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'none', border: 'none', cursor: 'pointer' }}>
+              <button onClick={() => { setBlueprintOpen(!blueprintOpen); setCommandOpen(false); }} className={`nav-link ${(loc === "/toolkit" || loc === "/portfolio" || loc === "/systems" || loc === "/services") ? "active" : ""}`} style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'none', border: 'none', cursor: 'pointer' }}>
                 <Rocket size={16} className="pulse-icon" style={{ color: THEME_COLOR }} /> The Blueprint <ChevronDown size={14} style={{ transform: blueprintOpen ? 'rotate(180deg)' : 'rotate(0)', transition: '0.2s' }} />
               </button>
               {blueprintOpen && (
@@ -304,6 +304,7 @@ export default function Nav() {
                   <Link href="/systems" className="dropdown-item"><Terminal size={16} style={{ color: THEME_COLOR }} /> Built Systems</Link>
                   <Link href="/portfolio" className="dropdown-item"><FolderKanban size={16} style={{ color: THEME_COLOR }} /> Portfolio Targets</Link>
                   <Link href="/toolkit" className="dropdown-item"><Wrench size={16} style={{ color: THEME_COLOR }} /> Starter Toolkit</Link>
+                  <Link href="/services" className="dropdown-item"><BarChart2 size={16} style={{ color: THEME_COLOR }} /> Services & Offers</Link>
                 </div>
               )}
             </div>
@@ -331,11 +332,11 @@ export default function Nav() {
                 </button>
                 {levelOpen && (
                   <div className="level-switcher-dropdown" onMouseLeave={() => setLevelOpen(false)}>
-                    <a className="level-switcher-item active" href="#" onClick={(e) => e.preventDefault()}>
-                      <span className="level-switcher-dot" style={{ background: THEME_COLOR }} /> Basic Track (current)
+                    <a className="level-switcher-item active" href="#" onClick={(e) => e.preventDefault()} style={{ color: THEME_COLOR }}>
+                      <span className="level-switcher-dot" style={{ background: THEME_COLOR }} /> Basic Track
                     </a>
-                    <a className="level-switcher-item" href="#" onClick={(e) => e.preventDefault()} style={{ opacity: 0.5, cursor: 'not-allowed' }}>
-                      <span className="level-switcher-dot" style={{ background: "#7a5fc0" }} /> Advanced Track
+                    <a className="level-switcher-item" href="#" onClick={(e) => e.preventDefault()} style={{ color: "#e8820c" }}>
+                      <span className="level-switcher-dot" style={{ background: "#e8820c" }} /> Advanced Track
                     </a>
                   </div>
                 )}
@@ -456,10 +457,10 @@ export default function Nav() {
             <>
               <div className="mobile-section-label">Track</div>
               <a className="mobile-nav-item active" href="#" onClick={(e) => e.preventDefault()} style={{ color: THEME_COLOR }}>
-                <span style={{ width: 8, height: 8, borderRadius: "50%", background: THEME_COLOR, flexShrink: 0 }} /> Basic Track (current)
+                <span style={{ width: 8, height: 8, borderRadius: "50%", background: THEME_COLOR, flexShrink: 0 }} /> Basic Track
               </a>
-              <a className="mobile-nav-item" href="#" onClick={(e) => e.preventDefault()} style={{ opacity: 0.5, cursor: 'not-allowed' }}>
-                <span style={{ width: 8, height: 8, borderRadius: "50%", background: "#7a5fc0", flexShrink: 0 }} /> Advanced Track
+              <a className="mobile-nav-item" href="#" onClick={(e) => e.preventDefault()} style={{ color: "#e8820c" }}>
+                <span style={{ width: 8, height: 8, borderRadius: "50%", background: "#e8820c", flexShrink: 0 }} /> Advanced Track
               </a>
             </>
           )}
@@ -473,6 +474,9 @@ export default function Nav() {
           </Link>
           <Link href="/toolkit" className={`mobile-nav-item ${loc === "/toolkit" ? "active" : ""}`} onClick={() => setMobileMenuOpen(false)}>
             <Wrench size={16} style={{ color: THEME_COLOR }} /> Starter Toolkit
+          </Link>
+          <Link href="/services" className={`mobile-nav-item ${loc === "/services" ? "active" : ""}`} onClick={() => setMobileMenuOpen(false)}>
+            <BarChart2 size={16} style={{ color: THEME_COLOR }} /> Services & Offers
           </Link>
 
           <div className="mobile-section-label">Command Center</div>
