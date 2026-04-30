@@ -17,10 +17,10 @@ import PortfolioPage from "@/pages/portfolio";
 import SettingsPage from "@/pages/settings";
 import FAQPage from "@/pages/faq";
 import SystemsPage from "@/pages/systems";
-import ServicesPage from "@/pages/services";
 import Pricing from "@/pages/pricing";
 import PasswordPage from "@/pages/password-page";
 import AdminPage from "@/pages/admin";
+import ServicesPage from "@/pages/services";
 
 function hasBasic(user: any) {
   const levels = user?.licensedLevels || [];
