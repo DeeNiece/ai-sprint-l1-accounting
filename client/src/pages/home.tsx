@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState, useRef } from "react";
-import { Link, useSearch } from "wouter";
+import { Link } from "wouter";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import Nav from "@/components/nav";
@@ -71,14 +71,20 @@ const TOTAL_DAYS = 28;
 export default function HomePage() {
   const { t } = useLanguage();
   const { user } = useAuth();
-  const search = useSearch();
-  const urlLevel = new URLSearchParams(search).get("level") === "2" ? "2" : "1";
-  const [activeLevel, setActiveLevel] = useState<"1" | "2">(urlLevel);
+  const [activeLevel, setActiveLevel] = useState<"1" | "2">(() => {
+    try { return (localStorage.getItem("accounting_level") === "2" ? "2" : "1"); } catch { return "1"; }
+  });
 
-  // Sync with URL when it changes (nav level switcher)
+  // Listen for nav level switcher changes via storage event
   useEffect(() => {
-    setActiveLevel(urlLevel);
-  }, [urlLevel]);
+    const handler = (e: StorageEvent) => {
+      if (e.key === "accounting_level") {
+        setActiveLevel(e.newValue === "2" ? "2" : "1");
+      }
+    };
+    window.addEventListener("storage", handler);
+    return () => window.removeEventListener("storage", handler);
+  }, []);
   const [filter, setFilter] = useState<FilterType>("all");
   const [expandedWeek, setExpandedWeek] = useState<number | null>(1);
   const [animatedPct, setAnimatedPct] = useState(0);
