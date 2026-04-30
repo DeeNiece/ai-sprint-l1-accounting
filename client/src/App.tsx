@@ -8,7 +8,6 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { AuthProvider, useAuth } from "@/components/auth-provider";
 import { LanguageProvider } from "@/i18n";
 
-// Page Imports
 import AuthPage from "@/pages/auth";
 import HomePage from "@/pages/home";
 import LandingPage from "@/pages/landing";
@@ -18,118 +17,66 @@ import PortfolioPage from "@/pages/portfolio";
 import SettingsPage from "@/pages/settings";
 import FAQPage from "@/pages/faq";
 import SystemsPage from "@/pages/systems";
+import ServicesPage from "@/pages/services";
 import Pricing from "@/pages/pricing";
 import PasswordPage from "@/pages/password-page";
 import AdminPage from "@/pages/admin";
 
-// ✅ ProtectedRoute checks both login AND license
-// - No user → redirect to /auth
-// - Has user but no license for required level → redirect to /pricing
-// - requiresLevel is optional; omit it for routes that only need login (e.g. settings)
-function ProtectedRoute({
-  children,
-  requiresLevel,
-}: {
-  children: React.ReactNode;
-  requiresLevel?: string;
-}) {
+function hasBasic(user: any) {
+  const levels = user?.licensedLevels || [];
+  return levels.includes("accounting-basic") || levels.includes("accounting-bundle");
+}
+
+function hasAdvanced(user: any) {
+  const levels = user?.licensedLevels || [];
+  return levels.includes("accounting-advanced") || levels.includes("accounting-bundle");
+}
+
+function hasAnyLevel(user: any) {
+  return hasBasic(user) || hasAdvanced(user);
+}
+
+function ProtectedRoute({ children, requiresLevel }: { children: React.ReactNode; requiresLevel?: "basic" | "advanced" | "any" }) {
   const { user } = useAuth();
-
   if (!user) return <Redirect to="/auth" />;
-
-  if (requiresLevel && !user.licensedLevels?.includes(requiresLevel)) {
-    return <Redirect to="/pricing" />;
-  }
-
+  if (requiresLevel === "basic"    && !hasBasic(user))    return <Redirect to="/pricing" />;
+  if (requiresLevel === "advanced" && !hasAdvanced(user)) return <Redirect to="/pricing" />;
+  if (requiresLevel === "any"      && !hasAnyLevel(user)) return <Redirect to="/pricing" />;
   return <>{children}</>;
 }
 
 function AppRoutes() {
   const { user, loading } = useAuth();
 
-  // 🔒 AUTO-LOGOUT LOGIC: Clear cache only when browser/tab is truly closed (not on refresh)
   useEffect(() => {
-    const handleBeforeUnload = () => {
-      sessionStorage.setItem("isReloading", "true");
-    };
-    const handleUnload = () => {
-      if (!sessionStorage.getItem("isReloading")) {
-        localStorage.clear();
-        sessionStorage.clear();
-      } else {
-        sessionStorage.removeItem("isReloading");
-      }
-    };
-    sessionStorage.removeItem("isReloading");
-
-    window.addEventListener("beforeunload", handleBeforeUnload);
-    window.addEventListener("unload", handleUnload);
-    return () => {
-      window.removeEventListener("beforeunload", handleBeforeUnload);
-      window.removeEventListener("unload", handleUnload);
-    };
+    const handleUnload = () => { localStorage.clear(); sessionStorage.clear(); };
+    window.addEventListener("beforeunload", handleUnload);
+    return () => window.removeEventListener("beforeunload", handleUnload);
   }, []);
 
-  if (loading) {
-    return (
-      <div style={{ display: "flex", height: "100vh", alignItems: "center", justifyContent: "center", background: "#0a0a0c" }}>
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2" style={{ borderColor: "#0d7c8a" }}></div>
-      </div>
-    );
-  }
+  if (loading) return <div style={{ background: "#0a0a0c", height: "100vh" }} />;
 
   return (
     <LanguageProvider isLoggedIn={!!user}>
       <Router hook={useHashLocation}>
         <Switch>
-          {/* Public Routes */}
           <Route path="/auth" component={AuthPage} />
           <Route path="/faq" component={FAQPage} />
           <Route path="/pricing" component={Pricing} />
-
-          {/* CONDITIONAL ROOT: Landing Page for guests, Home for logged-in users */}
           <Route path="/">
-            {user ? <HomePage /> : <LandingPage />}
+            {!user ? <LandingPage /> : hasAnyLevel(user) ? <HomePage /> : <Redirect to="/pricing" />}
           </Route>
-
-          {/* These routes require login AND an accounting-basic license.
-              A user with no purchase will be redirected to /pricing. */}
-          <Route path="/systems">
-            <ProtectedRoute requiresLevel="accounting-basic"><SystemsPage /></ProtectedRoute>
-          </Route>
-          <Route path="/portfolio">
-            <ProtectedRoute requiresLevel="accounting-basic"><PortfolioPage /></ProtectedRoute>
-          </Route>
-          <Route path="/toolkit">
-            <ProtectedRoute requiresLevel="accounting-basic"><ToolkitPage /></ProtectedRoute>
-          </Route>
-          <Route path="/day/:dayNum">
-            <ProtectedRoute requiresLevel="accounting-basic"><DayPage /></ProtectedRoute>
-          </Route>
-
-          {/* Settings only require login, not a license */}
-          <Route path="/settings">
-            <ProtectedRoute><SettingsPage /></ProtectedRoute>
-          </Route>
-          <Route path="/settings/password">
-            <ProtectedRoute><PasswordPage /></ProtectedRoute>
-          </Route>
-
-          {/* Admin Access Control */}
+          <Route path="/systems"><ProtectedRoute requiresLevel="any"><SystemsPage /></ProtectedRoute></Route>
+          <Route path="/portfolio"><ProtectedRoute requiresLevel="any"><PortfolioPage /></ProtectedRoute></Route>
+          <Route path="/toolkit"><ProtectedRoute requiresLevel="any"><ToolkitPage /></ProtectedRoute></Route>
+          <Route path="/services"><ProtectedRoute requiresLevel="any"><ServicesPage /></ProtectedRoute></Route>
+          <Route path="/day/:dayParam"><ProtectedRoute requiresLevel="any"><DayPage /></ProtectedRoute></Route>
+          <Route path="/settings"><ProtectedRoute><SettingsPage /></ProtectedRoute></Route>
+          <Route path="/settings/password"><ProtectedRoute><PasswordPage /></ProtectedRoute></Route>
           <Route path="/admin">
-            {user?.isAdmin
-              ? <AdminPage />
-              : <div style={{ color: "white", padding: "100px", textAlign: "center" }}><h1>403</h1><p>Admin Required</p></div>
-            }
+            {user?.isAdmin ? <AdminPage /> : <div style={{ color: "white", padding: "100px", textAlign: "center" }}><h1>403</h1><p>Admin Required</p></div>}
           </Route>
-
-          {/* 404 Fallback */}
-          <Route>
-            <div style={{ color: "white", padding: "100px", textAlign: "center" }}>
-              <h1>404</h1>
-              <p>Page Not Found</p>
-            </div>
-          </Route>
+          <Route><div style={{ color: "white", padding: "100px", textAlign: "center" }}><h1>404</h1><p>Page Not Found</p></div></Route>
         </Switch>
       </Router>
     </LanguageProvider>
