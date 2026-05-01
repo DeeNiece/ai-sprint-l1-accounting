@@ -44,7 +44,6 @@ function AuthModal({ onClose }: { onClose: () => void }) {
         setLoading(false);
         return;
       }
-
       const res = await register(email, password, displayName);
       if (res) err = res.message || String(res);
     }
@@ -75,27 +74,33 @@ function AuthModal({ onClose }: { onClose: () => void }) {
           }}
         >
           <img src={logoImg} alt="AI Sprint" className="auth-logo-img" />
-          <div className="auth-tagline">Master Accounting. Leverage AI. Stay Ahead.</div>
+          <div className="auth-tagline" style={{ color: "#ddd" }}>
+            Master Accounting. Leverage AI. Stay Ahead.
+          </div>
         </div>
 
-        <h1 className="auth-heading">
+        {/* 
+          All text inside the modal now has explicit inline styles 
+          – no CSS classes can override these.
+        */}
+        <h1 className="auth-heading" style={{ color: "white", fontSize: "1.75rem", fontWeight: 800, marginBottom: "0.5rem", textAlign: "center" }}>
           {mode === "login" ? "Welcome Back to Accounting in the AI Era" : t("auth.createAccount")}
         </h1>
 
-        <p className="auth-subtext">
+        <p className="auth-subtext" style={{ color: "#ccc", marginBottom: "1.5rem", fontSize: "0.95rem", textAlign: "center" }}>
           {mode === "login" ? t("auth.loginSubtext") : t("auth.signupSubtext")}
         </p>
 
         {error && (
-          <div className="auth-error">
+          <div className="auth-error" style={{ color: "#ef4444", display: "flex", alignItems: "center", gap: "8px", marginBottom: "1rem" }}>
             <AlertCircle size={14} /> {error}
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="auth-form">
+        <form onSubmit={handleSubmit} className="auth-form" style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
           {mode === "register" && (
             <div className="auth-field">
-              <label htmlFor="modal-name">
+              <label htmlFor="modal-name" style={{ color: "white", display: "flex", alignItems: "center", gap: "6px", fontSize: "0.85rem", fontWeight: 600, marginBottom: "6px" }}>
                 <UserCircle size={14} /> {t("auth.nameLabel")}
               </label>
               <input
@@ -105,12 +110,21 @@ function AuthModal({ onClose }: { onClose: () => void }) {
                 onChange={(e) => setDisplayName(e.target.value)}
                 placeholder={t("auth.namePlaceholder")}
                 required
+                style={{
+                  width: "100%",
+                  padding: "12px",
+                  borderRadius: "8px",
+                  background: "rgba(0,0,0,0.3)",
+                  border: "1px solid rgba(255,255,255,0.1)",
+                  color: "white",
+                  outline: "none",
+                }}
               />
             </div>
           )}
 
           <div className="auth-field">
-            <label htmlFor="modal-email">
+            <label htmlFor="modal-email" style={{ color: "white", display: "flex", alignItems: "center", gap: "6px", fontSize: "0.85rem", fontWeight: 600, marginBottom: "6px" }}>
               <Mail size={14} /> {t("auth.emailLabel")}
             </label>
             <input
@@ -122,14 +136,23 @@ function AuthModal({ onClose }: { onClose: () => void }) {
               onChange={(e) => setEmail(e.target.value)}
               placeholder={t("auth.emailPlaceholder")}
               required
+              style={{
+                width: "100%",
+                padding: "12px",
+                borderRadius: "8px",
+                background: "rgba(0,0,0,0.3)",
+                border: "1px solid rgba(255,255,255,0.1)",
+                color: "white",
+                outline: "none",
+              }}
             />
           </div>
 
           <div className="auth-field">
-            <label htmlFor="modal-password">
+            <label htmlFor="modal-password" style={{ color: "white", display: "flex", alignItems: "center", gap: "6px", fontSize: "0.85rem", fontWeight: 600, marginBottom: "6px" }}>
               <Lock size={14} /> {t("auth.passwordLabel")}
             </label>
-            <div className="auth-pw-wrap">
+            <div className="auth-pw-wrap" style={{ position: "relative" }}>
               <input
                 id="modal-password"
                 type={showPw ? "text" : "password"}
@@ -142,19 +165,59 @@ function AuthModal({ onClose }: { onClose: () => void }) {
                 }
                 required
                 minLength={mode === "register" ? 6 : 1}
+                style={{
+                  width: "100%",
+                  padding: "12px",
+                  borderRadius: "8px",
+                  background: "rgba(0,0,0,0.3)",
+                  border: "1px solid rgba(255,255,255,0.1)",
+                  color: "white",
+                  outline: "none",
+                }}
               />
               <button
                 type="button"
                 className="pw-toggle"
                 onClick={() => setShowPw((s) => !s)}
                 aria-label="Toggle password visibility"
+                style={{
+                  position: "absolute",
+                  right: "12px",
+                  top: "50%",
+                  transform: "translateY(-50%)",
+                  background: "none",
+                  border: "none",
+                  color: "#aaa",
+                  cursor: "pointer",
+                }}
               >
                 {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>
             </div>
           </div>
 
-          <button type="submit" className="auth-submit" disabled={loading}>
+          <button
+            type="submit"
+            className="auth-submit"
+            disabled={loading}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: "8px",
+              padding: "12px",
+              background: "#3ab8c8",
+              color: "#000",
+              fontWeight: 800,
+              textTransform: "uppercase",
+              letterSpacing: "0.5px",
+              border: "none",
+              borderRadius: "8px",
+              cursor: loading ? "not-allowed" : "pointer",
+              marginTop: "10px",
+              boxShadow: "0 4px 14px rgba(58, 184, 200, 0.4)",
+            }}
+          >
             {loading
               ? t("auth.pleaseWait")
               : mode === "login"
@@ -172,11 +235,11 @@ function AuthModal({ onClose }: { onClose: () => void }) {
                   top: "-10px",
                   left: "50%",
                   transform: "translateX(-50%)",
-                  background: "rgba(255, 255, 255, 0.02)",
+                  background: "rgba(22, 23, 30, 0.8)",
                   backdropFilter: "blur(10px)",
                   padding: "0 10px",
                   fontSize: "0.75rem",
-                  color: "#888",
+                  color: "#ccc",
                   fontWeight: 600,
                 }}
               >
@@ -210,7 +273,7 @@ function AuthModal({ onClose }: { onClose: () => void }) {
           </div>
         </form>
 
-        <div className="auth-switch">
+        <div className="auth-switch" style={{ marginTop: "1.5rem", textAlign: "center", fontSize: "0.85rem", color: "#ccc" }}>
           {mode === "login" ? (
             <>
               <p>
@@ -221,20 +284,17 @@ function AuthModal({ onClose }: { onClose: () => void }) {
                     setMode("register");
                     setError(null);
                   }}
+                  style={{ background: "none", border: "none", color: "#3ab8c8", fontWeight: 700, cursor: "pointer", textDecoration: "underline", padding: 0 }}
                 >
                   {t("auth.signup")}
                 </button>
               </p>
 
-              <p style={{ marginTop: "0.75rem", fontSize: "0.85rem", color: "#888" }}>
+              <p style={{ marginTop: "0.75rem", fontSize: "0.85rem", color: "#aaa" }}>
                 Having trouble logging in?{" "}
                 <a
                   href="mailto:aisprint.app@outlook.com"
-                  style={{
-                    textDecoration: "underline",
-                    textUnderlineOffset: "2px",
-                    color: "inherit",
-                  }}
+                  style={{ textDecoration: "underline", textUnderlineOffset: "2px", color: "#ccc" }}
                 >
                   Contact Support
                 </a>
@@ -249,6 +309,7 @@ function AuthModal({ onClose }: { onClose: () => void }) {
                   setMode("login");
                   setError(null);
                 }}
+                style={{ background: "none", border: "none", color: "#3ab8c8", fontWeight: 700, cursor: "pointer", textDecoration: "underline", padding: 0 }}
               >
                 {t("auth.login")}
               </button>
@@ -260,7 +321,7 @@ function AuthModal({ onClose }: { onClose: () => void }) {
   );
 }
 
-// ── Contact Support Section ────────────────────────────────────
+// ── Contact Support Section (unchanged, but labels made lighter) ──
 function ContactSection() {
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -301,7 +362,6 @@ function ContactSection() {
       }}
     >
       <div style={{ maxWidth: 560, margin: "0 auto" }}>
-        {/* Header */}
         <div style={{ textAlign: "center", marginBottom: 40 }}>
           <div
             style={{
@@ -344,7 +404,6 @@ function ContactSection() {
           </p>
         </div>
 
-        {/* Success state */}
         {submitted ? (
           <div
             style={{
@@ -379,7 +438,6 @@ function ContactSection() {
             </button>
           </div>
         ) : (
-          // Contact form
           <form
             onSubmit={handleSubmit}
             style={{
@@ -392,13 +450,11 @@ function ContactSection() {
               gap: 18,
             }}
           >
-            {/* Web3Forms access key & recipient */}
             <input type="hidden" name="access_key" value="9354c53d-f37d-4c31-845b-88286c03d1d4" />
             <input type="hidden" name="to" value="aisprint.app@outlook.com" />
             <input type="hidden" name="subject" value="Accounting Sprint Support Request" />
             <input type="hidden" name="from_name" value="AI Sprint Accounting Landing Page" />
 
-            {/* Error banner */}
             {error && (
               <div
                 style={{
@@ -417,11 +473,10 @@ function ContactSection() {
               </div>
             )}
 
-            {/* Name */}
             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
               <label
                 htmlFor="contact-name"
-                style={{ fontSize: "0.8rem", fontWeight: 600, color: "#aaa", display: "flex", alignItems: "center", gap: 6 }}
+                style={{ fontSize: "0.8rem", fontWeight: 600, color: "#ddd", display: "flex", alignItems: "center", gap: 6 }}
               >
                 <UserCircle size={13} /> Your Name
               </label>
@@ -445,11 +500,10 @@ function ContactSection() {
               />
             </div>
 
-            {/* Email */}
             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
               <label
                 htmlFor="contact-email"
-                style={{ fontSize: "0.8rem", fontWeight: 600, color: "#aaa", display: "flex", alignItems: "center", gap: 6 }}
+                style={{ fontSize: "0.8rem", fontWeight: 600, color: "#ddd", display: "flex", alignItems: "center", gap: 6 }}
               >
                 <Mail size={13} /> Your Email
               </label>
@@ -473,11 +527,10 @@ function ContactSection() {
               />
             </div>
 
-            {/* Message */}
             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
               <label
                 htmlFor="contact-message"
-                style={{ fontSize: "0.8rem", fontWeight: 600, color: "#aaa" }}
+                style={{ fontSize: "0.8rem", fontWeight: 600, color: "#ddd" }}
               >
                 Message
               </label>
@@ -504,7 +557,6 @@ function ContactSection() {
               />
             </div>
 
-            {/* Submit */}
             <button
               type="submit"
               disabled={submitting}
@@ -688,7 +740,6 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ✅ NEW: Contact Support Section */}
       <ContactSection />
 
       <section className="lp-cta-section">
