@@ -272,9 +272,9 @@ export default function Nav() {
       <header className="nav-header">
         <div className="nav-inner" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%" }}>
           
-          {/* LEFT: Logo */}
+          {/* LEFT: Logo — now links to home page "/" */}
           <div style={{ flex: 1, display: "flex", justifyContent: "flex-start" }}>
-            <Link href={`/day/L${activeLevel}-1`} className="nav-logo">
+            <Link href="/" className="nav-logo">
               <img src={logoImg} alt="AI Sprint" className="nav-logo-img" />
               <div className="nav-logo-sub" style={{ fontSize: "var(--text-xs)", color: "var(--color-text-muted)", fontWeight: 700 }}>
                 Accounting · {LEVEL_LABEL.replace(" Track", "")}
@@ -284,7 +284,8 @@ export default function Nav() {
 
           {/* CENTER: Main Nav (desktop only) */}
           <nav className="nav-links" style={{ flex: 1, display: "flex", justifyContent: "center", gap: "24px" }}>
-            <Link href={`/day/L${activeLevel}-1`} className={`nav-link ${location.startsWith("/day") ? "active" : ""}`}>{t("nav.journey")}</Link>
+            {/* Journey link — now points to home page "/" */}
+            <Link href="/" className={`nav-link ${location === "/" ? "active" : ""}`}>{t("nav.journey")}</Link>
 
             {/* THE BLUEPRINT DROPDOWN */}
             <div style={{ position: 'relative' }}>
@@ -425,7 +426,7 @@ export default function Nav() {
 
         {/* Header */}
         <div className="mobile-drawer-header">
-          <Link href={`/day/L${activeLevel}-1`} className="nav-logo" onClick={() => setMobileMenuOpen(false)}>
+          <Link href="/" className="nav-logo" onClick={() => setMobileMenuOpen(false)}>
             <img src={logoImg} alt="AI Sprint" className="nav-logo-img" />
             <div style={{ fontSize: "var(--text-xs)", color: "var(--color-text-muted)", fontWeight: 700 }}>
               Accounting · {LEVEL_LABEL.replace(" Track", "")}
@@ -449,7 +450,7 @@ export default function Nav() {
           )}
 
           <div className="mobile-section-label">Navigation</div>
-          <Link href={`/day/L${activeLevel}-1`} className={`mobile-nav-item ${location.startsWith("/day") ? "active" : ""}`} onClick={() => setMobileMenuOpen(false)}>
+          <Link href="/" className={`mobile-nav-item ${location === "/" ? "active" : ""}`} onClick={() => setMobileMenuOpen(false)}>
             <LayoutDashboard size={16} /> {t("nav.journey")}
           </Link>
 
