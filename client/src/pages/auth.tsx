@@ -110,7 +110,7 @@ export default function AuthPage() {
         <h1 style={{ fontSize: "1.75rem", fontWeight: 800, marginBottom: "0.5rem", color: "white", textAlign: "center" }}>
           {mode === "login" ? "Welcome Back to Level 1" : t("auth.createAccount")}
         </h1>
-        <p style={{ color: "#888", marginBottom: "1.5rem", fontSize: "0.95rem", textAlign: "center" }}>
+        <p style={{ color: "white", marginBottom: "1.5rem", fontSize: "0.95rem", textAlign: "center" }}>
           {mode === "login" ? "Log in to continue your AI learning journey." : t("auth.signupSubtext")}
         </p>
 
@@ -152,7 +152,7 @@ export default function AuthPage() {
           )}
 
           <div>
-            <label style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "0.85rem", fontWeight: 600, color: "#aaa", marginBottom: "6px" }}>
+            <label style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "0.85rem", fontWeight: 600, color: "white", marginBottom: "6px" }}>
               <Mail size={14} /> {t("auth.emailLabel")}
             </label>
             <input
@@ -166,7 +166,7 @@ export default function AuthPage() {
           </div>
 
           <div>
-            <label style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "0.85rem", fontWeight: 600, color: "#aaa", marginBottom: "6px" }}>
+            <label style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "0.85rem", fontWeight: 600, color: "white", marginBottom: "6px" }}>
               <Lock size={14} /> {t("auth.passwordLabel")}
             </label>
             <div style={{ position: "relative" }}>
