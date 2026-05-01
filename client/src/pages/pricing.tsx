@@ -5,18 +5,17 @@ import { CheckCircle2, Zap, Lock, Star, BookOpen, CreditCard, Wallet, Mail, Send
 
 // ── USD base prices (cents for Stripe, display only here) ────────────────────
 const USD_PRICES: Record<string, number> = {
-  "accounting-basic":    10,
-  "accounting-advanced": 15,
-  "accounting-bundle":   22,
+  "accounting-basic":    25,
+  "accounting-advanced": 40,
+  "accounting-bundle":   55,
 };
 
 // ── PayMongo fixed PHP amounts (centavos) — always used for actual checkout ──
 // These are the authoritative amounts sent to PayMongo.
-// The live rate below is display-only to show the approximate PHP equivalent.
 const PAYMONGO_PHP_FIXED: Record<string, number> = {
-  "accounting-basic":    58000,
-  "accounting-advanced": 87000,
-  "accounting-bundle":   127600,
+  "accounting-basic":    145000, // 25 USD * 5800 centavos = 145,000 centavos (₱1,450)
+  "accounting-advanced": 232000, // 40 USD * 5800 = 232,000 centavos (₱2,320)
+  "accounting-bundle":   319000, // 55 USD * 5800 = 319,000 centavos (₱3,190)
 };
 
 function formatPhp(amount: number) {
@@ -34,7 +33,6 @@ function useUsdToPhp() {
     setLoading(true);
     setError(false);
     try {
-      // Free tier — no API key needed, updates every 24h
       const res  = await fetch("https://open.er-api.com/v6/latest/USD");
       const data = await res.json();
       if (data?.rates?.PHP) {
@@ -66,7 +64,7 @@ const PLANS = [
     level: "accounting-basic",
     name: "Basic",
     subtitle: "28-Day Challenge",
-    usd: 10,
+    usd: 25,
     color: "#0d7c8a",
     colorLight: "#0d7c8a22",
     icon: <BookOpen size={22} />,
@@ -84,7 +82,7 @@ const PLANS = [
     level: "accounting-advanced",
     name: "Advanced",
     subtitle: "28-Day Challenge",
-    usd: 15,
+    usd: 40,
     color: "#7a5fc0",
     colorLight: "#7a5fc022",
     icon: <Zap size={22} />,
@@ -100,10 +98,10 @@ const PLANS = [
   },
 ];
 
-const BUNDLE_USD     = 22;
-const BUNDLE_ORIG_USD = 25;
+const BUNDLE_USD     = 55;
+const BUNDLE_ORIG_USD = 65;
 
-// ── Contact Support Section ───────────────────────────────────────────────────
+// ── Contact Support Section (unchanged, just updated theme colour) ───────────
 function ContactSection() {
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -193,7 +191,7 @@ function ContactSection() {
   );
 }
 
-// ── Live rate badge ───────────────────────────────────────────────────────────
+// ── Live rate badge (unchanged) ──────────────────────────────────────────────
 function RateBadge({ rate, loading, error, lastUpdated, refetch }: {
   rate: number | null;
   loading: boolean;
@@ -240,11 +238,9 @@ export default function PricingPage() {
 
   const licensed = user?.licensedLevels || [];
 
-  // Convert USD to live PHP (display only — PayMongo uses fixed centavo amounts)
   function livePhp(usd: number): string {
     if (!rate) {
-      // Fall back to fixed PayMongo amounts converted to display
-      const fixedMap: Record<number, number> = { 10: 580, 15: 870, 22: 1276, 25: 1450 };
+      const fixedMap: Record<number, number> = { 25: 1450, 40: 2320, 55: 3190, 65: 3770 };
       return formatPhp(fixedMap[usd] ?? usd * 56);
     }
     return formatPhp(Math.round(usd * rate));
@@ -288,7 +284,6 @@ export default function PricingPage() {
             Pay once. Learn at your own pace. No subscriptions, no renewals.
           </p>
 
-          {/* Live rate badge */}
           <div style={{ display: "flex", justifyContent: "center", marginTop: 12 }}>
             <RateBadge
               rate={rate}
@@ -310,7 +305,7 @@ export default function PricingPage() {
           )}
         </div>
 
-        {/* ── Bundle card ───────────────────────────────────────────────── */}
+        {/* ── Bundle card ── */}
         <div className="bundle-card">
           <div className="bundle-badge"><Star size={14} /> Best Value</div>
           <div className="bundle-content">
@@ -328,12 +323,9 @@ export default function PricingPage() {
                 <span className="bundle-amount">${BUNDLE_USD}</span>
                 <span className="bundle-original">${BUNDLE_ORIG_USD}</span>
               </div>
-
-              {/* Live PHP equivalent */}
               <div style={{ fontSize: "0.82rem", color: "#aaa", marginTop: 4, marginBottom: 4 }}>
                 ≈ {livePhp(BUNDLE_USD)} <span style={{ color: "#666", fontSize: "0.72rem" }}>(live rate)</span>
               </div>
-
               <div className="bundle-save">
                 Save ${BUNDLE_ORIG_USD - BUNDLE_USD}{" "}
                 <span className="bundle-pct">· {Math.round((1 - BUNDLE_USD / BUNDLE_ORIG_USD) * 100)}% off</span>
@@ -372,7 +364,7 @@ export default function PricingPage() {
           </div>
         </div>
 
-        {/* ── Individual plan cards ─────────────────────────────────────── */}
+        {/* ── Individual plan cards ── */}
         <div className="pricing-grid">
           {PLANS.map((plan) => {
             const isOwned = licensed.includes(plan.level) || ownsBundle;
@@ -393,18 +385,12 @@ export default function PricingPage() {
                 </div>
                 <div className="plan-name" style={{ color: plan.color }}>{plan.name}</div>
                 <div className="plan-subtitle">{plan.subtitle}</div>
-
-                {/* USD price */}
                 <div className="plan-price">${plan.usd}</div>
-
-                {/* Live PHP equivalent */}
                 <div style={{ fontSize: "0.8rem", color: "#888", marginBottom: 2 }}>
                   ≈ {livePhp(plan.usd)}{" "}
                   <span style={{ fontSize: "0.7rem", color: "#555" }}>(live rate)</span>
                 </div>
-
                 <div className="plan-price-note">one-time · no refunds</div>
-
                 <ul className="plan-features" style={{ marginBottom: 25 }}>
                   {plan.features.map((f, i) => (
                     <li key={i}>
@@ -413,7 +399,6 @@ export default function PricingPage() {
                     </li>
                   ))}
                 </ul>
-
                 <div style={{ marginTop: "auto" }}>
                   {isOwned ? (
                     <div className="plan-owned-btn"><CheckCircle2 size={16} /> Owned</div>
