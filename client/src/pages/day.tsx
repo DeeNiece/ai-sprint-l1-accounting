@@ -162,21 +162,30 @@ export default function DayPage({ params: propParams }: DayPageProps) {
   const { t } = useLanguage();
   const { blockedTools, countryCode } = useRegion();
 
-  // --- Robust param handling ---
+  // --- Parameter handling: support both "/day/1" and "/day/L1-1" ---
   const [match, routeParams] = useRoute("/day/:dayNum");
   const activeParams = propParams?.dayNum ? propParams : routeParams;
   const rawDayNum = activeParams?.dayNum ?? "1";
-  const dayNum = parseInt(rawDayNum, 10);
 
-  // --- Debug logs (remove after fixing) ---
+  // Extract numeric day from strings like "L1-1" or simply "1"
+  let dayNum: number;
+  if (rawDayNum.includes("-")) {
+    const parts = rawDayNum.split("-");
+    dayNum = parseInt(parts[parts.length - 1], 10);
+  } else {
+    dayNum = parseInt(rawDayNum, 10);
+  }
+  // Fallback to 1 if still NaN
+  if (isNaN(dayNum)) dayNum = 1;
+
+  // Optional debug logs (remove in production)
   useEffect(() => {
     console.log("🔍 DayPage mounted");
     console.log("📦 curriculum length:", curriculum?.length);
     console.log("🔢 dayNum from params:", dayNum, "(raw:", rawDayNum, ")");
-    console.log("📖 sample day from curriculum:", curriculum?.[0]);
     if (curriculum?.length === 0) {
       console.error(
-        "❌ curriculum is empty – import from @/data/curriculum failed. Check alias or file location."
+        "❌ curriculum is empty – import from @/data/curriculum failed."
       );
     }
   }, [dayNum, rawDayNum]);
@@ -195,13 +204,13 @@ export default function DayPage({ params: propParams }: DayPageProps) {
     setDismissReminder(false);
   }, [dayNum]);
 
-  // --- Find current day and neighbours ---
+  // Find current day and neighbours
   const day = curriculum?.find((d) => d.day === dayNum);
   const prevDay = curriculum?.find((d) => d.day === dayNum - 1);
   const nextDay = curriculum?.find((d) => d.day === dayNum + 1);
   const weekOverview = day ? weekOverviews?.[day.week - 1] : null;
 
-  // --- Week groups for sidebar (move inside component to avoid empty curriculum at module level) ---
+  // Week groups for sidebar
   const weekGroups = [1, 2, 3, 4].map((w) => ({
     week: w,
     days: curriculum?.filter((d) => d.week === w) ?? [],
@@ -289,7 +298,7 @@ export default function DayPage({ params: propParams }: DayPageProps) {
     document.getElementById("completion-card")?.scrollIntoView({ behavior: "smooth", block: "center" });
   };
 
-  // --- Improved error handling ---
+  // Error: curriculum not loaded
   if (!curriculum || curriculum.length === 0) {
     return (
       <div className="page-wrap">
@@ -309,6 +318,7 @@ export default function DayPage({ params: propParams }: DayPageProps) {
     );
   }
 
+  // Error: day not found
   if (!day) {
     return (
       <div className="page-wrap">
