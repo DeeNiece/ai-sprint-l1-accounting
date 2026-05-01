@@ -58,7 +58,7 @@ function FAQSection({ title, icon, items }: { title: string; icon: React.ReactNo
   );
 }
 
-// ✅ NEW: Matches the same Web3Forms contact block used on landing.tsx
+// Matches the same Web3Forms contact block used on landing.tsx
 function ContactSupportForm() {
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -199,6 +199,7 @@ export default function FAQPage() {
       icon: <MessageSquare size={18} color="#0d7c8a" />,
       items: [
         { q: t("faq.q4"), a: t("faq.a4") },
+        { q: t("faq.q_promptlab"), a: t("faq.a_promptlab") }, // ✅ New PromptLab item
         { q: t("faq.q5"), a: t("faq.a5") },
         { q: t("faq.q6"), a: t("faq.a6") },
       ],
@@ -296,7 +297,7 @@ export default function FAQPage() {
 
         <hr style={{ border: "none", borderTop: "1px solid rgba(255,255,255,0.08)", margin: "4rem 0" }} />
 
-        {/* ✅ NEW: Contact Support — same style as landing.tsx */}
+        {/* Contact Support */}
         <section style={{ marginBottom: "4rem" }}>
           <h2 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '6px', display: 'flex', alignItems: 'center', gap: '8px', color: "white" }}>
             <Mail size={20} color="#0d7c8a" /> Contact Support
