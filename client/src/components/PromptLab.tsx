@@ -12,27 +12,40 @@ export default function PromptLab({ dayTitle, badExample, goodExample }: PromptL
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // ✨ NEW: Reset results and errors whenever the day changes
   useEffect(() => {
     setResults(null);
     setError(null);
   }, [dayTitle]);
 
+  // Only modify the GOOD prompt – add a formatting instruction.
+  // The lazy prompt stays completely unchanged.
+  const formatGoodPrompt = (prompt: string) => {
+    // Remove any existing conflicting instructions (optional, but safe)
+    let cleaned = prompt;
+    // Append the desired formatting
+    cleaned += "\n\nPlease format your answer as indented paragraphs, each starting with a step word like 'First', 'Next', 'Then', 'Finally'. Do not use bullet points, numbered lists, markdown, or headings. Use plain text only.";
+    return cleaned;
+  };
+
   async function runComparison() {
     setLoading(true);
     setError(null);
+
+    const lazyPrompt = badExample;        // unchanged
+    const goodPromptFormatted = formatGoodPrompt(goodExample);
+
     try {
       const [resA, resB] = await Promise.all([
         fetch("/api/settings/test", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ useSaved: true, customPrompt: badExample }),
+          body: JSON.stringify({ useSaved: true, customPrompt: lazyPrompt }),
         }),
         fetch("/api/settings/test", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ useSaved: true, customPrompt: goodExample }),
-        })
+          body: JSON.stringify({ useSaved: true, customPrompt: goodPromptFormatted }),
+        }),
       ]);
 
       const dataA = await resA.json();
@@ -66,14 +79,12 @@ export default function PromptLab({ dayTitle, badExample, goodExample }: PromptL
         </button>
       </div>
 
-      {/* New: cost info in italics */}
+      {/* Cost info and API key notice (unchanged) */}
       <p style={{ fontSize: '0.85rem', fontStyle: 'italic', color: '#888', marginBottom: '0.5rem', marginTop: 0, lineHeight: '1.4' }}>
         A typical conversation with the AI Coach (5 back-and-forth messages) costs about $0.001 — that's one-tenth of a cent. Even $2 of credit could last you through the entire 28-day course with heavy usage.
       </p>
-
-      {/* Existing API key notice */}
       <p style={{ fontSize: '0.85rem', fontStyle: 'italic', color: '#888', marginBottom: '1.5rem', marginTop: 0, lineHeight: '1.4' }}>
-        *If you don’t have (or don’t want to use) an API key, you can still run these examples by copy and pasting each sample prompt into your preferred AI chat tool and comparing the results there.
+        *If you don't have (or don't want to use) an API key, you can still run these examples by copy and pasting each sample prompt into your preferred AI chat tool and comparing the results there.
       </p>
 
       {error && (
@@ -83,18 +94,18 @@ export default function PromptLab({ dayTitle, badExample, goodExample }: PromptL
       )}
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1rem' }}>
-        {/* Bad Side */}
+        {/* Bad Side – unchanged prompt */}
         <div style={{ background: 'rgba(0,0,0,0.2)', padding: '1rem', borderRadius: '8px', border: '1px solid rgba(239,68,68,0.2)' }}>
           <div style={{ color: '#ef4444', fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', marginBottom: '0.5rem' }}>The "Lazy" Prompt</div>
           <div style={{ fontStyle: 'italic', fontSize: '0.9rem', color: 'var(--color-muted)', marginBottom: '1rem' }}>"{badExample}"</div>
-          {results && <div style={{ fontSize: '0.85rem', padding: '0.75rem', background: 'rgba(0,0,0,0.2)', borderRadius: '4px', borderLeft: '3px solid #ef4444' }}>{results.a}</div>}
+          {results && <div style={{ fontSize: '0.85rem', padding: '0.75rem', background: 'rgba(0,0,0,0.2)', borderRadius: '4px', borderLeft: '3px solid #ef4444', whiteSpace: 'pre-wrap' }}>{results.a}</div>}
         </div>
 
-        {/* Good Side */}
+        {/* Good Side – with added formatting instruction */}
         <div style={{ background: 'rgba(0,0,0,0.2)', padding: '1rem', borderRadius: '8px', border: '1px solid rgba(34,197,94,0.2)' }}>
           <div style={{ color: '#22c55e', fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', marginBottom: '0.5rem' }}>The AI Sprint Prompt</div>
           <div style={{ fontStyle: 'italic', fontSize: '0.9rem', color: 'var(--color-muted)', marginBottom: '1rem' }}>"{goodExample}"</div>
-          {results && <div style={{ fontSize: '0.85rem', padding: '0.75rem', background: 'rgba(0,0,0,0.2)', borderRadius: '4px', borderLeft: '3px solid #22c55e' }}>{results.b}</div>}
+          {results && <div style={{ fontSize: '0.85rem', padding: '0.75rem', background: 'rgba(0,0,0,0.2)', borderRadius: '4px', borderLeft: '3px solid #22c55e', whiteSpace: 'pre-wrap' }}>{results.b}</div>}
         </div>
       </div>
 
