@@ -19,12 +19,15 @@ export default function PromptLab({ dayTitle, badExample, goodExample }: PromptL
 
   // Only modify the GOOD prompt – add a formatting instruction.
   // The lazy prompt stays completely unchanged.
+  // Only modify the GOOD prompt – add a formatting instruction at the START
   const formatGoodPrompt = (prompt: string) => {
-    // Remove any existing conflicting instructions (optional, but safe)
-    let cleaned = prompt;
-    // Append the desired formatting
-    cleaned += "\n\nPlease format your answer as indented paragraphs, each starting with a step word like 'First', 'Next', 'Then', 'Finally'. Do not use bullet points, numbered lists, markdown, or headings. Use plain text only.";
-    return cleaned;
+    const formattingInstruction = 
+    "IMPORTANT: Format your answer as separate paragraphs, each starting with a step word like 'First', 'Next', 'Then', 'Finally'. " +
+    "Each step must be on its own line, indented with two spaces. " +
+    "Use a blank line between steps. Do not use bullet points, numbered lists, markdown, headings, or asterisks. " +
+    "Only plain text with indented paragraphs.\n\n";
+  
+    return formattingInstruction + prompt;
   };
 
   async function runComparison() {
