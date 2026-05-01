@@ -3,7 +3,12 @@ import { Link, useRoute } from "wouter";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import Nav from "@/components/nav";
-import { curriculum, weekOverviews } from "@/data/curriculum";
+import {
+  curriculumL1,
+  curriculumL2,
+  weekOverviewsL1,
+  weekOverviewsL2,
+} from "@/data/curriculum";
 import type { DayProgress } from "@shared/schema";
 import {
   CheckCircle2,
@@ -24,7 +29,7 @@ import { useLanguage } from "@/i18n";
 import { useRegion, isToolBlocked, getAlternatives } from "@/hooks/useRegion";
 import PromptLab from "@/components/PromptLab";
 
-// Floating 3D Celebration Component (Tailored for Level 1 TEAL Theme)
+// Floating Celebration Component (same as before)
 function FloatingCelebration({
   message,
   subMessage,
@@ -73,14 +78,9 @@ function FloatingCelebration({
           text-transform: uppercase;
           letter-spacing: 2px;
           color: #fff;
-          text-shadow: 
-            0 1px 0 #0b636e,
-            0 2px 0 #0b636e,
-            0 3px 0 #094f58,
-            0 4px 0 #094f58,
-            0 5px 0 #063b42,
-            0 6px 10px rgba(0,0,0,0.5),
-            0 15px 20px rgba(13, 124, 138, 0.5);
+          text-shadow: 0 1px 0 #0b636e, 0 2px 0 #0b636e, 0 3px 0 #094f58,
+            0 4px 0 #094f58, 0 5px 0 #063b42, 0 6px 10px rgba(0,0,0,0.5),
+            0 15px 20px rgba(13,124,138,0.5);
           margin-bottom: 1rem;
           line-height: 1.1;
         }
@@ -98,7 +98,7 @@ function FloatingCelebration({
           inset: 0;
           z-index: 9998;
           pointer-events: none;
-          background: radial-gradient(circle at center, rgba(13, 124, 138, 0.2) 0%, transparent 60%);
+          background: radial-gradient(circle at center, rgba(13,124,138,0.2) 0%, transparent 60%);
           animation: fadeInOut 5s ease-in-out forwards;
         }
         @keyframes fadeInOut {
@@ -127,7 +127,7 @@ type DayPageProps = {
   };
 };
 
-// Level 1 Primary Colors
+// Level 1 & Level 2 colors (extend as needed)
 const categoryColors: Record<string, string> = {
   Foundations: "#0d7c8a",
   Bookkeeping: "#2f6fa8",
@@ -135,6 +135,11 @@ const categoryColors: Record<string, string> = {
   "Tax & Compliance": "#c07a2f",
   "Controls & Ethics": "#2f8c5c",
   Mixed: "#8c4a2f",
+  // Level 2 categories (optional mappings)
+  Strategy: "#e8820c",
+  Workflows: "#c4620a",
+  "Controls & Governance": "#a0510a",
+  Advisory: "#7a3e08",
 };
 
 function getWhatYouLearned(day: {
@@ -145,16 +150,10 @@ function getWhatYouLearned(day: {
 }): string[] {
   const bullets: string[] = [];
   const summaryParts = day.summary.split(". ");
-
-  if (summaryParts[0]) {
-    bullets.push(summaryParts[0].trim().replace(/\.$/, "") + ".");
-  }
-  if (summaryParts[1]) {
-    bullets.push(summaryParts[1].trim().replace(/\.$/, "") + ".");
-  }
-  if (day.tools.length > 0) {
+  if (summaryParts[0]) bullets.push(summaryParts[0].trim().replace(/\.$/, "") + ".");
+  if (summaryParts[1]) bullets.push(summaryParts[1].trim().replace(/\.$/, "") + ".");
+  if (day.tools.length > 0)
     bullets.push(`Practiced using: ${day.tools.slice(0, 3).join(", ")}.`);
-  }
   return bullets.slice(0, 3);
 }
 
@@ -162,33 +161,39 @@ export default function DayPage({ params: propParams }: DayPageProps) {
   const { t } = useLanguage();
   const { blockedTools, countryCode } = useRegion();
 
-  // --- Parameter handling: support both "/day/1" and "/day/L1-1" ---
+  // --- Parse level and day number from URL like "/day/L1-1" or "/day/L2-5" ---
   const [match, routeParams] = useRoute("/day/:dayNum");
   const activeParams = propParams?.dayNum ? propParams : routeParams;
-  const rawDayNum = activeParams?.dayNum ?? "1";
+  const rawParam = activeParams?.dayNum ?? "1";
 
-  // Extract numeric day from strings like "L1-1" or simply "1"
-  let dayNum: number;
-  if (rawDayNum.includes("-")) {
-    const parts = rawDayNum.split("-");
-    dayNum = parseInt(parts[parts.length - 1], 10);
+  let level: 1 | 2 = 1;
+  let dayNum = 1;
+
+  if (rawParam.includes("-")) {
+    const parts = rawParam.split("-");
+    const levelPart = parts[0].toUpperCase();
+    if (levelPart === "L1") level = 1;
+    else if (levelPart === "L2") level = 2;
+    dayNum = parseInt(parts[1], 10);
   } else {
-    dayNum = parseInt(rawDayNum, 10);
+    dayNum = parseInt(rawParam, 10);
   }
-  // Fallback to 1 if still NaN
   if (isNaN(dayNum)) dayNum = 1;
 
-  // Optional debug logs (remove in production)
-  useEffect(() => {
-    console.log("🔍 DayPage mounted");
-    console.log("📦 curriculum length:", curriculum?.length);
-    console.log("🔢 dayNum from params:", dayNum, "(raw:", rawDayNum, ")");
-    if (curriculum?.length === 0) {
-      console.error(
-        "❌ curriculum is empty – import from @/data/curriculum failed."
-      );
-    }
-  }, [dayNum, rawDayNum]);
+  // Select correct curriculum and week overviews based on level
+  const curriculum = level === 1 ? curriculumL1 : curriculumL2;
+  const weekOverviews = level === 1 ? weekOverviewsL1 : weekOverviewsL2;
+
+  const day = curriculum.find((d) => d.day === dayNum);
+  const prevDay = curriculum.find((d) => d.day === dayNum - 1);
+  const nextDay = curriculum.find((d) => d.day === dayNum + 1);
+  const weekOverview = day ? weekOverviews[day.week - 1] : null;
+
+  const weekGroups = [1, 2, 3, 4].map((w) => ({
+    week: w,
+    days: curriculum.filter((d) => d.week === w),
+    overview: weekOverviews[w - 1],
+  }));
 
   const [quizPassed, setQuizPassed] = useState(false);
   const [showLevelUp, setShowLevelUp] = useState(false);
@@ -202,25 +207,13 @@ export default function DayPage({ params: propParams }: DayPageProps) {
     window.scrollTo(0, 0);
     setQuizPassed(false);
     setDismissReminder(false);
-  }, [dayNum]);
-
-  // Find current day and neighbours
-  const day = curriculum?.find((d) => d.day === dayNum);
-  const prevDay = curriculum?.find((d) => d.day === dayNum - 1);
-  const nextDay = curriculum?.find((d) => d.day === dayNum + 1);
-  const weekOverview = day ? weekOverviews?.[day.week - 1] : null;
-
-  // Week groups for sidebar
-  const weekGroups = [1, 2, 3, 4].map((w) => ({
-    week: w,
-    days: curriculum?.filter((d) => d.week === w) ?? [],
-    overview: weekOverviews?.[w - 1],
-  }));
+  }, [dayNum, level]);
 
   const { data: progressData = [] } = useQuery<DayProgress[]>({
     queryKey: ["/api/progress"],
   });
 
+  // Progress is currently not level-aware; you may extend later.
   const progressMap = new Map(progressData.map((p) => [p.dayNumber, p.completed]));
   const done = !!progressMap.get(dayNum);
   const completedCount = progressData.filter((p) => p.completed).length;
@@ -234,10 +227,11 @@ export default function DayPage({ params: propParams }: DayPageProps) {
       if (variables.completed && (window as any).confetti) {
         const newCount = completedCount + 1;
 
-        if (dayNum === 28) {
+        // Celebrations (customizable per level)
+        if (level === 1 && dayNum === 28) {
           setCelebrationMsg({
             main: "BASIC COMPLETE!",
-            sub: "Congratulations! You have completed the 28-day Basic Accounting challenge. You are ready for the Advanced track.",
+            sub: "Congratulations! You have completed the Basic track. Ready for Advanced?",
           });
           (window as any).confetti({
             particleCount: 400,
@@ -245,10 +239,21 @@ export default function DayPage({ params: propParams }: DayPageProps) {
             origin: { y: 0.4 },
             colors: ["#0d7c8a", "#14b8a6", "#ffffff"],
           });
-        } else if (dayNum === 1) {
+        } else if (level === 2 && dayNum === 28) {
+          setCelebrationMsg({
+            main: "ADVANCED MASTER!",
+            sub: "You've mastered Advanced Accounting with AI. Exceptional work!",
+          });
+          (window as any).confetti({
+            particleCount: 500,
+            spread: 180,
+            origin: { y: 0.4 },
+            colors: ["#e8820c", "#14b8a6", "#ffffff"],
+          });
+        } else if (dayNum === 1 && level === 1) {
           setCelebrationMsg({
             main: "CHALLENGE UNLOCKED!",
-            sub: "Welcome to Mastering Accounting in 28 Days. 15 minutes a day to build your AI-ready accounting skills. Let's go.",
+            sub: "Welcome to Mastering Accounting in 28 Days. Let's go.",
           });
           (window as any).confetti({
             particleCount: 150,
@@ -259,7 +264,7 @@ export default function DayPage({ params: propParams }: DayPageProps) {
         } else if (dayNum % 7 === 0) {
           setCelebrationMsg({
             main: "WEEK COMPLETE!",
-            sub: "You just finished this week's foundation lessons. Keep the momentum going!",
+            sub: "Keep the momentum going!",
           });
           (window as any).confetti({
             particleCount: 200,
@@ -270,7 +275,7 @@ export default function DayPage({ params: propParams }: DayPageProps) {
         } else if (dayNum % 7 === 3 || dayNum % 7 === 6) {
           setCelebrationMsg({
             main: "GREAT PROGRESS!",
-            sub: "You're building solid habits. Keep up the excellent work!",
+            sub: "You're building solid habits.",
           });
           (window as any).confetti({
             particleCount: 120,
@@ -295,21 +300,18 @@ export default function DayPage({ params: propParams }: DayPageProps) {
   });
 
   const scrollToCompletion = () => {
-    document.getElementById("completion-card")?.scrollIntoView({ behavior: "smooth", block: "center" });
+    document
+      .getElementById("completion-card")
+      ?.scrollIntoView({ behavior: "smooth", block: "center" });
   };
 
-  // Error: curriculum not loaded
+  // Error: no curriculum (should not happen)
   if (!curriculum || curriculum.length === 0) {
     return (
       <div className="page-wrap">
         <Nav />
         <div className="not-found" style={{ textAlign: "center", padding: "100px 20px" }}>
           <h2 style={{ color: "white" }}>⚠️ Curriculum data not loaded</h2>
-          <p style={{ color: "#ccc", marginTop: "10px" }}>
-            The import from <code>@/data/curriculum</code> returned an empty array.
-            <br />
-            Check that the file exists at <code>src/data/curriculum.ts</code> and that your path alias <code>@/</code> is configured correctly.
-          </p>
           <Link href="/" style={{ color: "#0d7c8a", marginTop: "20px", display: "block" }}>
             ← Back to Dashboard
           </Link>
@@ -318,7 +320,6 @@ export default function DayPage({ params: propParams }: DayPageProps) {
     );
   }
 
-  // Error: day not found
   if (!day) {
     return (
       <div className="page-wrap">
@@ -326,9 +327,7 @@ export default function DayPage({ params: propParams }: DayPageProps) {
         <div className="not-found" style={{ textAlign: "center", padding: "100px 20px" }}>
           <h2 style={{ color: "white" }}>{t("day.notFound")}</h2>
           <p style={{ color: "#ccc", marginTop: "10px" }}>
-            Day {dayNum} could not be found in the curriculum.
-            <br />
-            Available days: {curriculum.map((d) => d.day).join(", ")}
+            Day {dayNum} for Level {level} not found.
           </p>
           <Link href="/" style={{ color: "#0d7c8a", marginTop: "20px", display: "block" }}>
             {t("day.backToAll")}
@@ -339,14 +338,15 @@ export default function DayPage({ params: propParams }: DayPageProps) {
   }
 
   const catColor = categoryColors[day.category] || "#0d7c8a";
+  const trackName = level === 1 ? "Basic" : "Advanced";
 
   return (
     <div className="page-wrap">
       <style>{`
         @keyframes subtlePulse {
-          0% { box-shadow: 0 0 0 0 rgba(13, 124, 138, 0.6); }
-          70% { box-shadow: 0 0 0 15px rgba(13, 124, 138, 0); }
-          100% { box-shadow: 0 0 0 0 rgba(13, 124, 138, 0); }
+          0% { box-shadow: 0 0 0 0 rgba(13,124,138,0.6); }
+          70% { box-shadow: 0 0 0 15px rgba(13,124,138,0); }
+          100% { box-shadow: 0 0 0 0 rgba(13,124,138,0); }
         }
       `}</style>
 
@@ -419,7 +419,7 @@ export default function DayPage({ params: propParams }: DayPageProps) {
                   key={day.day}
                   dayTitle={day.title}
                   badExample={`I need to finish the task for Day ${day.day}. Help me.`}
-                  goodExample={`I am working on Day ${day.day} of the Mastering Accounting in 28 Days — Basic challenge: "${day.title}". The task is: ${day.task}. Give me a structured step-by-step framework to execute this successfully as an accountant.`}
+                  goodExample={`I am working on Day ${day.day} of the Mastering Accounting in 28 Days — ${trackName} challenge: "${day.title}". The task is: ${day.task}. Give me a structured step-by-step framework to execute this successfully as an accountant.`}
                 />
               </section>
 
@@ -434,14 +434,17 @@ export default function DayPage({ params: propParams }: DayPageProps) {
 
               {done && (
                 <section className="day-section what-learned-section">
-                  <h2 className="section-heading what-learned-heading" style={{ color: "#2fb87a" }}>
+                  <h2
+                    className="section-heading what-learned-heading"
+                    style={{ color: "#2fb87a" }}
+                  >
                     <BookOpen size={18} /> What You Learned Today
                   </h2>
                   <div
                     className="what-learned-box"
                     style={{
-                      background: "rgba(47, 184, 122, 0.05)",
-                      borderColor: "rgba(47, 184, 122, 0.2)",
+                      background: "rgba(47,184,122,0.05)",
+                      borderColor: "rgba(47,184,122,0.2)",
                     }}
                   >
                     <ul className="what-learned-list">
@@ -481,7 +484,7 @@ export default function DayPage({ params: propParams }: DayPageProps) {
                             style={{
                               marginTop: "6px",
                               padding: "8px",
-                              background: "rgba(239, 68, 68, 0.1)",
+                              background: "rgba(239,68,68,0.1)",
                               borderLeft: "3px solid #ef4444",
                               borderRadius: "0 4px 4px 0",
                               fontSize: "0.8rem",
@@ -503,11 +506,20 @@ export default function DayPage({ params: propParams }: DayPageProps) {
                               <span>Blocked in your region</span>
                             </div>
                             {alts.length > 0 ? (
-                              <span className="tool-alts" style={{ display: "block", color: "var(--text-muted)" }}>
-                                Try: <strong style={{ color: "var(--text)" }}>{alts.slice(0, 2).join(" or ")}</strong>
+                              <span
+                                className="tool-alts"
+                                style={{ display: "block", color: "var(--text-muted)" }}
+                              >
+                                Try:{" "}
+                                <strong style={{ color: "var(--text)" }}>
+                                  {alts.slice(0, 2).join(" or ")}
+                                </strong>
                               </span>
                             ) : (
-                              <span className="tool-alts" style={{ display: "block", color: "var(--text-muted)" }}>
+                              <span
+                                className="tool-alts"
+                                style={{ display: "block", color: "var(--text-muted)" }}
+                              >
                                 Please use a VPN or local equivalent.
                               </span>
                             )}
@@ -519,7 +531,11 @@ export default function DayPage({ params: propParams }: DayPageProps) {
                 </ul>
               </div>
 
-              <div id="completion-card" className="sidebar-card complete-card" style={{ borderTop: "4px solid #0d7c8a" }}>
+              <div
+                id="completion-card"
+                className="sidebar-card complete-card"
+                style={{ borderTop: "4px solid #0d7c8a" }}
+              >
                 <h3 className="sidebar-heading">{t("day.finishQuestion")}</h3>
 
                 {!done && (
@@ -532,7 +548,13 @@ export default function DayPage({ params: propParams }: DayPageProps) {
                       border: "1px solid var(--border)",
                     }}
                   >
-                    <p style={{ fontSize: "0.85rem", marginBottom: "10px", fontWeight: 600 }}>
+                    <p
+                      style={{
+                        fontSize: "0.85rem",
+                        marginBottom: "10px",
+                        fontWeight: 600,
+                      }}
+                    >
                       🧠 Did you execute today's task?
                     </p>
                     <div style={{ display: "flex", gap: "8px" }}>
@@ -580,7 +602,7 @@ export default function DayPage({ params: propParams }: DayPageProps) {
                     ...(quizPassed && !done && {
                       borderColor: "#0d7c8a",
                       color: "#0d7c8a",
-                      background: "rgba(13, 124, 138, 0.08)",
+                      background: "rgba(13,124,138,0.08)",
                     }),
                   }}
                   onClick={() => toggleMutation.mutate({ completed: !done })}
@@ -591,7 +613,8 @@ export default function DayPage({ params: propParams }: DayPageProps) {
                     </>
                   ) : (
                     <>
-                      <Circle size={20} /> {quizPassed ? t("day.markComplete") : "Pass Quiz to Unlock"}
+                      <Circle size={20} />{" "}
+                      {quizPassed ? t("day.markComplete") : "Pass Quiz to Unlock"}
                     </>
                   )}
                 </button>
@@ -615,7 +638,10 @@ export default function DayPage({ params: propParams }: DayPageProps) {
 
           <div className="day-nav">
             {prevDay ? (
-              <Link href={`/day/${prevDay.day}`} className="day-nav-btn prev">
+              <Link
+                href={`/day/L${level}-${prevDay.day}`}
+                className="day-nav-btn prev"
+              >
                 <ArrowLeft size={16} />
                 <div>
                   <div className="day-nav-label">{t("day.previous")}</div>
@@ -628,7 +654,10 @@ export default function DayPage({ params: propParams }: DayPageProps) {
               <div />
             )}
             {nextDay ? (
-              <Link href={`/day/${nextDay.day}`} className="day-nav-btn next">
+              <Link
+                href={`/day/L${level}-${nextDay.day}`}
+                className="day-nav-btn next"
+              >
                 <div>
                   <div className="day-nav-label">{t("day.next")}</div>
                   <div className="day-nav-title">
@@ -650,7 +679,9 @@ export default function DayPage({ params: propParams }: DayPageProps) {
         </div>
 
         <aside className="day-lesson-list-col">
-          <div className="lesson-list-header">Accounting · Basic Curriculum</div>
+          <div className="lesson-list-header">
+            Accounting · {trackName} Curriculum
+          </div>
           {weekGroups.map(({ week, days, overview }) => (
             <div key={week}>
               <div className="lesson-list-week" style={{ color: overview?.color }}>
@@ -662,13 +693,15 @@ export default function DayPage({ params: propParams }: DayPageProps) {
                 return (
                   <Link
                     key={d.day}
-                    href={`/day/${d.day}`}
-                    className={`lesson-list-item${isActive ? " active" : ""}${isDone ? " done" : ""}`}
+                    href={`/day/L${level}-${d.day}`}
+                    className={`lesson-list-item${isActive ? " active" : ""}${
+                      isDone ? " done" : ""
+                    }`}
                     style={
                       isActive
                         ? {
                             borderLeft: "3px solid #0d7c8a",
-                            background: "rgba(13, 124, 138, 0.1)",
+                            background: "rgba(13,124,138,0.1)",
                           }
                         : {}
                     }
@@ -719,9 +752,11 @@ export default function DayPage({ params: propParams }: DayPageProps) {
             }}
           >
             <div style={{ fontSize: "4rem", marginBottom: "10px" }}>🏅</div>
-            <h2 style={{ fontSize: "2rem", marginBottom: "10px", color: "#0d7c8a" }}>Rank Upgraded!</h2>
+            <h2 style={{ fontSize: "2rem", marginBottom: "10px", color: "#0d7c8a" }}>
+              Rank Upgraded!
+            </h2>
             <p style={{ fontSize: "1.1rem", marginBottom: "20px", color: "var(--text)" }}>
-              You've mastered a milestone in Level 1. Your new status is now reflected in your profile.
+              You've mastered a milestone. Your new status is reflected in your profile.
             </p>
             <button
               onClick={() => setShowLevelUp(false)}
@@ -752,7 +787,7 @@ export default function DayPage({ params: propParams }: DayPageProps) {
             color: "white",
             padding: "12px 20px",
             borderRadius: "50px",
-            boxShadow: "0 8px 20px rgba(13, 124, 138, 0.4)",
+            boxShadow: "0 8px 20px rgba(13,124,138,0.4)",
             display: "flex",
             alignItems: "center",
             gap: "12px",
