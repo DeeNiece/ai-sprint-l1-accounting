@@ -17,22 +17,30 @@ import {
   BookOpen,
   AlertTriangle,
   BellRing,
-  X 
+  X,
 } from "lucide-react";
 import DayChat from "@/components/day-chat";
 import { useLanguage } from "@/i18n";
 import { useRegion, isToolBlocked, getAlternatives } from "@/hooks/useRegion";
 import PromptLab from "@/components/PromptLab";
 
-// ✨ Floating 3D Celebration Component (Tailored for Level 1 TEAL Theme)
-function FloatingCelebration({ message, subMessage, onComplete }: { message: string, subMessage?: string, onComplete: () => void }) {
+// Floating 3D Celebration Component (Tailored for Level 1 TEAL Theme)
+function FloatingCelebration({
+  message,
+  subMessage,
+  onComplete,
+}: {
+  message: string;
+  subMessage?: string;
+  onComplete: () => void;
+}) {
   const [visible, setVisible] = useState(true);
 
   useEffect(() => {
     const timer = setTimeout(() => {
       setVisible(false);
-      setTimeout(onComplete, 500); 
-    }, 5000); 
+      setTimeout(onComplete, 500);
+    }, 5000);
     return () => clearTimeout(timer);
   }, [onComplete]);
 
@@ -65,7 +73,6 @@ function FloatingCelebration({ message, subMessage, onComplete }: { message: str
           text-transform: uppercase;
           letter-spacing: 2px;
           color: #fff;
-          /* ✨ Level 1 Teal 3D Shadow Stack */
           text-shadow: 
             0 1px 0 #0b636e,
             0 2px 0 #0b636e,
@@ -80,7 +87,7 @@ function FloatingCelebration({ message, subMessage, onComplete }: { message: str
         .floating-3d-sub {
           font-size: 1.2rem;
           font-weight: 600;
-          color: #ccfbf1; /* Light teal/cyan */
+          color: #ccfbf1;
           text-shadow: 0 2px 4px rgba(0,0,0,0.5);
           max-width: 650px;
           margin: 0 auto;
@@ -120,14 +127,14 @@ type DayPageProps = {
   };
 };
 
-// 🎨 Level 1 Primary Colors
+// Level 1 Primary Colors
 const categoryColors: Record<string, string> = {
-  Foundations:          "#0d7c8a",
-  Bookkeeping:          "#2f6fa8",
-  Reporting:            "#7a5fc0",
-  "Tax & Compliance":   "#c07a2f",
-  "Controls & Ethics":  "#2f8c5c",
-  Mixed:                "#8c4a2f",
+  Foundations: "#0d7c8a",
+  Bookkeeping: "#2f6fa8",
+  Reporting: "#7a5fc0",
+  "Tax & Compliance": "#c07a2f",
+  "Controls & Ethics": "#2f8c5c",
+  Mixed: "#8c4a2f",
 };
 
 function getWhatYouLearned(day: {
@@ -148,41 +155,58 @@ function getWhatYouLearned(day: {
   if (day.tools.length > 0) {
     bullets.push(`Practiced using: ${day.tools.slice(0, 3).join(", ")}.`);
   }
-
   return bullets.slice(0, 3);
 }
-
-const weekGroups = [1, 2, 3, 4].map((w) => ({
-  week: w,
-  days: curriculum.filter((d) => d.week === w),
-  overview: weekOverviews[w - 1],
-}));
 
 export default function DayPage({ params: propParams }: DayPageProps) {
   const { t } = useLanguage();
   const { blockedTools, countryCode } = useRegion();
 
+  // --- Robust param handling ---
   const [match, routeParams] = useRoute("/day/:dayNum");
   const activeParams = propParams?.dayNum ? propParams : routeParams;
-  const dayNum = parseInt(activeParams?.dayNum ?? "1", 10);
+  const rawDayNum = activeParams?.dayNum ?? "1";
+  const dayNum = parseInt(rawDayNum, 10);
+
+  // --- Debug logs (remove after fixing) ---
+  useEffect(() => {
+    console.log("🔍 DayPage mounted");
+    console.log("📦 curriculum length:", curriculum?.length);
+    console.log("🔢 dayNum from params:", dayNum, "(raw:", rawDayNum, ")");
+    console.log("📖 sample day from curriculum:", curriculum?.[0]);
+    if (curriculum?.length === 0) {
+      console.error(
+        "❌ curriculum is empty – import from @/data/curriculum failed. Check alias or file location."
+      );
+    }
+  }, [dayNum, rawDayNum]);
 
   const [quizPassed, setQuizPassed] = useState(false);
   const [showLevelUp, setShowLevelUp] = useState(false);
-  const [celebrationMsg, setCelebrationMsg] = useState<{main: string, sub: string} | null>(null);
-  
-  // ✨ STATE FOR THE REMINDER
+  const [celebrationMsg, setCelebrationMsg] = useState<{
+    main: string;
+    sub: string;
+  } | null>(null);
   const [dismissReminder, setDismissReminder] = useState(false);
 
   useEffect(() => {
     window.scrollTo(0, 0);
     setQuizPassed(false);
-    setDismissReminder(false); 
+    setDismissReminder(false);
   }, [dayNum]);
 
-  const day = curriculum.find((d) => d.day === dayNum);
-  const prevDay = curriculum.find((d) => d.day === dayNum - 1);
-  const nextDay = curriculum.find((d) => d.day === dayNum + 1);
-  const weekOverview = day ? weekOverviews[day.week - 1] : null;
+  // --- Find current day and neighbours ---
+  const day = curriculum?.find((d) => d.day === dayNum);
+  const prevDay = curriculum?.find((d) => d.day === dayNum - 1);
+  const nextDay = curriculum?.find((d) => d.day === dayNum + 1);
+  const weekOverview = day ? weekOverviews?.[day.week - 1] : null;
+
+  // --- Week groups for sidebar (move inside component to avoid empty curriculum at module level) ---
+  const weekGroups = [1, 2, 3, 4].map((w) => ({
+    week: w,
+    days: curriculum?.filter((d) => d.week === w) ?? [],
+    overview: weekOverviews?.[w - 1],
+  }));
 
   const { data: progressData = [] } = useQuery<DayProgress[]>({
     queryKey: ["/api/progress"],
@@ -201,37 +225,57 @@ export default function DayPage({ params: propParams }: DayPageProps) {
       if (variables.completed && (window as any).confetti) {
         const newCount = completedCount + 1;
 
-        // ✨ 5-TIER GAMIFICATION LOGIC (Level 1 Specific Copy & Teal Colors)
         if (dayNum === 28) {
           setCelebrationMsg({
             main: "BASIC COMPLETE!",
-            sub: "Congratulations! You have completed the 28-day Basic Accounting challenge. You are ready for the Advanced track."
+            sub: "Congratulations! You have completed the 28-day Basic Accounting challenge. You are ready for the Advanced track.",
           });
-          (window as any).confetti({ particleCount: 400, spread: 160, origin: { y: 0.4 }, colors: ["#0d7c8a", "#14b8a6", "#ffffff"] });
-        } 
-        else if (dayNum === 1) { 
+          (window as any).confetti({
+            particleCount: 400,
+            spread: 160,
+            origin: { y: 0.4 },
+            colors: ["#0d7c8a", "#14b8a6", "#ffffff"],
+          });
+        } else if (dayNum === 1) {
           setCelebrationMsg({
             main: "CHALLENGE UNLOCKED!",
-            sub: "Welcome to Mastering Accounting in 28 Days. 15 minutes a day to build your AI-ready accounting skills. Let's go."
+            sub: "Welcome to Mastering Accounting in 28 Days. 15 minutes a day to build your AI-ready accounting skills. Let's go.",
           });
-          (window as any).confetti({ particleCount: 150, spread: 90, origin: { y: 0.5 }, colors: ["#0d7c8a", "#14b8a6", "#ffffff"] });
-        }
-        else if (dayNum % 7 === 0) { 
+          (window as any).confetti({
+            particleCount: 150,
+            spread: 90,
+            origin: { y: 0.5 },
+            colors: ["#0d7c8a", "#14b8a6", "#ffffff"],
+          });
+        } else if (dayNum % 7 === 0) {
           setCelebrationMsg({
             main: "WEEK COMPLETE!",
-            sub: "You just finished this week's foundation lessons. Keep the momentum going!"
+            sub: "You just finished this week's foundation lessons. Keep the momentum going!",
           });
-          (window as any).confetti({ particleCount: 200, spread: 100, origin: { y: 0.5 }, colors: ["#0d7c8a", "#14b8a6"] });
-        } 
-        else if (dayNum % 7 === 3 || dayNum % 7 === 6) {
+          (window as any).confetti({
+            particleCount: 200,
+            spread: 100,
+            origin: { y: 0.5 },
+            colors: ["#0d7c8a", "#14b8a6"],
+          });
+        } else if (dayNum % 7 === 3 || dayNum % 7 === 6) {
           setCelebrationMsg({
             main: "GREAT PROGRESS!",
-            sub: "You're building solid habits. Keep up the excellent work!"
+            sub: "You're building solid habits. Keep up the excellent work!",
           });
-          (window as any).confetti({ particleCount: 120, spread: 80, origin: { y: 0.5 }, colors: ["#0d7c8a", "#14b8a6"] });
-        }
-        else {
-          (window as any).confetti({ particleCount: 80, spread: 60, origin: { y: 0.6 }, colors: ["#0d7c8a", "#14b8a6", "#ffffff"] });
+          (window as any).confetti({
+            particleCount: 120,
+            spread: 80,
+            origin: { y: 0.5 },
+            colors: ["#0d7c8a", "#14b8a6"],
+          });
+        } else {
+          (window as any).confetti({
+            particleCount: 80,
+            spread: 60,
+            origin: { y: 0.6 },
+            colors: ["#0d7c8a", "#14b8a6", "#ffffff"],
+          });
         }
 
         if ([7, 14, 21, 28].includes(newCount)) {
@@ -241,10 +285,29 @@ export default function DayPage({ params: propParams }: DayPageProps) {
     },
   });
 
-  // ✨ Auto-scroll helper for the reminder button
   const scrollToCompletion = () => {
     document.getElementById("completion-card")?.scrollIntoView({ behavior: "smooth", block: "center" });
   };
+
+  // --- Improved error handling ---
+  if (!curriculum || curriculum.length === 0) {
+    return (
+      <div className="page-wrap">
+        <Nav />
+        <div className="not-found" style={{ textAlign: "center", padding: "100px 20px" }}>
+          <h2 style={{ color: "white" }}>⚠️ Curriculum data not loaded</h2>
+          <p style={{ color: "#ccc", marginTop: "10px" }}>
+            The import from <code>@/data/curriculum</code> returned an empty array.
+            <br />
+            Check that the file exists at <code>src/data/curriculum.ts</code> and that your path alias <code>@/</code> is configured correctly.
+          </p>
+          <Link href="/" style={{ color: "#0d7c8a", marginTop: "20px", display: "block" }}>
+            ← Back to Dashboard
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   if (!day) {
     return (
@@ -252,6 +315,11 @@ export default function DayPage({ params: propParams }: DayPageProps) {
         <Nav />
         <div className="not-found" style={{ textAlign: "center", padding: "100px 20px" }}>
           <h2 style={{ color: "white" }}>{t("day.notFound")}</h2>
+          <p style={{ color: "#ccc", marginTop: "10px" }}>
+            Day {dayNum} could not be found in the curriculum.
+            <br />
+            Available days: {curriculum.map((d) => d.day).join(", ")}
+          </p>
           <Link href="/" style={{ color: "#0d7c8a", marginTop: "20px", display: "block" }}>
             {t("day.backToAll")}
           </Link>
@@ -264,7 +332,6 @@ export default function DayPage({ params: propParams }: DayPageProps) {
 
   return (
     <div className="page-wrap">
-      {/* ✨ PULSE ANIMATION FOR REMINDER */}
       <style>{`
         @keyframes subtlePulse {
           0% { box-shadow: 0 0 0 0 rgba(13, 124, 138, 0.6); }
@@ -357,10 +424,7 @@ export default function DayPage({ params: propParams }: DayPageProps) {
 
               {done && (
                 <section className="day-section what-learned-section">
-                  <h2
-                    className="section-heading what-learned-heading"
-                    style={{ color: "#2fb87a" }}
-                  >
+                  <h2 className="section-heading what-learned-heading" style={{ color: "#2fb87a" }}>
                     <BookOpen size={18} /> What You Learned Today
                   </h2>
                   <div
@@ -395,58 +459,57 @@ export default function DayPage({ params: propParams }: DayPageProps) {
                   <Wrench size={15} /> {t("day.suggestedTools")}
                 </h3>
                 <ul className="tools-list">
-  {day.tools.map((tool) => {
-    // 1. Check if this specific tool is blocked based on the user's region
-    const blocked = isToolBlocked(tool, blockedTools);
-    
-    // 2. Fetch the alternatives for this tool
-    const alts = getAlternatives(tool, countryCode);
-
-    return (
-      <li key={tool} className="tools-list-item" style={{ marginBottom: "10px" }}>
-        {/* Tool Name */}
-        <span style={{ fontWeight: 600 }}>{tool}</span>
-        
-        {/* Regional Block Warning & Alternatives */}
-        {blocked && (
-          <div className="tool-blocked-warning" style={{ 
-            marginTop: "6px", 
-            padding: "8px", 
-            background: "rgba(239, 68, 68, 0.1)", // Light red background
-            borderLeft: "3px solid #ef4444",      // Red accent line
-            borderRadius: "0 4px 4px 0",
-            fontSize: "0.8rem",
-            color: "var(--text)",
-            lineHeight: 1.4
-          }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "6px", color: "#ef4444", fontWeight: "bold", marginBottom: "4px" }}>
-              <AlertTriangle size={14} />
-              <span>Blocked in your region</span>
-            </div>
-            
-            {alts.length > 0 ? (
-              <span className="tool-alts" style={{ display: "block", color: "var(--text-muted)" }}>
-                Try: <strong style={{ color: "var(--text)" }}>{alts.slice(0, 2).join(" or ")}</strong>
-              </span>
-            ) : (
-              <span className="tool-alts" style={{ display: "block", color: "var(--text-muted)" }}>
-                Please use a VPN or local equivalent.
-              </span>
-            )}
-          </div>
-        )}
-      </li>
-    );
-  })}
-</ul>
+                  {day.tools.map((tool) => {
+                    const blocked = isToolBlocked(tool, blockedTools);
+                    const alts = getAlternatives(tool, countryCode);
+                    return (
+                      <li key={tool} className="tools-list-item" style={{ marginBottom: "10px" }}>
+                        <span style={{ fontWeight: 600 }}>{tool}</span>
+                        {blocked && (
+                          <div
+                            className="tool-blocked-warning"
+                            style={{
+                              marginTop: "6px",
+                              padding: "8px",
+                              background: "rgba(239, 68, 68, 0.1)",
+                              borderLeft: "3px solid #ef4444",
+                              borderRadius: "0 4px 4px 0",
+                              fontSize: "0.8rem",
+                              color: "var(--text)",
+                              lineHeight: 1.4,
+                            }}
+                          >
+                            <div
+                              style={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: "6px",
+                                color: "#ef4444",
+                                fontWeight: "bold",
+                                marginBottom: "4px",
+                              }}
+                            >
+                              <AlertTriangle size={14} />
+                              <span>Blocked in your region</span>
+                            </div>
+                            {alts.length > 0 ? (
+                              <span className="tool-alts" style={{ display: "block", color: "var(--text-muted)" }}>
+                                Try: <strong style={{ color: "var(--text)" }}>{alts.slice(0, 2).join(" or ")}</strong>
+                              </span>
+                            ) : (
+                              <span className="tool-alts" style={{ display: "block", color: "var(--text-muted)" }}>
+                                Please use a VPN or local equivalent.
+                              </span>
+                            )}
+                          </div>
+                        )}
+                      </li>
+                    );
+                  })}
+                </ul>
               </div>
 
-              {/* ✨ Added an ID so the reminder button can auto-scroll here */}
-              <div
-                id="completion-card"
-                className="sidebar-card complete-card"
-                style={{ borderTop: "4px solid #0d7c8a" }}
-              >
+              <div id="completion-card" className="sidebar-card complete-card" style={{ borderTop: "4px solid #0d7c8a" }}>
                 <h3 className="sidebar-heading">{t("day.finishQuestion")}</h3>
 
                 {!done && (
@@ -459,13 +522,7 @@ export default function DayPage({ params: propParams }: DayPageProps) {
                       border: "1px solid var(--border)",
                     }}
                   >
-                    <p
-                      style={{
-                        fontSize: "0.85rem",
-                        marginBottom: "10px",
-                        fontWeight: 600,
-                      }}
-                    >
+                    <p style={{ fontSize: "0.85rem", marginBottom: "10px", fontWeight: 600 }}>
                       🧠 Did you execute today's task?
                     </p>
                     <div style={{ display: "flex", gap: "8px" }}>
@@ -524,8 +581,7 @@ export default function DayPage({ params: propParams }: DayPageProps) {
                     </>
                   ) : (
                     <>
-                      <Circle size={20} />{" "}
-                      {quizPassed ? t("day.markComplete") : "Pass Quiz to Unlock"}
+                      <Circle size={20} /> {quizPassed ? t("day.markComplete") : "Pass Quiz to Unlock"}
                     </>
                   )}
                 </button>
@@ -609,9 +665,7 @@ export default function DayPage({ params: propParams }: DayPageProps) {
                   >
                     <span className="lesson-list-num">D{d.day}</span>
                     <span style={{ flex: 1 }}>{d.title}</span>
-                    {isDone && (
-                      <CheckCircle2 size={12} className="lesson-list-check" />
-                    )}
+                    {isDone && <CheckCircle2 size={12} className="lesson-list-check" />}
                   </Link>
                 );
               })}
@@ -622,16 +676,14 @@ export default function DayPage({ params: propParams }: DayPageProps) {
 
       <DayChat day={day} />
 
-      {/* ✨ RENDER THE 3D CELEBRATION IF STATE EXISTS */}
       {celebrationMsg && (
-        <FloatingCelebration 
-          message={celebrationMsg.main} 
-          subMessage={celebrationMsg.sub} 
-          onComplete={() => setCelebrationMsg(null)} 
+        <FloatingCelebration
+          message={celebrationMsg.main}
+          subMessage={celebrationMsg.sub}
+          onComplete={() => setCelebrationMsg(null)}
         />
       )}
 
-      {/* 🏅 Level Up Modal */}
       {showLevelUp && (
         <div
           style={{
@@ -657,12 +709,9 @@ export default function DayPage({ params: propParams }: DayPageProps) {
             }}
           >
             <div style={{ fontSize: "4rem", marginBottom: "10px" }}>🏅</div>
-            <h2 style={{ fontSize: "2rem", marginBottom: "10px", color: "#0d7c8a" }}>
-              Rank Upgraded!
-            </h2>
+            <h2 style={{ fontSize: "2rem", marginBottom: "10px", color: "#0d7c8a" }}>Rank Upgraded!</h2>
             <p style={{ fontSize: "1.1rem", marginBottom: "20px", color: "var(--text)" }}>
-              You've mastered a milestone in Level 1. Your new status is now reflected in your
-              profile.
+              You've mastered a milestone in Level 1. Your new status is now reflected in your profile.
             </p>
             <button
               onClick={() => setShowLevelUp(false)}
@@ -683,7 +732,6 @@ export default function DayPage({ params: propParams }: DayPageProps) {
         </div>
       )}
 
-      {/* ✨ FLOATING REMINDER: Appears on the bottom right if they haven't finished the day */}
       {!done && !dismissReminder && (
         <div
           style={{
@@ -699,7 +747,7 @@ export default function DayPage({ params: propParams }: DayPageProps) {
             alignItems: "center",
             gap: "12px",
             fontWeight: 600,
-            zIndex: 9999, /* ✨ Absolute top layer */
+            zIndex: 9999,
             animation: "subtlePulse 2.5s infinite",
             cursor: "pointer",
           }}
@@ -707,8 +755,7 @@ export default function DayPage({ params: propParams }: DayPageProps) {
         >
           <BellRing size={18} />
           <span>Don't forget to pass today's quiz!</span>
-          
-          <button 
+          <button
             onClick={(e) => {
               e.stopPropagation();
               setDismissReminder(true);
