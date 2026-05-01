@@ -32,22 +32,47 @@ function getDynamicTicker() {
 export default function Nav() {
   const { theme, toggle } = useTheme();
   const { user, logout } = useAuth();
-  const [loc] = useLocation();
+  const [location, setLocation] = useLocation();
   const { t } = useLanguage();
 
-  const [activeLevel, setActiveLevelState] = useState<"1" | "2">(() => {
-    try { return (localStorage.getItem("accounting_level") === "2" ? "2" : "1"); } catch { return "1"; }
-  });
+  // --- Level detection: from URL, then localStorage, then default ---
+  function getLevelFromUrl(): "1" | "2" {
+    const match = location.match(/\/day\/L([12])-/);
+    if (match) return match[1] as "1" | "2";
+    // If not on a day page, fall back to localStorage or default
+    try {
+      const stored = localStorage.getItem("accounting_level");
+      if (stored === "2") return "2";
+    } catch {}
+    return "1";
+  }
+
+  const [activeLevel, setActiveLevelState] = useState<"1" | "2">(getLevelFromUrl);
   const LEVEL_COLOR = activeLevel === "2" ? "#e8820c" : THEME_COLOR;
   const LEVEL_LABEL = activeLevel === "2" ? "Advanced Track" : "Basic Track";
 
+  // Sync activeLevel when URL changes
+  useEffect(() => {
+    const urlLevel = getLevelFromUrl();
+    if (urlLevel !== activeLevel) {
+      setActiveLevelState(urlLevel);
+      try {
+        localStorage.setItem("accounting_level", urlLevel);
+      } catch {}
+    }
+  }, [location]);
+
+  // Switch level and navigate to the first day of that track
   function switchLevel(lvl: "1" | "2") {
-    try { localStorage.setItem("accounting_level", lvl); } catch {}
+    try {
+      localStorage.setItem("accounting_level", lvl);
+    } catch {}
     setActiveLevelState(lvl);
+    // Navigate to the first day of the chosen track
+    setLocation(`/day/L${lvl}-1`);
+    // Close any open menus
     setLevelOpen(false);
     setMobileMenuOpen(false);
-    // Dispatch storage event so home.tsx picks it up
-    window.dispatchEvent(new StorageEvent("storage", { key: "accounting_level", newValue: lvl }));
   }
 
   const [levelOpen, setLevelOpen] = useState(false);
@@ -85,7 +110,7 @@ export default function Nav() {
     setLevelOpen(false);
     setUserMenuOpen(false);
     setMobileMenuOpen(false);
-  }, [loc]);
+  }, [location]);
 
   // Lock body scroll when mobile menu is open
   useEffect(() => {
@@ -121,26 +146,76 @@ export default function Nav() {
         }
         .dropdown-item:hover { background: rgba(13, 124, 138, 0.1); color: ${THEME_COLOR}; }
 
-        /* ── Hamburger (hidden on desktop) ── */
-        .mobile-menu-btn { display: none; }
+        /* Level switcher dropdown styles */
+        .level-switcher {
+          position: relative;
+        }
+        .level-switcher-btn {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          padding: 6px 12px;
+          border-radius: 40px;
+          font-size: 0.8rem;
+          font-weight: 600;
+          background: var(--color-surface-offset);
+          border: 1px solid var(--color-border);
+          cursor: pointer;
+          transition: all 0.2s;
+        }
+        .level-switcher-dropdown {
+          position: absolute;
+          top: 100%;
+          right: 0;
+          margin-top: 8px;
+          background: var(--color-surface);
+          border: 1px solid var(--color-border);
+          border-radius: 12px;
+          padding: 6px;
+          min-width: 180px;
+          z-index: 100;
+          box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+          backdrop-filter: blur(12px);
+        }
+        .level-switcher-item {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          padding: 8px 12px;
+          border-radius: 8px;
+          font-size: 0.85rem;
+          font-weight: 500;
+          cursor: pointer;
+          transition: background 0.15s;
+          width: 100%;
+          background: none;
+          border: none;
+          text-align: left;
+        }
+        .level-switcher-item:hover {
+          background: rgba(13,124,138,0.1);
+        }
+        .level-switcher-dot {
+          width: 8px;
+          height: 8px;
+          border-radius: 50%;
+          flex-shrink: 0;
+        }
 
-        /* ── Mobile breakpoint ── */
+        /* Mobile styles */
+        .mobile-menu-btn { display: none; }
         @media (max-width: 768px) {
           .nav-links { display: none !important; }
           .level-switcher { display: none !important; }
           .nav-user { display: none !important; }
           .mobile-menu-btn { display: flex !important; align-items: center; justify-content: center; }
         }
-
-        /* ── Overlay ── */
         .mobile-drawer-overlay {
           display: none; position: fixed; inset: 0;
           background: rgba(0,0,0,0.55); z-index: 200;
           backdrop-filter: blur(4px);
         }
         .mobile-drawer-overlay.open { display: block; }
-
-        /* ── Drawer panel ── */
         .mobile-drawer {
           position: fixed; top: 0; right: -100%;
           width: min(320px, 85vw); height: 100dvh;
@@ -152,7 +227,6 @@ export default function Nav() {
           box-shadow: -12px 0 40px rgba(0,0,0,0.3);
         }
         .mobile-drawer.open { right: 0; }
-
         .mobile-drawer-header {
           display: flex; align-items: center; justify-content: space-between;
           padding: 1rem 1.25rem;
@@ -193,103 +267,6 @@ export default function Nav() {
           border-radius: var(--radius-md);
           margin-bottom: 0.5rem;
         }
-        .mobile-nav-link {
-          display: flex;
-          align-items: center;
-          gap: 10px;
-          padding: 12px 14px;
-          border-radius: 10px;
-          font-size: 0.9rem;
-          font-weight: 600;
-          color: var(--color-text);
-          text-decoration: none;
-          transition: background 0.15s;
-          cursor: pointer;
-          background: none;
-          border: none;
-          width: 100%;
-          text-align: left;
-        }
-        .mobile-nav-link:hover,
-        .mobile-nav-link.active {
-          background: rgba(13, 124, 138, 0.1);
-          color: ${THEME_COLOR};
-        }
-        .mobile-nav-sub {
-          padding-left: 16px;
-          display: flex;
-          flex-direction: column;
-          gap: 2px;
-          margin-bottom: 4px;
-        }
-        .mobile-nav-sub-item {
-          display: flex;
-          align-items: center;
-          gap: 10px;
-          padding: 10px 14px;
-          border-radius: 8px;
-          font-size: 0.84rem;
-          font-weight: 500;
-          color: var(--color-text-muted);
-          text-decoration: none;
-          transition: background 0.15s;
-        }
-        .mobile-nav-sub-item:hover { background: rgba(13, 124, 138, 0.08); color: ${THEME_COLOR}; }
-        .mobile-divider {
-          height: 1px;
-          background: var(--color-border);
-          margin: 8px 0;
-        }
-        .mobile-user-section {
-          padding: 16px 20px;
-          border-top: 1px solid var(--color-border);
-          display: flex;
-          flex-direction: column;
-          gap: 8px;
-        }
-        .mobile-user-info {
-          display: flex;
-          align-items: center;
-          gap: 10px;
-          padding: 10px 4px;
-        }
-        .mobile-user-avatar {
-          width: 36px;
-          height: 36px;
-          border-radius: 50%;
-          background: rgba(13, 124, 138, 0.15);
-          border: 2px solid ${THEME_COLOR};
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          color: ${THEME_COLOR};
-          flex-shrink: 0;
-        }
-        .mobile-logout-btn {
-          display: flex;
-          align-items: center;
-          gap: 10px;
-          padding: 10px 14px;
-          border-radius: 10px;
-          font-size: 0.88rem;
-          font-weight: 600;
-          color: #dc2626;
-          background: rgba(220, 38, 38, 0.06);
-          border: 1px solid rgba(220, 38, 38, 0.15);
-          cursor: pointer;
-          width: 100%;
-          text-align: left;
-          transition: background 0.15s;
-        }
-        .mobile-logout-btn:hover { background: rgba(220, 38, 38, 0.12); }
-
-        /* --- Responsive breakpoint --- */
-        @media (max-width: 768px) {
-          .nav-links { display: none !important; }
-          .nav-user { display: none !important; }
-          .level-switcher { display: none !important; }
-          .hamburger-btn { display: flex !important; }
-        }
       `}</style>
 
       <header className="nav-header">
@@ -297,21 +274,21 @@ export default function Nav() {
           
           {/* LEFT: Logo */}
           <div style={{ flex: 1, display: "flex", justifyContent: "flex-start" }}>
-            <Link href="/" className="nav-logo">
+            <Link href={`/day/L${activeLevel}-1`} className="nav-logo">
               <img src={logoImg} alt="AI Sprint" className="nav-logo-img" />
               <div className="nav-logo-sub" style={{ fontSize: "var(--text-xs)", color: "var(--color-text-muted)", fontWeight: 700 }}>
-                Accounting · Basic
+                Accounting · {LEVEL_LABEL.replace(" Track", "")}
               </div>
             </Link>
           </div>
 
           {/* CENTER: Main Nav (desktop only) */}
           <nav className="nav-links" style={{ flex: 1, display: "flex", justifyContent: "center", gap: "24px" }}>
-            <Link href="/" className={`nav-link ${loc === "/" ? "active" : ""}`}>{t("nav.journey")}</Link>
+            <Link href={`/day/L${activeLevel}-1`} className={`nav-link ${location.startsWith("/day") ? "active" : ""}`}>{t("nav.journey")}</Link>
 
             {/* THE BLUEPRINT DROPDOWN */}
             <div style={{ position: 'relative' }}>
-              <button onClick={() => { setBlueprintOpen(!blueprintOpen); setCommandOpen(false); }} className={`nav-link ${(loc === "/toolkit" || loc === "/portfolio" || loc === "/systems" || loc === "/services") ? "active" : ""}`} style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'none', border: 'none', cursor: 'pointer' }}>
+              <button onClick={() => { setBlueprintOpen(!blueprintOpen); setCommandOpen(false); }} className={`nav-link ${(location === "/toolkit" || location === "/portfolio" || location === "/systems" || location === "/services") ? "active" : ""}`} style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'none', border: 'none', cursor: 'pointer' }}>
                 <Rocket size={16} className="pulse-icon" style={{ color: THEME_COLOR }} /> The Blueprint <ChevronDown size={14} style={{ transform: blueprintOpen ? 'rotate(180deg)' : 'rotate(0)', transition: '0.2s' }} />
               </button>
               {blueprintOpen && (
@@ -326,7 +303,7 @@ export default function Nav() {
 
             {/* COMMAND CENTER DROPDOWN */}
             <div style={{ position: 'relative' }}>
-              <button onClick={() => { setCommandOpen(!commandOpen); setBlueprintOpen(false); }} className={`nav-link ${(loc === "/settings" || loc === "/faq") ? "active" : ""}`} style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'none', border: 'none', cursor: 'pointer' }}>
+              <button onClick={() => { setCommandOpen(!commandOpen); setBlueprintOpen(false); }} className={`nav-link ${(location === "/settings" || location === "/faq") ? "active" : ""}`} style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'none', border: 'none', cursor: 'pointer' }}>
                 <LayoutDashboard size={16} /> Command Center <ChevronDown size={14} style={{ transform: commandOpen ? 'rotate(180deg)' : 'rotate(0)', transition: '0.2s' }} />
               </button>
               {commandOpen && (
@@ -350,13 +327,13 @@ export default function Nav() {
                 {levelOpen && (
                   <div className="level-switcher-dropdown" onMouseLeave={() => setLevelOpen(false)}>
                     <button className="level-switcher-item" onClick={() => switchLevel("1")}
-                      style={{ color: activeLevel === "1" ? THEME_COLOR : "var(--color-text)", fontWeight: activeLevel === "1" ? 700 : 500, background: "none", border: "none", cursor: "pointer", width: "100%", textAlign: "left" }}>
+                      style={{ color: activeLevel === "1" ? THEME_COLOR : "var(--color-text)", fontWeight: activeLevel === "1" ? 700 : 500 }}>
                       <span className="level-switcher-dot" style={{ background: THEME_COLOR }} />
                       Basic Track
                       {activeLevel === "1" && <span style={{ marginLeft: "auto", fontSize: "0.7rem" }}>✓</span>}
                     </button>
                     <button className="level-switcher-item" onClick={() => switchLevel("2")}
-                      style={{ color: activeLevel === "2" ? "#e8820c" : "var(--color-text)", fontWeight: activeLevel === "2" ? 700 : 500, background: "none", border: "none", cursor: "pointer", width: "100%", textAlign: "left" }}>
+                      style={{ color: activeLevel === "2" ? "#e8820c" : "var(--color-text)", fontWeight: activeLevel === "2" ? 700 : 500 }}>
                       <span className="level-switcher-dot" style={{ background: "#e8820c" }} />
                       Advanced Track
                       {activeLevel === "2" && <span style={{ marginLeft: "auto", fontSize: "0.7rem" }}>✓</span>}
@@ -394,7 +371,7 @@ export default function Nav() {
                       <CreditCard size={14} />
                       <div style={{ display: 'flex', flexDirection: 'column' }}>
                         <span style={{ fontSize: '10px', textTransform: 'uppercase', color: 'var(--color-text-faint)' }}>Current Plan</span>
-                        <span style={{ fontSize: 'var(--text-sm)', fontWeight: 700, color: THEME_COLOR }}>Accounting · Basic</span>
+                        <span style={{ fontSize: 'var(--text-sm)', fontWeight: 700, color: THEME_COLOR }}>Accounting · {LEVEL_LABEL}</span>
                       </div>
                     </div>
 
@@ -448,10 +425,10 @@ export default function Nav() {
 
         {/* Header */}
         <div className="mobile-drawer-header">
-          <Link href="/" className="nav-logo" onClick={() => setMobileMenuOpen(false)}>
+          <Link href={`/day/L${activeLevel}-1`} className="nav-logo" onClick={() => setMobileMenuOpen(false)}>
             <img src={logoImg} alt="AI Sprint" className="nav-logo-img" />
             <div style={{ fontSize: "var(--text-xs)", color: "var(--color-text-muted)", fontWeight: 700 }}>
-              Accounting · Basic
+              Accounting · {LEVEL_LABEL.replace(" Track", "")}
             </div>
           </Link>
           <button className="icon-btn" onClick={() => setMobileMenuOpen(false)} aria-label="Close menu">
@@ -472,7 +449,7 @@ export default function Nav() {
           )}
 
           <div className="mobile-section-label">Navigation</div>
-          <Link href="/" className={`mobile-nav-item ${loc === "/" ? "active" : ""}`} onClick={() => setMobileMenuOpen(false)}>
+          <Link href={`/day/L${activeLevel}-1`} className={`mobile-nav-item ${location.startsWith("/day") ? "active" : ""}`} onClick={() => setMobileMenuOpen(false)}>
             <LayoutDashboard size={16} /> {t("nav.journey")}
           </Link>
 
@@ -480,14 +457,14 @@ export default function Nav() {
             <>
               <div className="mobile-section-label">Track</div>
               <button className={`mobile-nav-item ${activeLevel === "1" ? "active" : ""}`}
-                style={{ color: activeLevel === "1" ? THEME_COLOR : "var(--color-text)", background: "none", border: "none", cursor: "pointer", width: "100%", textAlign: "left" }}
-                onClick={() => switchLevel("1")}>
+                style={{ color: activeLevel === "1" ? THEME_COLOR : "var(--color-text)" }}
+                onClick={() => { switchLevel("1"); setMobileMenuOpen(false); }}>
                 <span style={{ width: 8, height: 8, borderRadius: "50%", background: THEME_COLOR, flexShrink: 0 }} /> Basic Track
                 {activeLevel === "1" && <span style={{ marginLeft: "auto", fontSize: "0.7rem" }}>✓</span>}
               </button>
               <button className={`mobile-nav-item ${activeLevel === "2" ? "active" : ""}`}
-                style={{ color: activeLevel === "2" ? "#e8820c" : "var(--color-text)", background: "none", border: "none", cursor: "pointer", width: "100%", textAlign: "left" }}
-                onClick={() => switchLevel("2")}>
+                style={{ color: activeLevel === "2" ? "#e8820c" : "var(--color-text)" }}
+                onClick={() => { switchLevel("2"); setMobileMenuOpen(false); }}>
                 <span style={{ width: 8, height: 8, borderRadius: "50%", background: "#e8820c", flexShrink: 0 }} /> Advanced Track
                 {activeLevel === "2" && <span style={{ marginLeft: "auto", fontSize: "0.7rem" }}>✓</span>}
               </button>
@@ -495,24 +472,24 @@ export default function Nav() {
           )}
 
           <div className="mobile-section-label">The Blueprint</div>
-          <Link href="/systems" className={`mobile-nav-item ${loc === "/systems" ? "active" : ""}`} onClick={() => setMobileMenuOpen(false)}>
+          <Link href="/systems" className={`mobile-nav-item ${location === "/systems" ? "active" : ""}`} onClick={() => setMobileMenuOpen(false)}>
             <Terminal size={16} style={{ color: THEME_COLOR }} /> Built Systems
           </Link>
-          <Link href="/portfolio" className={`mobile-nav-item ${loc === "/portfolio" ? "active" : ""}`} onClick={() => setMobileMenuOpen(false)}>
+          <Link href="/portfolio" className={`mobile-nav-item ${location === "/portfolio" ? "active" : ""}`} onClick={() => setMobileMenuOpen(false)}>
             <FolderKanban size={16} style={{ color: THEME_COLOR }} /> Portfolio Targets
           </Link>
-          <Link href="/toolkit" className={`mobile-nav-item ${loc === "/toolkit" ? "active" : ""}`} onClick={() => setMobileMenuOpen(false)}>
+          <Link href="/toolkit" className={`mobile-nav-item ${location === "/toolkit" ? "active" : ""}`} onClick={() => setMobileMenuOpen(false)}>
             <Wrench size={16} style={{ color: THEME_COLOR }} /> Starter Toolkit
           </Link>
-          <Link href="/services" className={`mobile-nav-item ${loc === "/services" ? "active" : ""}`} onClick={() => setMobileMenuOpen(false)}>
+          <Link href="/services" className={`mobile-nav-item ${location === "/services" ? "active" : ""}`} onClick={() => setMobileMenuOpen(false)}>
             <BarChart2 size={16} style={{ color: THEME_COLOR }} /> Services & Offers
           </Link>
 
           <div className="mobile-section-label">Command Center</div>
-          <Link href="/settings" className={`mobile-nav-item ${loc === "/settings" ? "active" : ""}`} onClick={() => setMobileMenuOpen(false)}>
+          <Link href="/settings" className={`mobile-nav-item ${location === "/settings" ? "active" : ""}`} onClick={() => setMobileMenuOpen(false)}>
             <Settings size={16} /> {t("nav.settings")}
           </Link>
-          <Link href="/faq" className={`mobile-nav-item ${loc === "/faq" ? "active" : ""}`} onClick={() => setMobileMenuOpen(false)}>
+          <Link href="/faq" className={`mobile-nav-item ${location === "/faq" ? "active" : ""}`} onClick={() => setMobileMenuOpen(false)}>
             <HelpCircle size={16} /> Help & FAQ
           </Link>
 
