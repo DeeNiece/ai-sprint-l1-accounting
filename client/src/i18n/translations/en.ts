@@ -128,7 +128,7 @@ const en: Record<string, string> = {
   "settings.modelLabel":     "Model name",
   "settings.showAdvanced":   "Show advanced settings (base URL, model)",
   "settings.testing":        "Testing...",
-  "settings.checkHealth":    "Check Health", // 👈 PASTE THIS LINE HERE
+  "settings.checkHealth":    "Check Health",
   "settings.testConnection": "Test Connection",
   "settings.saving":         "Saving...",
   "settings.saveKey":        "Save API Key",
@@ -149,7 +149,7 @@ const en: Record<string, string> = {
   "faq.desc":           "Everything you need to know about AI Sprint, the AI Coach, and setting up your API key.",
   "faq.footer":         "Still have questions? The AI Coach inside each lesson can help you with any topic covered in the course!",
   "faq.gettingStarted": "Getting Started",
-  "faq.aiCoach":        "AI Coach Chat",
+  "faq.aiCoach":        "AI Coach Chat & PromptLab",
   "faq.apiSetup":       "Setting Up Your API Key",
   "faq.costs":          "Costs & Billing",
   "faq.privacy":        "Privacy & Security",
@@ -157,17 +157,19 @@ const en: Record<string, string> = {
 
   // Getting Started
   "faq.q1": "What is AI Sprint?",
-  "faq.a1": "AI Sprint is a 28-day learning app that teaches you practical AI skills step by step. Each day has a short lesson (15-20 minutes) with a hands-on task, so you build real skills you can use as a freelancer or virtual assistant.",
+  "faq.a1": "AI Sprint is a 28-day learning app that teaches you practical AI skills step by step. Each day has a short lesson (15-20 minutes) with a hands-on task, so you build real skills that help you work smarter, stand out at work, and advance your career.",
   "faq.q2": "Do I need any experience to start?",
   "faq.a2": "No! Level 1 (Basic) is designed for complete beginners. Day 1 starts by simply having a conversation with an AI tool. The course gradually builds your skills over 4 weeks.",
   "faq.q3": "Why do I need to create an account?",
   "faq.a3": "Your account lets you track progress across all 28 days, save your API key securely on the server, and pick up right where you left off each time you log in.",
 
-  // AI Coach Chat
+  // AI Coach Chat & PromptLab
   "faq.q4": "What is the AI Coach?",
   "faq.a4": "Every lesson day has a built-in AI chat panel where you can ask questions, get examples, and receive step-by-step guidance. The AI knows exactly what day's lesson you're on and gives you personalized help.",
+  "faq.q_promptlab": "What is PromptLab?",
+  "faq.a_promptlab": "PromptLab is an interactive tool inside each day's lesson that lets you compare a basic 'lazy' prompt with a well‑structured AI Sprint prompt side‑by‑side. If you have an OpenAI API key configured in Settings, you can run the comparison live. No API key? No problem – you can still copy each prompt and test them manually in ChatGPT, Claude, or any other AI chat tool to see the difference in output quality.",
   "faq.q5": "Why do I need my own API key for the chat?",
-  "faq.a5": "The AI Coach connects to an external AI service to generate responses. Each user provides their own API key so there's no cost to the app owner. You only pay for what you use, and the costs are extremely small (fractions of a cent per conversation).",
+  "faq.a5": "The AI Coach and PromptLab connect to an external AI service to generate responses. Each user provides their own API key so there's no cost to the app owner. You only pay for what you use, and the costs are extremely small (fractions of a cent per conversation).",
   "faq.q6": "Can I use the app without an API key?",
   "faq.a6": "Yes! All 28 days of lessons, tasks, progress tracking, and tools work perfectly without an API key. The only feature that requires a key is the AI Coach chat panel. You can add a key later whenever you're ready.",
 
@@ -196,10 +198,10 @@ const en: Record<string, string> = {
   "faq.a15": "Your API key is stored in the app's database on the server. It's never exposed in the browser or shared with other users. Only your account can access it.",
   "faq.q16": "How do I remove my API key?",
   "faq.a16": "Go to Settings and click 'Remove Key'. Your API key will be deleted from the server immediately. The AI Coach chat will be disabled until you add a new key.",
-
-  // Regional Access — these two share the privacy section count
   "faq.q17": "What data does the AI Coach see?",
   "faq.a17": "The AI Coach only sees the current day's lesson information (title, task, tools) and the messages you type in the chat. It does not see your email, progress, or any personal account information.",
+
+  // Regional Access
   "faq.q18": "I'm in Hong Kong — which providers work?",
   "faq.a18": "DeepSeek and Mistral both work perfectly in Hong Kong with no restrictions. Groq also works. OpenAI and Anthropic (Claude) are blocked by those companies for HK users, so avoid those.",
   "faq.q19": "What if my provider is blocked in my region?",
