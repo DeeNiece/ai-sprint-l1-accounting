@@ -35,11 +35,10 @@ export default function Nav() {
   const [location, setLocation] = useLocation();
   const { t } = useLanguage();
 
-  // --- Level detection: from URL, then localStorage, then default ---
+  // --- Level detection: from URL (day pages) or localStorage, then default ---
   function getLevelFromUrl(): "1" | "2" {
     const match = location.match(/\/day\/L([12])-/);
     if (match) return match[1] as "1" | "2";
-    // If not on a day page, fall back to localStorage or default
     try {
       const stored = localStorage.getItem("accounting_level");
       if (stored === "2") return "2";
@@ -62,14 +61,14 @@ export default function Nav() {
     }
   }, [location]);
 
-  // Switch level and navigate to the first day of that track
+  // Switch level and navigate to home page (dashboard) of that track
   function switchLevel(lvl: "1" | "2") {
     try {
       localStorage.setItem("accounting_level", lvl);
     } catch {}
     setActiveLevelState(lvl);
-    // Navigate to the first day of the chosen track
-    setLocation(`/day/L${lvl}-1`);
+    // Navigate to home page – the dashboard will read localStorage and show the correct track
+    setLocation("/");
     // Close any open menus
     setLevelOpen(false);
     setMobileMenuOpen(false);
