@@ -8,9 +8,8 @@ const ThemeContext = createContext<{ theme: Theme; toggle: () => void }>({
 });
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setTheme] = useState<Theme>(() =>
-    window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"
-  );
+  // 👇 Always start with light mode
+  const [theme, setTheme] = useState<Theme>("light");
 
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", theme);
