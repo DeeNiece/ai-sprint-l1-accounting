@@ -84,7 +84,7 @@ export default function PromptLab({ dayTitle, badExample, goodExample }: PromptL
 
       {/* Cost info and API key notice (unchanged) */}
       <p style={{ fontSize: '0.85rem', fontStyle: 'italic', color: '#888', marginBottom: '0.5rem', marginTop: 0, lineHeight: '1.4' }}>
-        A typical conversation with the AI Coach (5 back-and-forth messages) costs about $0.001 — that's one-tenth of a cent. Even $2 of credit could last you through the entire 28-day course with heavy usage.
+        A typical conversation with the AI Coach (back-and-forth messages) costs about $0.001 — that's one-tenth of a cent. Even $2 of credit could last you through the entire 28-day course with heavy usage.
       </p>
       <p style={{ fontSize: '0.85rem', fontStyle: 'italic', color: '#888', marginBottom: '1.5rem', marginTop: 0, lineHeight: '1.4' }}>
         *If you don't have (or don't want to use) an API key, you can still run these examples by copy and pasting each sample prompt into your preferred AI chat tool and comparing the results there.
