@@ -232,6 +232,17 @@ export default function PricingPage() {
 
   const licensed = user?.licensedLevels || [];
 
+  // ✅ Fix for back‑button lag: reset loading when page is restored from bfcache
+  useEffect(() => {
+    const handlePageShow = (event: PageTransitionEvent) => {
+      if (event.persisted) {
+        setLoading(null);
+      }
+    };
+    window.addEventListener("pageshow", handlePageShow);
+    return () => window.removeEventListener("pageshow", handlePageShow);
+  }, []);
+
   function livePhp(usd: number): string {
     if (!rate) {
       // fallback approximate values if rate not loaded yet
@@ -243,9 +254,10 @@ export default function PricingPage() {
 
   async function handlePurchase(planId: string, provider: "stripe" | "paymongo") {
     setError(null);
-    setLoading(`${provider}-${planId}`);
+    const loadingKey = `${provider}-${planId}`;
+    setLoading(loadingKey);
     try {
-      const res  = await fetch(`/api/${provider}/checkout`, {
+      const res = await fetch(`/api/${provider}/checkout`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ plan: planId }),
@@ -256,6 +268,8 @@ export default function PricingPage() {
         setLoading(null);
         return;
       }
+      // ✅ Clear loading BEFORE redirect to avoid bfcache issue
+      setLoading(null);
       window.location.href = data.url;
     } catch {
       setError("Network error. Please try again.");
