@@ -7,6 +7,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { ThemeProvider } from "@/components/theme-provider";
 import { AuthProvider, useAuth } from "@/components/auth-provider";
 import { LanguageProvider } from "@/i18n";
+import { ScrollToTop } from "@/components/ScrollToTop"; // ✨ ADDED - Import the scroll component
 
 import AuthPage from "@/pages/auth";
 import HomePage from "@/pages/home";
@@ -59,6 +60,7 @@ function AppRoutes() {
   return (
     <LanguageProvider isLoggedIn={!!user}>
       <Router hook={useHashLocation}>
+        <ScrollToTop /> {/* ✨ ADDED - This ensures scroll to top on every route change */}
         <Switch>
           <Route path="/auth" component={AuthPage} />
           <Route path="/faq" component={FAQPage} />
