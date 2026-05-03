@@ -20,18 +20,14 @@ const stripe = stripeKey ? new Stripe(stripeKey, { apiVersion: "2023-10-16" }) :
 
 const APP_URL = process.env.APP_URL || "https://ai-sprint-l1-accounting-production.up.railway.app";
 
-// ── Pricing ───────────────────────────────────────────────────
+// ── Pricing (USD) – updated to match pricing page ──────────────────────────
 const PRICES: Record<string, { amount: number; label: string }> = {
-  "accounting-basic":    { amount: 1000,  label: "Accounting in the AI Era — Basic" },
-  "accounting-advanced": { amount: 1500,  label: "Accounting in the AI Era — Advanced" },
-  "accounting-bundle":   { amount: 2200,  label: "Accounting in the AI Era — Basic + Advanced Bundle" },
+  "accounting-basic":    { amount: 2500,  label: "Accounting in the AI Era — Basic" },
+  "accounting-advanced": { amount: 4000,  label: "Accounting in the AI Era — Advanced" },
+  "accounting-bundle":   { amount: 5500,  label: "Accounting in the AI Era — Basic + Advanced Bundle" },
 };
 
-const PAYMONGO_PRICES: Record<string, { amount: number; label: string }> = {
-  "accounting-basic":    { amount: 58000,  label: "Accounting in the AI Era — Basic" },
-  "accounting-advanced": { amount: 87000,  label: "Accounting in the AI Era — Advanced" },
-  "accounting-bundle":   { amount: 127600, label: "Accounting in the AI Era — Basic + Advanced Bundle" },
-};
+// No hardcoded PAYMONGO_PRICES – now using live rate dynamically
 
 function requireAuth(req: Request, res: Response, next: NextFunction) {
   if (!req.session.userId) return res.status(401).json({ error: "Not logged in" });
@@ -174,34 +170,81 @@ export function registerRoutes(app: Express): Server {
     } catch (err: any) { res.status(500).json({ error: err.message }); }
   });
 
-  // ── PayMongo checkout ─────────────────────────────────────
+  // ── PayMongo checkout (dynamic PHP amount based on live USD rate) ──
   app.post("/api/paymongo/checkout", requireAuth, async (req, res) => {
     const b = z.object({ plan: z.string() }).safeParse(req.body);
     const user = storage.getUserById(req.session.userId!);
     const KEY = process.env.PAYMONGO_SECRET_KEY || "";
     try {
       const planKey = b.data?.plan || "accounting-bundle";
-      const priceInfo = PAYMONGO_PRICES[planKey] || PAYMONGO_PRICES["accounting-bundle"];
+      const usdPriceCents = PRICES[planKey]?.amount || PRICES["accounting-bundle"].amount;
+      const usdPrice = usdPriceCents / 100; // e.g., 2500 → $25.00
+
+      // Fetch live USD/PHP rate
+      let phpAmountCentavos: number;
+      let rateUsed: number;
+      try {
+        const rateRes = await fetch("https://open.er-api.com/v6/latest/USD");
+        const rateData = await rateRes.json();
+        const liveRate = rateData?.rates?.PHP;
+        if (liveRate && typeof liveRate === "number") {
+          rateUsed = liveRate;
+          phpAmountCentavos = Math.round(usdPrice * liveRate * 100);
+        } else {
+          throw new Error("Invalid rate response");
+        }
+      } catch (rateErr) {
+        console.warn("Failed to fetch live rate, falling back to hardcoded rate (58 PHP/USD)");
+        rateUsed = 58;
+        phpAmountCentavos = Math.round(usdPrice * 58 * 100);
+      }
+
+      const priceInfo = {
+        amount: phpAmountCentavos,
+        label: PRICES[planKey].label,
+      };
+
       const auth = `Basic ${Buffer.from(KEY + ":").toString("base64")}`;
       const response = await fetch("https://api.paymongo.com/v1/checkout_sessions", {
-        method: "POST", headers: { "Content-Type": "application/json", "Authorization": auth },
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Authorization": auth },
         body: JSON.stringify({
-          data: { attributes: {
-            billing: { email: user!.email, name: user!.displayName },
-            send_email_receipt: true, show_description: true, show_line_items: true,
-            cancel_url: `${APP_URL}/#/pricing`,
-            success_url: `${APP_URL}/#/purchase-success`,
-            description: priceInfo.label,
-            payment_method_types: ["qrph", "gcash", "paymaya", "card"],
-            line_items: [{ currency: "PHP", amount: priceInfo.amount, name: priceInfo.label, quantity: 1 }],
-            metadata: { level: planKey, email: user!.email },
-          }}
+          data: {
+            attributes: {
+              billing: { email: user!.email, name: user!.displayName },
+              send_email_receipt: true,
+              show_description: true,
+              show_line_items: true,
+              cancel_url: `${APP_URL}/#/pricing`,
+              success_url: `${APP_URL}/#/purchase-success`,
+              description: priceInfo.label,
+              payment_method_types: ["qrph", "gcash", "paymaya", "card"],
+              line_items: [
+                {
+                  currency: "PHP",
+                  amount: priceInfo.amount,
+                  name: priceInfo.label,
+                  quantity: 1,
+                },
+              ],
+              metadata: {
+                level: planKey,
+                email: user!.email,
+                usd_rate: rateUsed.toString(),
+                usd_amount: usdPrice.toString(),
+              },
+            },
+          },
         }),
       });
+
       const data = await response.json();
       if (data.errors) throw new Error(data.errors[0].detail);
       res.json({ url: data.data.attributes.checkout_url });
-    } catch (err: any) { res.status(500).json({ error: err.message }); }
+    } catch (err: any) {
+      console.error("PayMongo checkout error:", err);
+      res.status(500).json({ error: err.message });
+    }
   });
 
   // ── API Settings ──────────────────────────────────────────
