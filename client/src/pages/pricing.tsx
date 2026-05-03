@@ -10,13 +10,7 @@ const USD_PRICES: Record<string, number> = {
   "accounting-bundle":   55,
 };
 
-// ── PayMongo fixed PHP amounts (centavos) — always used for actual checkout ──
-// These are the authoritative amounts sent to PayMongo.
-const PAYMONGO_PHP_FIXED: Record<string, number> = {
-  "accounting-basic":    145000, // 25 USD * 5800 centavos = 145,000 centavos (₱1,450)
-  "accounting-advanced": 232000, // 40 USD * 5800 = 232,000 centavos (₱2,320)
-  "accounting-bundle":   319000, // 55 USD * 5800 = 319,000 centavos (₱3,190)
-};
+// ── PayMongo now uses live rate – no hardcoded PHP amounts ───────────────────
 
 function formatPhp(amount: number) {
   return "₱" + amount.toLocaleString("en-PH", { minimumFractionDigits: 0, maximumFractionDigits: 0 });
@@ -101,7 +95,7 @@ const PLANS = [
 const BUNDLE_USD     = 55;
 const BUNDLE_ORIG_USD = 65;
 
-// ── Contact Support Section (unchanged, just updated theme colour) ───────────
+// ── Contact Support Section (unchanged) ──────────────────────────────────────
 function ContactSection() {
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -240,8 +234,9 @@ export default function PricingPage() {
 
   function livePhp(usd: number): string {
     if (!rate) {
-      const fixedMap: Record<number, number> = { 25: 1450, 40: 2320, 55: 3190, 65: 3770 };
-      return formatPhp(fixedMap[usd] ?? usd * 56);
+      // fallback approximate values if rate not loaded yet
+      const fallbackMap: Record<number, number> = { 25: 1450, 40: 2320, 55: 3190, 65: 3770 };
+      return formatPhp(fallbackMap[usd] ?? usd * 56);
     }
     return formatPhp(Math.round(usd * rate));
   }
@@ -353,10 +348,10 @@ export default function PricingPage() {
                     <Wallet size={16} />
                     {loading === "paymongo-accounting-bundle"
                       ? "Redirecting…"
-                      : `GCash / PayMaya · ${formatPhp(PAYMONGO_PHP_FIXED["accounting-bundle"] / 100)}`}
+                      : `GCash / PayMaya · ${rate ? formatPhp(Math.round(BUNDLE_USD * rate)) : "..."}`}
                   </button>
                   <div style={{ fontSize: "0.72rem", color: "#555", textAlign: "center" }}>
-                    PHP amount fixed at checkout · live rate shown above for reference
+                    Live rate: 1 USD = {rate ? `₱${rate.toFixed(2)}` : "..."}
                   </div>
                 </div>
               )}
@@ -422,10 +417,10 @@ export default function PricingPage() {
                         <Wallet size={14} />
                         {loading === `paymongo-${plan.id}`
                           ? "Redirecting…"
-                          : `GCash / PayMaya · ${formatPhp(PAYMONGO_PHP_FIXED[plan.id] / 100)}`}
+                          : `GCash / PayMaya · ${rate ? formatPhp(Math.round(plan.usd * rate)) : "..."}`}
                       </button>
                       <div style={{ fontSize: "0.7rem", color: "#555", textAlign: "center" }}>
-                        PHP fixed at checkout · ≈ {livePhp(plan.usd)} today
+                        Live rate: 1 USD = {rate ? `₱${rate.toFixed(2)}` : "..."}
                       </div>
                     </div>
                   )}
