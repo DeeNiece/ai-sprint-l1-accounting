@@ -173,6 +173,10 @@ export default function SettingsPage() {
             To use the AI Coach chat and Prompt Labs in each lesson, you need your own API key. Each user provides and manages their own key — you're in full control.
             <br /><br />
             <span style={{ fontStyle: 'italic', opacity: 0.8, fontSize: '0.95em', color: '#888' }}>
+              A typical conversation with the AI Coach (back-and-forth messages) costs about $0.001 — that's one-tenth of a cent. Even $2 of credit could last you through the entire 28-day course with heavy usage.
+            </span>
+            <br /><br />
+            <span style={{ fontStyle: 'italic', opacity: 0.8, fontSize: '0.95em', color: '#888' }}>
               *If you don’t have (or don’t want to use) an API key, you can still run these examples by copy and pasting each sample prompt into your preferred AI chat tool and comparing the results there.
             </span>
           </p>
