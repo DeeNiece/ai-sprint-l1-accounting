@@ -7,6 +7,23 @@ interface PromptLabProps {
   goodExample: string;
 }
 
+// Convert markdown (bold, italic) to HTML for nicer display
+function formatMarkdown(text: string): string {
+  if (!text) return "";
+  // Escape HTML entities to prevent injection
+  let escaped = text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+  // Convert **bold** to <strong>bold</strong>
+  escaped = escaped.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
+  // Convert *italic* to <em>italic</em>
+  escaped = escaped.replace(/\*(.+?)\*/g, "<em>$1</em>");
+  // Preserve line breaks
+  escaped = escaped.replace(/\n/g, "<br />");
+  return escaped;
+}
+
 export default function PromptLab({ dayTitle, badExample, goodExample }: PromptLabProps) {
   const [results, setResults] = useState<{ a: string; b: string } | null>(null);
   const [loading, setLoading] = useState(false);
@@ -17,16 +34,13 @@ export default function PromptLab({ dayTitle, badExample, goodExample }: PromptL
     setError(null);
   }, [dayTitle]);
 
-  // Only modify the GOOD prompt – add a formatting instruction.
-  // The lazy prompt stays completely unchanged.
   // Only modify the GOOD prompt – add a formatting instruction at the START
   const formatGoodPrompt = (prompt: string) => {
     const formattingInstruction = 
-    "IMPORTANT: Format your answer as separate paragraphs, each starting with a step word like 'First', 'Next', 'Then', 'Finally'. " +
-    "Each step must be on its own line, indented with two spaces. " +
-    "Use a blank line between steps. Do not use bullet points, numbered lists, markdown, headings, or asterisks. " +
-    "Only plain text with indented paragraphs.\n\n";
-  
+      "IMPORTANT: Format your answer as separate paragraphs, each starting with a step word like 'First', 'Next', 'Then', 'Finally'. " +
+      "Each step must be on its own line, indented with two spaces. " +
+      "Use a blank line between steps. Do not use bullet points, numbered lists, markdown, headings, or asterisks. " +
+      "Only plain text with indented paragraphs.\n\n";
     return formattingInstruction + prompt;
   };
 
@@ -101,14 +115,24 @@ export default function PromptLab({ dayTitle, badExample, goodExample }: PromptL
         <div style={{ background: 'rgba(0,0,0,0.2)', padding: '1rem', borderRadius: '8px', border: '1px solid rgba(239,68,68,0.2)' }}>
           <div style={{ color: '#ef4444', fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', marginBottom: '0.5rem' }}>The "Lazy" Prompt</div>
           <div style={{ fontStyle: 'italic', fontSize: '0.9rem', color: 'var(--color-muted)', marginBottom: '1rem' }}>"{badExample}"</div>
-          {results && <div style={{ fontSize: '0.85rem', padding: '0.75rem', background: 'rgba(0,0,0,0.2)', borderRadius: '4px', borderLeft: '3px solid #ef4444', whiteSpace: 'pre-wrap' }}>{results.a}</div>}
+          {results && (
+            <div 
+              style={{ fontSize: '0.85rem', padding: '0.75rem', background: 'rgba(0,0,0,0.2)', borderRadius: '4px', borderLeft: '3px solid #ef4444', whiteSpace: 'pre-wrap' }}
+              dangerouslySetInnerHTML={{ __html: formatMarkdown(results.a) }}
+            />
+          )}
         </div>
 
         {/* Good Side – with added formatting instruction */}
         <div style={{ background: 'rgba(0,0,0,0.2)', padding: '1rem', borderRadius: '8px', border: '1px solid rgba(34,197,94,0.2)' }}>
           <div style={{ color: '#22c55e', fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', marginBottom: '0.5rem' }}>The AI Sprint Prompt</div>
           <div style={{ fontStyle: 'italic', fontSize: '0.9rem', color: 'var(--color-muted)', marginBottom: '1rem' }}>"{goodExample}"</div>
-          {results && <div style={{ fontSize: '0.85rem', padding: '0.75rem', background: 'rgba(0,0,0,0.2)', borderRadius: '4px', borderLeft: '3px solid #22c55e', whiteSpace: 'pre-wrap' }}>{results.b}</div>}
+          {results && (
+            <div 
+              style={{ fontSize: '0.85rem', padding: '0.75rem', background: 'rgba(0,0,0,0.2)', borderRadius: '4px', borderLeft: '3px solid #22c55e', whiteSpace: 'pre-wrap' }}
+              dangerouslySetInnerHTML={{ __html: formatMarkdown(results.b) }}
+            />
+          )}
         </div>
       </div>
 
