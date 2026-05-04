@@ -1,4 +1,5 @@
-import { useState } from "react";
+// services.tsx
+import { useState, useEffect } from "react";
 import Nav from "@/components/nav";
 import { serviceLadder } from "@/data/curriculum";
 import { useAuth } from "@/components/auth-provider";
@@ -9,9 +10,32 @@ import { Link } from "wouter";
 const L1_COLOR = "#0d7c8a"; // Teal — Basic
 const L2_COLOR = "#e8820c"; // Orange — Advanced
 
+// Helper to detect if dark mode is active
+function useIsDarkMode() {
+  const [isDark, setIsDark] = useState(true);
+  useEffect(() => {
+    const check = () => {
+      const isDarkMode = document.documentElement.classList.contains('dark') ||
+        (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+      setIsDark(isDarkMode);
+    };
+    check();
+    const observer = new MutationObserver(check);
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    mediaQuery.addEventListener('change', check);
+    return () => {
+      observer.disconnect();
+      mediaQuery.removeEventListener('change', check);
+    };
+  }, []);
+  return isDark;
+}
+
 export default function ServicesPage() {
   const { user } = useAuth();
   const [activeLevel, setActiveLevel] = useState<"1" | "2" | "both">("1");
+  const isDark = useIsDarkMode();
 
   const licensed     = user?.licensedLevels || [];
   const hasBasic     = licensed.includes("accounting-basic")    || licensed.includes("accounting-bundle");
@@ -32,6 +56,14 @@ export default function ServicesPage() {
       ? "Advanced — AI Finance Strategy & Governance Services"
       : "Full Service Suite — Basic + Advanced";
 
+  // Dynamic text colors based on theme
+  const headingColor = isDark ? "white" : "#1a1a1a";
+  const mutedColor = isDark ? "#aaa" : "#555";
+  const cardBg = isDark ? "rgba(22, 23, 30, 0.4)" : "rgba(245, 245, 250, 0.8)";
+  const cardBorder = isDark ? `${THEME}22` : `${THEME}40`;
+  const codeBg = isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.08)";
+  const sectionBg = isDark ? "rgba(0,0,0,0.2)" : "rgba(0,0,0,0.04)";
+
   return (
     <div className="page-wrap">
       <Nav />
@@ -47,10 +79,10 @@ export default function ServicesPage() {
           <span className="inner-page-badge" style={{ background: THEME, color: "white", fontWeight: 800 }}>
             {activeLevel === "1" ? "Level 1 Basic" : activeLevel === "2" ? "Level 2 Advanced" : "Full Suite"}
           </span>
-          <h1 className="inner-page-title" style={{ fontSize: "2.5rem", marginTop: "1rem" }}>
+          <h1 className="inner-page-title" style={{ fontSize: "2.5rem", marginTop: "1rem", color: headingColor }}>
             Service Ladder
           </h1>
-          <p className="inner-page-desc" style={{ maxWidth: "600px", margin: "1rem auto 0" }}>
+          <p className="inner-page-desc" style={{ maxWidth: "600px", margin: "1rem auto 0", color: mutedColor }}>
             The services you can offer after completing the accounting course — priced, packaged, and ready to deploy with your AI skills.
           </p>
 
@@ -67,9 +99,9 @@ export default function ServicesPage() {
                   style={{
                     display: "flex", alignItems: "center", gap: "8px",
                     padding: "8px 20px", borderRadius: "50px", cursor: "pointer",
-                    border: `1.5px solid ${active ? color : "var(--color-border)"}`,
+                    border: `1.5px solid ${active ? color : "var(--color-border, #ccc)"}`,
                     background: active ? `${color}1a` : "transparent",
-                    color: active ? color : "var(--color-text-muted)",
+                    color: active ? color : (isDark ? "var(--color-text-muted, #aaa)" : "#666"),
                     fontWeight: 700, fontSize: "0.85rem", transition: "all 0.2s",
                   }}
                 >
@@ -108,9 +140,9 @@ export default function ServicesPage() {
 
               return (
                 <div key={i} className="service-card" style={{
-                  background: "rgba(22, 23, 30, 0.4)",
+                  background: cardBg,
                   backdropFilter: "blur(10px)",
-                  border: `1px solid ${color}22`,
+                  border: `1px solid ${cardBorder}`,
                   borderRadius: "20px",
                   padding: "2rem",
                   transition: "transform 0.2s ease, box-shadow 0.2s ease",
@@ -131,7 +163,7 @@ export default function ServicesPage() {
 
                   {/* Name + price */}
                   <div className="service-card-header" style={{ marginBottom: "1.25rem", paddingRight: "60px" }}>
-                    <h3 style={{ fontSize: "1.15rem", fontWeight: 800, color: "white", lineHeight: 1.3 }}>
+                    <h3 style={{ fontSize: "1.15rem", fontWeight: 800, color: headingColor, lineHeight: 1.3 }}>
                       {tier.name}
                     </h3>
                     <span style={{
@@ -146,18 +178,18 @@ export default function ServicesPage() {
 
                   {/* Description */}
                   <div style={{
-                    padding: "12px", background: "rgba(0,0,0,0.2)",
+                    padding: "12px", background: isDark ? "rgba(0,0,0,0.2)" : "rgba(0,0,0,0.04)",
                     borderRadius: "8px", borderLeft: `3px solid ${color}`,
                     marginBottom: "1.25rem",
                   }}>
-                    <p style={{ fontSize: "0.88rem", color: "#aaa", margin: 0, lineHeight: 1.5 }}>
+                    <p style={{ fontSize: "0.88rem", color: mutedColor, margin: 0, lineHeight: 1.5 }}>
                       {tier.description}
                     </p>
                   </div>
 
                   {/* Deliverables */}
                   <div style={{
-                    fontSize: "0.72rem", fontWeight: 800, color: "white",
+                    fontSize: "0.72rem", fontWeight: 800, color: headingColor,
                     textTransform: "uppercase", marginBottom: "0.75rem",
                     letterSpacing: "0.05em",
                   }}>
@@ -167,7 +199,7 @@ export default function ServicesPage() {
                     {tier.examples.map((ex, j) => (
                       <li key={j} style={{
                         display: "flex", alignItems: "flex-start", gap: "10px",
-                        fontSize: "0.84rem", color: "#ccc", marginBottom: "10px",
+                        fontSize: "0.84rem", color: mutedColor, marginBottom: "10px",
                       }}>
                         <CheckCircle2 size={13} style={{ color, marginTop: "2px", flexShrink: 0 }} />
                         {ex}
@@ -183,7 +215,7 @@ export default function ServicesPage() {
                       borderRadius: "8px", display: "flex", alignItems: "center", gap: "8px",
                     }}>
                       <Layers size={13} style={{ color, flexShrink: 0 }} />
-                      <span style={{ fontSize: "0.75rem", color: "#aaa" }}>
+                      <span style={{ fontSize: "0.75rem", color: mutedColor }}>
                         {tier.level === 1
                           ? "Unlocked after completing Basic track"
                           : "Unlocked after completing Advanced track"
@@ -198,13 +230,13 @@ export default function ServicesPage() {
         </section>
 
         {/* Upgrade / progress nudge */}
-        <section style={{ marginTop: "4rem", padding: "2rem", background: "rgba(0,0,0,0.2)", borderRadius: "20px", border: "1px solid rgba(255,255,255,0.05)" }}>
+        <section style={{ marginTop: "4rem", padding: "2rem", background: sectionBg, borderRadius: "20px", border: `1px solid ${isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)"}` }}>
           <div style={{ display: "flex", alignItems: "flex-start", gap: "1.5rem", flexWrap: "wrap" }}>
             <div style={{ flex: 1, minWidth: "240px" }}>
-              <h3 style={{ color: "white", fontWeight: 800, fontSize: "1.15rem", marginBottom: "0.5rem" }}>
+              <h3 style={{ color: headingColor, fontWeight: 800, fontSize: "1.15rem", marginBottom: "0.5rem" }}>
                 Ready to offer these services?
               </h3>
-              <p style={{ color: "#888", fontSize: "0.9rem", lineHeight: 1.6, margin: 0 }}>
+              <p style={{ color: mutedColor, fontSize: "0.9rem", lineHeight: 1.6, margin: 0 }}>
                 Complete your track to build the skills, portfolio pieces, and confidence to deliver each service at a professional level. Every deliverable in the course is designed to become a real client output.
               </p>
             </div>
