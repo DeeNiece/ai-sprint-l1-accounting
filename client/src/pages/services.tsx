@@ -6,11 +6,9 @@ import { useAuth } from "@/components/auth-provider";
 import { TrendingUp, CheckCircle2, DollarSign, Lock, Layers } from "lucide-react";
 import { Link } from "wouter";
 
-// ── Level theme ────────────────────────────────────────────────
-const L1_COLOR = "#0d7c8a"; // Teal — Basic
-const L2_COLOR = "#e8820c"; // Orange — Advanced
+const L1_COLOR = "#0d7c8a";
+const L2_COLOR = "#e8820c";
 
-// Helper to detect if dark mode is active
 function useIsDarkMode() {
   const [isDark, setIsDark] = useState(true);
   useEffect(() => {
@@ -37,11 +35,11 @@ export default function ServicesPage() {
   const [activeLevel, setActiveLevel] = useState<"1" | "2" | "both">("1");
   const isDark = useIsDarkMode();
 
-  const licensed     = user?.licensedLevels || [];
-  const hasBasic     = licensed.includes("accounting-basic")    || licensed.includes("accounting-bundle");
-  const hasAdvanced  = licensed.includes("accounting-advanced") || licensed.includes("accounting-bundle");
+  const licensed = user?.licensedLevels || [];
+  const hasBasic = licensed.includes("accounting-basic") || licensed.includes("accounting-bundle");
+  const hasAdvanced = licensed.includes("accounting-advanced") || licensed.includes("accounting-bundle");
 
-  const THEME       = activeLevel === "2" ? L2_COLOR : L1_COLOR;
+  const THEME = activeLevel === "2" ? L2_COLOR : L1_COLOR;
   const THEME_ALPHA = activeLevel === "2" ? "rgba(232,130,12,0.08)" : "rgba(13,124,138,0.08)";
   const THEME_BORDER = activeLevel === "2" ? "rgba(232,130,12,0.15)" : "rgba(13,124,138,0.15)";
 
@@ -56,12 +54,12 @@ export default function ServicesPage() {
       ? "Advanced — AI Finance Strategy & Governance Services"
       : "Full Service Suite — Basic + Advanced";
 
-  // Dynamic text colors based on theme
-  const headingColor = isDark ? "white" : "#1a1a1a";
-  const mutedColor = isDark ? "#aaa" : "#555";
-  const cardBg = isDark ? "rgba(22, 23, 30, 0.4)" : "rgba(245, 245, 250, 0.8)";
-  const cardBorder = isDark ? `${THEME}22` : `${THEME}40`;
-  const codeBg = isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.08)";
+  // Light mode uses dark text, dark mode uses light text
+  const headingColor = isDark ? "#ffffff" : "#1a1a1a";
+  const mutedColor = isDark ? "#aaaaaa" : "#555555";
+  const cardBg = isDark ? "rgba(22, 23, 30, 0.4)" : "#ffffff";
+  const cardBorderLight = isDark ? `${THEME}22` : `${THEME}40`;
+  const descriptionBg = isDark ? "rgba(0,0,0,0.2)" : "rgba(0,0,0,0.04)";
   const sectionBg = isDark ? "rgba(0,0,0,0.2)" : "rgba(0,0,0,0.04)";
 
   return (
@@ -69,7 +67,6 @@ export default function ServicesPage() {
       <Nav />
       <div className="inner-page">
 
-        {/* Header */}
         <div className="inner-page-header" style={{
           textAlign: "center", padding: "3rem 1.5rem",
           background: THEME_ALPHA,
@@ -86,7 +83,6 @@ export default function ServicesPage() {
             The services you can offer after completing the accounting course — priced, packaged, and ready to deploy with your AI skills.
           </p>
 
-          {/* Level switcher */}
           <div style={{ display: "flex", gap: "10px", justifyContent: "center", marginTop: "1.5rem", flexWrap: "wrap" }}>
             {(["1", "2", "both"] as const).map((lvl) => {
               const color = lvl === "2" ? L2_COLOR : L1_COLOR;
@@ -99,9 +95,9 @@ export default function ServicesPage() {
                   style={{
                     display: "flex", alignItems: "center", gap: "8px",
                     padding: "8px 20px", borderRadius: "50px", cursor: "pointer",
-                    border: `1.5px solid ${active ? color : "var(--color-border, #ccc)"}`,
+                    border: `1.5px solid ${active ? color : (isDark ? "#444" : "#ccc")}`,
                     background: active ? `${color}1a` : "transparent",
-                    color: active ? color : (isDark ? "var(--color-text-muted, #aaa)" : "#666"),
+                    color: active ? color : mutedColor,
                     fontWeight: 700, fontSize: "0.85rem", transition: "all 0.2s",
                   }}
                 >
@@ -113,13 +109,11 @@ export default function ServicesPage() {
           </div>
         </div>
 
-        {/* Section title */}
         <section className="services-section">
           <h2 className="services-section-title" style={{ display: "flex", alignItems: "center", gap: "10px", color: THEME }}>
             <TrendingUp size={20} /> {levelLabel}
           </h2>
 
-          {/* Service cards */}
           <div className="services-grid" style={{
             display: "grid", gap: "1.5rem",
             gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
@@ -141,14 +135,14 @@ export default function ServicesPage() {
               return (
                 <div key={i} className="service-card" style={{
                   background: cardBg,
-                  backdropFilter: "blur(10px)",
-                  border: `1px solid ${cardBorder}`,
+                  backdropFilter: isDark ? "blur(10px)" : "none",
+                  border: `1px solid ${cardBorderLight}`,
                   borderRadius: "20px",
                   padding: "2rem",
                   transition: "transform 0.2s ease, box-shadow 0.2s ease",
                   position: "relative", overflow: "hidden",
+                  boxShadow: isDark ? "none" : "0 2px 8px rgba(0,0,0,0.05)",
                 }}>
-                  {/* Tier badge */}
                   <div style={{
                     position: "absolute", top: 0, right: 0,
                     padding: "6px 14px",
@@ -161,7 +155,6 @@ export default function ServicesPage() {
                     Tier {tier.tier} · {levelTag}
                   </div>
 
-                  {/* Name + price */}
                   <div className="service-card-header" style={{ marginBottom: "1.25rem", paddingRight: "60px" }}>
                     <h3 style={{ fontSize: "1.15rem", fontWeight: 800, color: headingColor, lineHeight: 1.3 }}>
                       {tier.name}
@@ -176,9 +169,8 @@ export default function ServicesPage() {
                     </span>
                   </div>
 
-                  {/* Description */}
                   <div style={{
-                    padding: "12px", background: isDark ? "rgba(0,0,0,0.2)" : "rgba(0,0,0,0.04)",
+                    padding: "12px", background: descriptionBg,
                     borderRadius: "8px", borderLeft: `3px solid ${color}`,
                     marginBottom: "1.25rem",
                   }}>
@@ -187,7 +179,6 @@ export default function ServicesPage() {
                     </p>
                   </div>
 
-                  {/* Deliverables */}
                   <div style={{
                     fontSize: "0.72rem", fontWeight: 800, color: headingColor,
                     textTransform: "uppercase", marginBottom: "0.75rem",
@@ -207,7 +198,6 @@ export default function ServicesPage() {
                     ))}
                   </ul>
 
-                  {/* Level unlock note */}
                   {tier.level !== "both" && (
                     <div style={{
                       marginTop: "1.25rem", padding: "8px 12px",
@@ -229,7 +219,6 @@ export default function ServicesPage() {
           </div>
         </section>
 
-        {/* Upgrade / progress nudge */}
         <section style={{ marginTop: "4rem", padding: "2rem", background: sectionBg, borderRadius: "20px", border: `1px solid ${isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)"}` }}>
           <div style={{ display: "flex", alignItems: "flex-start", gap: "1.5rem", flexWrap: "wrap" }}>
             <div style={{ flex: 1, minWidth: "240px" }}>
