@@ -1,3 +1,4 @@
+// settings.tsx
 import { useState, useEffect } from "react";
 import { useAuth } from "@/components/auth-provider";
 import { useLanguage } from "@/i18n";
@@ -19,9 +20,33 @@ interface SavedSettings {
   model: string;
 }
 
+// Helper to detect dark mode
+function useIsDarkMode() {
+  const [isDark, setIsDark] = useState(true);
+  useEffect(() => {
+    const check = () => {
+      const isDarkMode = document.documentElement.classList.contains('dark') ||
+        (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+      setIsDark(isDarkMode);
+    };
+    check();
+    const observer = new MutationObserver(check);
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    mediaQuery.addEventListener('change', check);
+    return () => {
+      observer.disconnect();
+      mediaQuery.removeEventListener('change', check);
+    };
+  }, []);
+  return isDark;
+}
+
 export default function SettingsPage() {
   const { user } = useAuth();
   const { t } = useLanguage();
+  const isDark = useIsDarkMode();
+
   const [saved, setSaved] = useState<SavedSettings | null>(null);
   const [loadingSaved, setLoadingSaved] = useState(true);
 
@@ -38,10 +63,17 @@ export default function SettingsPage() {
   const THEME_COLOR = "#0d7c8a";
   const THEME_BG = "rgba(13, 124, 138, 0.1)";
 
-  // Box Layout Styling
+  // Dynamic styles based on dark mode
+  const headingColor = isDark ? "white" : "#1a1a1a";
+  const mutedColor = isDark ? "#aaa" : "#555";
+  const borderColor = isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)";
+  const cardBg = isDark ? "rgba(255, 255, 255, 0.03)" : "rgba(0, 0, 0, 0.02)";
+  const inputBg = isDark ? "rgba(0,0,0,0.2)" : "rgba(0,0,0,0.04)";
+  const codeBg = isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.08)";
+
   const cardStyle = {
-    background: 'rgba(255, 255, 255, 0.03)',
-    border: '1px solid rgba(255, 255, 255, 0.1)',
+    background: cardBg,
+    border: `1px solid ${borderColor}`,
     borderRadius: '12px',
     padding: '24px',
     marginBottom: '24px'
@@ -50,10 +82,10 @@ export default function SettingsPage() {
   const inputStyle = {
     width: '100%',
     padding: '12px',
-    background: 'rgba(0,0,0,0.2)',
-    border: '1px solid rgba(255,255,255,0.1)',
+    background: inputBg,
+    border: `1px solid ${borderColor}`,
     borderRadius: '8px',
-    color: 'white',
+    color: headingColor,
     marginTop: '8px'
   };
 
@@ -148,7 +180,6 @@ export default function SettingsPage() {
         setError("Failed to remove API key. Please try again.");
         return;
       }
-      // ✅ Clear local state only after confirmed server deletion
       setSaved(null);
       setTestResult(null);
       setApiKey("");
@@ -161,37 +192,37 @@ export default function SettingsPage() {
   const selectedProvider = PROVIDERS.find((p) => p.id === providerId)!;
 
   return (
-    <div className="page-wrap" style={{ background: "radial-gradient(circle at 50% 0%, rgba(13, 124, 138, 0.05) 0%, #0a0a0c 100%)", minHeight: "100vh" }}>
+    <div className="page-wrap" style={{ background: isDark ? "radial-gradient(circle at 50% 0%, rgba(13, 124, 138, 0.05) 0%, #0a0a0c 100%)" : "#f5f5f7", minHeight: "100vh" }}>
       <Nav />
       <main className="settings-page" style={{ maxWidth: '800px', margin: '0 auto', padding: '40px 20px' }}>
         
         <div className="settings-header" style={{ marginBottom: '32px' }}>
-          <h1 className="settings-title" style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '1.8rem', marginBottom: '16px' }}>
+          <h1 className="settings-title" style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '1.8rem', marginBottom: '16px', color: headingColor }}>
             <Key size={24} style={{ color: THEME_COLOR }} /> {t("settings.title")} · Level 1
           </h1>
-          <p className="settings-desc" style={{ color: '#aaa', lineHeight: '1.6' }}>
+          <p className="settings-desc" style={{ color: mutedColor, lineHeight: '1.6' }}>
             To use the AI Coach chat and Prompt Labs in each lesson, you need your own API key. Each user provides and manages their own key — you're in full control.
             <br /><br />
-            <span style={{ fontStyle: 'italic', opacity: 0.8, fontSize: '0.95em', color: '#888' }}>
+            <span style={{ fontStyle: 'italic', opacity: 0.8, fontSize: '0.95em', color: mutedColor }}>
               A typical conversation with the AI Coach (back-and-forth messages) costs about $0.001 — that's one-tenth of a cent. Even $2 of credit could last you through the entire 28-day course with heavy usage.
             </span>
             <br /><br />
-            <span style={{ fontStyle: 'italic', opacity: 0.8, fontSize: '0.95em', color: '#888' }}>
+            <span style={{ fontStyle: 'italic', opacity: 0.8, fontSize: '0.95em', color: mutedColor }}>
               *If you don’t have (or don’t want to use) an API key, you can still run these examples by copy and pasting each sample prompt into your preferred AI chat tool and comparing the results there.
             </span>
           </p>
         </div>
 
         {loadingSaved ? (
-          <div style={cardStyle}><Loader2 size={18} className="spin" /> {t("settings.loading")}</div>
+          <div style={cardStyle}><Loader2 size={18} className="spin" style={{ color: mutedColor }} /> {t("settings.loading")}</div>
         ) : saved ? (
           <div style={cardStyle}>
             <div className="saved-status" style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
               <CheckCircle2 size={20} style={{ color: THEME_COLOR, marginTop: '2px' }} />
               <div>
-                <div className="saved-title" style={{ fontWeight: 'bold', fontSize: '1.1rem', marginBottom: '8px' }}>{t("settings.keyActive")}</div>
-                <div className="saved-detail" style={{ color: '#aaa', fontSize: '0.9rem' }}>
-                  {t("settings.provider")}: <strong style={{ color: 'white' }}>{saved.provider}</strong> · {t("settings.key")}: <code style={{ background: 'rgba(255,255,255,0.1)', padding: '2px 6px', borderRadius: '4px' }}>{saved.apiKeyPreview}</code> · {t("settings.model")}: <code style={{ background: 'rgba(255,255,255,0.1)', padding: '2px 6px', borderRadius: '4px' }}>{saved.model}</code>
+                <div className="saved-title" style={{ fontWeight: 'bold', fontSize: '1.1rem', marginBottom: '8px', color: headingColor }}>{t("settings.keyActive")}</div>
+                <div className="saved-detail" style={{ color: mutedColor, fontSize: '0.9rem' }}>
+                  {t("settings.provider")}: <strong style={{ color: headingColor }}>{saved.provider}</strong> · {t("settings.key")}: <code style={{ background: codeBg, padding: '2px 6px', borderRadius: '4px', color: headingColor }}>{saved.apiKeyPreview}</code> · {t("settings.model")}: <code style={{ background: codeBg, padding: '2px 6px', borderRadius: '4px', color: headingColor }}>{saved.model}</code>
                 </div>
               </div>
             </div>
@@ -199,7 +230,7 @@ export default function SettingsPage() {
               <button 
                 onClick={handleCheckHealth} 
                 disabled={testing} 
-                style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 16px', borderRadius: '6px', fontSize: '0.9rem', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer', color: THEME_COLOR }}
+                style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 16px', borderRadius: '6px', fontSize: '0.9rem', background: cardBg, border: `1px solid ${borderColor}`, cursor: 'pointer', color: THEME_COLOR }}
               >
                 {testing ? <Loader2 size={14} className="spin" /> : <Activity size={14} />} 
                 Check Health
@@ -212,34 +243,34 @@ export default function SettingsPage() {
         ) : (
           <div style={cardStyle}>
             <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
-              <Info size={20} style={{ color: '#888', marginTop: '2px' }} />
+              <Info size={20} style={{ color: mutedColor, marginTop: '2px' }} />
               <div>
-                <div className="saved-title" style={{ fontWeight: 'bold', fontSize: '1.1rem', marginBottom: '8px' }}>{t("settings.noKey")}</div>
-                <div className="saved-detail" style={{ color: '#aaa' }}>{t("settings.noKeyDesc")}</div>
+                <div className="saved-title" style={{ fontWeight: 'bold', fontSize: '1.1rem', marginBottom: '8px', color: headingColor }}>{t("settings.noKey")}</div>
+                <div className="saved-detail" style={{ color: mutedColor }}>{t("settings.noKeyDesc")}</div>
               </div>
             </div>
           </div>
         )}
 
         <div style={cardStyle}>
-          <h2 className="setup-heading" style={{ fontSize: '1.2rem', fontWeight: 'bold', marginBottom: '20px' }}>
+          <h2 className="setup-heading" style={{ fontSize: '1.2rem', fontWeight: 'bold', marginBottom: '20px', color: headingColor }}>
             {saved ? t("settings.changeKey") : t("settings.setupKey")}
           </h2>
 
           <div className="settings-field" style={{ marginBottom: '24px' }}>
-            <label style={{ display: 'block', marginBottom: '12px', color: '#ccc', fontWeight: 500 }}>Choose a provider</label>
+            <label style={{ display: 'block', marginBottom: '12px', color: mutedColor, fontWeight: 500 }}>Choose a provider</label>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '12px' }}>
               {PROVIDERS.map((p) => (
                 <button
                   key={p.id}
                   style={{
-                    border: providerId === p.id ? `1px solid ${THEME_COLOR}` : '1px solid rgba(255,255,255,0.1)',
-                    background: providerId === p.id ? THEME_BG : 'rgba(0,0,0,0.2)',
+                    border: providerId === p.id ? `1px solid ${THEME_COLOR}` : `1px solid ${borderColor}`,
+                    background: providerId === p.id ? THEME_BG : cardBg,
                     borderRadius: '8px',
                     padding: '16px',
                     textAlign: 'left',
                     cursor: 'pointer',
-                    color: 'white',
+                    color: headingColor,
                     display: 'flex',
                     flexDirection: 'column',
                     gap: '6px',
@@ -248,14 +279,14 @@ export default function SettingsPage() {
                   onClick={() => selectProvider(p.id)}
                 >
                   <div style={{ fontWeight: 'bold', fontSize: '1rem' }}>{p.name}</div>
-                  {p.note && <div style={{ fontSize: '0.8rem', color: '#888', lineHeight: '1.4' }}>{t(`settings.${p.id}Note`)}</div>}
+                  {p.note && <div style={{ fontSize: '0.8rem', color: mutedColor, lineHeight: '1.4' }}>{t(`settings.${p.id}Note`, p.note)}</div>}
                 </button>
               ))}
             </div>
           </div>
 
           {selectedProvider.signupUrl && (
-            <div className="provider-signup" style={{ marginBottom: '24px', fontSize: '0.9rem', color: '#aaa' }}>
+            <div className="provider-signup" style={{ marginBottom: '24px', fontSize: '0.9rem', color: mutedColor }}>
               {t("settings.noKeyYet")} <a href={selectedProvider.signupUrl} target="_blank" rel="noopener" style={{ color: THEME_COLOR, textDecoration: 'none', fontWeight: 'bold' }}>
                 {t("settings.signupAt", { name: selectedProvider.name })} →
               </a>
@@ -263,7 +294,7 @@ export default function SettingsPage() {
           )}
 
           <div className="settings-field" style={{ marginBottom: '20px' }}>
-            <label htmlFor="apiKey" style={{ display: 'block', color: '#ccc', fontWeight: 500 }}>{t("settings.apiKeyLabel")}</label>
+            <label htmlFor="apiKey" style={{ display: 'block', color: mutedColor, fontWeight: 500 }}>{t("settings.apiKeyLabel")}</label>
             <input
               id="apiKey"
               type="password"
@@ -277,7 +308,7 @@ export default function SettingsPage() {
           {(providerId === "custom" || showAdvanced) ? (
             <>
               <div className="settings-field" style={{ marginBottom: '20px' }}>
-                <label htmlFor="baseUrl" style={{ display: 'block', color: '#ccc', fontWeight: 500 }}>{t("settings.baseUrlLabel")}</label>
+                <label htmlFor="baseUrl" style={{ display: 'block', color: mutedColor, fontWeight: 500 }}>{t("settings.baseUrlLabel")}</label>
                 <input
                   id="baseUrl"
                   type="url"
@@ -288,7 +319,7 @@ export default function SettingsPage() {
                 />
               </div>
               <div className="settings-field" style={{ marginBottom: '24px' }}>
-                <label htmlFor="model" style={{ display: 'block', color: '#ccc', fontWeight: 500 }}>{t("settings.modelLabel")}</label>
+                <label htmlFor="model" style={{ display: 'block', color: mutedColor, fontWeight: 500 }}>{t("settings.modelLabel")}</label>
                 <input
                   id="model"
                   type="text"
@@ -302,7 +333,7 @@ export default function SettingsPage() {
           ) : (
             <button 
               onClick={() => setShowAdvanced(true)}
-              style={{ background: 'none', border: 'none', color: '#888', fontSize: '0.9rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', padding: 0, marginBottom: '24px' }}
+              style={{ background: 'none', border: 'none', color: mutedColor, fontSize: '0.9rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', padding: 0, marginBottom: '24px' }}
             >
               <ChevronDown size={14} /> {t("settings.showAdvanced")}
             </button>
@@ -325,7 +356,7 @@ export default function SettingsPage() {
             <button 
               onClick={handleTest} 
               disabled={testing || !apiKey.trim()} 
-              style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 20px', borderRadius: '8px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: 'white', cursor: (testing || !apiKey.trim()) ? 'not-allowed' : 'pointer', opacity: (testing || !apiKey.trim()) ? 0.5 : 1 }}
+              style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 20px', borderRadius: '8px', background: cardBg, border: `1px solid ${borderColor}`, color: headingColor, cursor: (testing || !apiKey.trim()) ? 'not-allowed' : 'pointer', opacity: (testing || !apiKey.trim()) ? 0.5 : 1 }}
             >
               {testing ? <><Loader2 size={16} className="spin" /> {t("settings.testing")}</> : <><TestTube2 size={16} /> {t("settings.testConnection")}</>}
             </button>
