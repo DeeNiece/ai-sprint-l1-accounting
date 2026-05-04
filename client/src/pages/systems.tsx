@@ -4,11 +4,9 @@ import Nav from "@/components/nav";
 import { systemsSummaryL1, systemsSummaryL2, metricsToTrack, portfolioTargets } from "@/data/curriculum";
 import { Layers, BarChart2, CheckCircle2, Settings, TrendingUp } from "lucide-react";
 
-// Colors
 const L1_COLOR = "#0d7c8a"; // Teal — Basic
 const L2_COLOR = "#e8820c"; // Orange — Advanced
 
-// Helper to detect dark mode
 function useIsDarkMode() {
   const [isDark, setIsDark] = useState(true);
   useEffect(() => {
@@ -34,18 +32,17 @@ export default function SystemsPage() {
   const [activeLevel, setActiveLevel] = useState<"1" | "2">("1");
   const isDark = useIsDarkMode();
 
-  // Choose the right systems summary based on active level
   const systemsSummary = activeLevel === "1" ? systemsSummaryL1 : systemsSummaryL2;
   const THEME = activeLevel === "1" ? L1_COLOR : L2_COLOR;
   const THEME_ALPHA = activeLevel === "1" ? "rgba(13,124,138,0.05)" : "rgba(232,130,12,0.05)";
   const THEME_BORDER = activeLevel === "1" ? "rgba(13,124,138,0.15)" : "rgba(232,130,12,0.15)";
 
-  // Dynamic text colors
-  const headingColor = isDark ? "white" : "#1a1a1a";
-  const mutedColor = isDark ? "#aaa" : "#555";
-  const cardBg = isDark ? "rgba(22, 23, 30, 0.4)" : "rgba(245, 245, 250, 0.8)";
+  // Light mode uses dark text, dark mode uses light text
+  const headingColor = isDark ? "#ffffff" : "#1a1a1a";
+  const mutedColor = isDark ? "#aaaaaa" : "#555555";
+  const cardBg = isDark ? "rgba(22, 23, 30, 0.4)" : "#f8f8fc";
   const cardBorder = isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.08)";
-  const sectionBg = isDark ? "rgba(0,0,0,0.2)" : "rgba(0,0,0,0.04)";
+  const sectionBg = isDark ? "rgba(0,0,0,0.2)" : "#f0f0f4";
 
   return (
     <div className="page-wrap">
@@ -118,7 +115,7 @@ export default function SystemsPage() {
           </div>
         </section>
 
-        {/* Metrics section stays the same but with light mode support */}
+        {/* Metrics section */}
         <section className="services-section" style={{ marginTop: '4rem' }}>
           <div style={{ padding: '2rem', background: sectionBg, border: `1px solid ${cardBorder}`, borderRadius: '24px' }}>
             <h2 style={{ display: 'flex', alignItems: 'center', gap: '10px', color: THEME }}>
@@ -126,7 +123,7 @@ export default function SystemsPage() {
             </h2>
             <div className="metrics-grid" style={{ display: 'grid', gap: '1rem', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', marginTop: '2rem' }}>
               {metricsToTrack.map((m, i) => (
-                <div key={i} style={{ background: isDark ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)', padding: '1.25rem', borderRadius: '12px', border: `1px solid ${cardBorder}` }}>
+                <div key={i} style={{ background: isDark ? 'rgba(255,255,255,0.03)' : '#ffffff', padding: '1.25rem', borderRadius: '12px', border: `1px solid ${cardBorder}` }}>
                   <h4 style={{ fontSize: '0.9rem', color: headingColor, marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <Settings size={14} style={{ color: THEME }} /> {m.metric}
                   </h4>
@@ -137,7 +134,7 @@ export default function SystemsPage() {
           </div>
         </section>
 
-        {/* Optional: Add portfolio targets section to show what you'll build */}
+        {/* Portfolio pieces section */}
         <section style={{ marginTop: '3rem' }}>
           <h2 style={{ color: THEME, display: 'flex', alignItems: 'center', gap: '10px' }}>
             <Layers size={20} /> Portfolio Pieces You'll Create
