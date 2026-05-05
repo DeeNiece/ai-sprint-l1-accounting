@@ -1,4 +1,3 @@
-// settings.tsx
 import { useState, useEffect } from "react";
 import { useAuth } from "@/components/auth-provider";
 import { useLanguage } from "@/i18n";
@@ -20,33 +19,9 @@ interface SavedSettings {
   model: string;
 }
 
-// Helper to detect dark mode
-function useIsDarkMode() {
-  const [isDark, setIsDark] = useState(true);
-  useEffect(() => {
-    const check = () => {
-      const isDarkMode = document.documentElement.classList.contains('dark') ||
-        (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
-      setIsDark(isDarkMode);
-    };
-    check();
-    const observer = new MutationObserver(check);
-    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    mediaQuery.addEventListener('change', check);
-    return () => {
-      observer.disconnect();
-      mediaQuery.removeEventListener('change', check);
-    };
-  }, []);
-  return isDark;
-}
-
 export default function SettingsPage() {
   const { user } = useAuth();
   const { t } = useLanguage();
-  const isDark = useIsDarkMode();
-
   const [saved, setSaved] = useState<SavedSettings | null>(null);
   const [loadingSaved, setLoadingSaved] = useState(true);
 
@@ -59,35 +34,6 @@ export default function SettingsPage() {
   const [testResult, setTestResult] = useState<{ success: boolean; message: string } | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [showAdvanced, setShowAdvanced] = useState(false);
-
-  const THEME_COLOR = "#0d7c8a";
-  const THEME_BG = "rgba(13, 124, 138, 0.1)";
-
-  // Dynamic styles based on dark mode
-  const headingColor = isDark ? "white" : "#1a1a1a";
-  const mutedColor = isDark ? "#aaa" : "#555";
-  const borderColor = isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)";
-  const cardBg = isDark ? "rgba(255, 255, 255, 0.03)" : "rgba(0, 0, 0, 0.04)";
-  const inputBg = isDark ? "rgba(0,0,0,0.2)" : "rgba(0,0,0,0.04)";
-  const codeBg = isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.08)";
-
-  const cardStyle = {
-    background: cardBg,
-    border: `1px solid ${borderColor}`,
-    borderRadius: '12px',
-    padding: '24px',
-    marginBottom: '24px'
-  };
-
-  const inputStyle = {
-    width: '100%',
-    padding: '12px',
-    background: inputBg,
-    border: `1px solid ${borderColor}`,
-    borderRadius: '8px',
-    color: headingColor,
-    marginTop: '8px'
-  };
 
   useEffect(() => {
     fetch("/api/settings")
@@ -192,178 +138,166 @@ export default function SettingsPage() {
   const selectedProvider = PROVIDERS.find((p) => p.id === providerId)!;
 
   return (
-    <div className="page-wrap" style={{ background: isDark ? "radial-gradient(circle at 50% 0%, rgba(13, 124, 138, 0.05) 0%, #0a0a0c 100%)" : "#f5f5f7", minHeight: "100vh" }}>
+    // No inline background — body already uses var(--color-bg) from index.css, which is theme-aware
+    <div className="page-wrap">
       <Nav />
-      <main className="settings-page" style={{ maxWidth: '800px', margin: '0 auto', padding: '40px 20px' }}>
-        
-        <div className="settings-header" style={{ marginBottom: '32px' }}>
-          <h1 className="settings-title" style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '1.8rem', marginBottom: '16px', color: headingColor }}>
-            <Key size={24} style={{ color: THEME_COLOR }} /> {t("settings.title")} · Level 1
+      <main className="settings-page">
+
+        <div className="settings-header">
+          <h1 className="settings-title">
+            <Key size={24} /> {t("settings.title")} · Level 1
           </h1>
-          <p className="settings-desc" style={{ color: mutedColor, lineHeight: '1.6' }}>
+          <p className="settings-desc">
             To use the AI Coach chat and Prompt Labs in each lesson, you need your own API key. Each user provides and manages their own key — you're in full control.
             <br /><br />
-            <span style={{ fontStyle: 'italic', opacity: 0.8, fontSize: '0.95em', color: mutedColor }}>
+            <span style={{ fontStyle: 'italic', opacity: 0.85 }}>
               A typical conversation with the AI Coach (back-and-forth messages) costs about $0.001 — that's one-tenth of a cent. Even $2 of credit could last you through the entire 28-day course with heavy usage.
             </span>
             <br /><br />
-            <span style={{ fontStyle: 'italic', opacity: 0.8, fontSize: '0.95em', color: mutedColor }}>
-              *If you don’t have (or don’t want to use) an API key, you can still run these examples by copy and pasting each sample prompt into your preferred AI chat tool and comparing the results there.
+            <span style={{ fontStyle: 'italic', opacity: 0.85 }}>
+              *If you don't have (or don't want to use) an API key, you can still run these examples by copy and pasting each sample prompt into your preferred AI chat tool and comparing the results there.
             </span>
           </p>
         </div>
 
         {loadingSaved ? (
-          <div style={cardStyle}><Loader2 size={18} className="spin" style={{ color: mutedColor }} /> {t("settings.loading")}</div>
+          <div className="settings-card">
+            <Loader2 size={18} className="spin" /> {t("settings.loading")}
+          </div>
         ) : saved ? (
-          <div style={cardStyle}>
-            <div className="saved-status" style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
-              <CheckCircle2 size={20} style={{ color: THEME_COLOR, marginTop: '2px' }} />
+          <div className="settings-card">
+            <div className="saved-status">
+              <CheckCircle2 size={20} className="text-green" style={{ marginTop: '2px' }} />
               <div>
-                <div className="saved-title" style={{ fontWeight: 'bold', fontSize: '1.1rem', marginBottom: '8px', color: headingColor }}>{t("settings.keyActive")}</div>
-                <div className="saved-detail" style={{ color: mutedColor, fontSize: '0.9rem' }}>
-                  {t("settings.provider")}: <strong style={{ color: headingColor }}>{saved.provider}</strong> · {t("settings.key")}: <code style={{ background: codeBg, padding: '2px 6px', borderRadius: '4px', color: headingColor }}>{saved.apiKeyPreview}</code> · {t("settings.model")}: <code style={{ background: codeBg, padding: '2px 6px', borderRadius: '4px', color: headingColor }}>{saved.model}</code>
+                <div className="saved-title">{t("settings.keyActive")}</div>
+                <div className="saved-detail">
+                  {t("settings.provider")}: <strong>{saved.provider}</strong> · {t("settings.key")}: <code>{saved.apiKeyPreview}</code> · {t("settings.model")}: <code>{saved.model}</code>
                 </div>
               </div>
             </div>
             <div className="saved-actions" style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
-              <button 
-                onClick={handleCheckHealth} 
-                disabled={testing} 
-                style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 16px', borderRadius: '6px', fontSize: '0.9rem', background: cardBg, border: `1px solid ${borderColor}`, cursor: 'pointer', color: THEME_COLOR }}
+              <button
+                onClick={handleCheckHealth}
+                disabled={testing}
+                className="test-btn"
               >
-                {testing ? <Loader2 size={14} className="spin" /> : <Activity size={14} />} 
+                {testing ? <Loader2 size={14} className="spin" /> : <Activity size={14} />}
                 Check Health
               </button>
-              <button onClick={handleRemove} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 16px', borderRadius: '6px', fontSize: '0.9rem', background: 'transparent', border: isDark ? '1px solid rgba(255,50,50,0.3)' : '1px solid rgba(200,0,0,0.35)', color: isDark ? '#ff6b6b' : '#cc2222', cursor: 'pointer' }}>
+              <button onClick={handleRemove} className="remove-btn">
                 <Trash2 size={14} /> {t("settings.removeKey")}
               </button>
             </div>
           </div>
         ) : (
-          <div style={cardStyle}>
-            <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
-              <Info size={20} style={{ color: mutedColor, marginTop: '2px' }} />
-              <div>
-                <div className="saved-title" style={{ fontWeight: 'bold', fontSize: '1.1rem', marginBottom: '8px', color: headingColor }}>{t("settings.noKey")}</div>
-                <div className="saved-detail" style={{ color: mutedColor }}>{t("settings.noKeyDesc")}</div>
-              </div>
+          <div className="settings-card no-key-card">
+            <Info size={20} style={{ marginTop: '2px' }} />
+            <div>
+              <div className="saved-title">{t("settings.noKey")}</div>
+              <div className="saved-detail">{t("settings.noKeyDesc")}</div>
             </div>
           </div>
         )}
 
-        <div style={cardStyle}>
-          <h2 className="setup-heading" style={{ fontSize: '1.2rem', fontWeight: 'bold', marginBottom: '20px', color: headingColor }}>
+        <div className="settings-card setup-card">
+          <h2 className="setup-heading">
             {saved ? t("settings.changeKey") : t("settings.setupKey")}
           </h2>
 
-          <div className="settings-field" style={{ marginBottom: '24px' }}>
-            <label style={{ display: 'block', marginBottom: '12px', color: mutedColor, fontWeight: 500 }}>Choose a provider</label>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '12px' }}>
+          <div className="settings-field">
+            <label>{t("settings.chooseProvider")}</label>
+            <div className="provider-grid">
               {PROVIDERS.map((p) => (
                 <button
                   key={p.id}
-                  style={{
-                    border: providerId === p.id ? `1px solid ${THEME_COLOR}` : `1px solid ${borderColor}`,
-                    background: providerId === p.id ? THEME_BG : cardBg,
-                    borderRadius: '8px',
-                    padding: '16px',
-                    textAlign: 'left',
-                    cursor: 'pointer',
-                    color: headingColor,
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: '6px',
-                    transition: 'all 0.2s'
-                  }}
+                  className={`provider-btn ${providerId === p.id ? "active" : ""}`}
                   onClick={() => selectProvider(p.id)}
                 >
-                  <div style={{ fontWeight: 'bold', fontSize: '1rem' }}>{p.name}</div>
-                  {p.note && <div style={{ fontSize: '0.8rem', color: mutedColor, lineHeight: '1.4' }}>{t(`settings.${p.id}Note`, p.note)}</div>}
+                  <div className="provider-name">{p.name}</div>
+                  {p.note && <div className="provider-note">{t(`settings.${p.id}Note`)}</div>}
                 </button>
               ))}
             </div>
           </div>
 
           {selectedProvider.signupUrl && (
-            <div className="provider-signup" style={{ marginBottom: '24px', fontSize: '0.9rem', color: mutedColor }}>
-              {t("settings.noKeyYet")} <a href={selectedProvider.signupUrl} target="_blank" rel="noopener" style={{ color: THEME_COLOR, textDecoration: 'none', fontWeight: 'bold' }}>
+            <div className="provider-signup">
+              {t("settings.noKeyYet")} <a href={selectedProvider.signupUrl} target="_blank" rel="noopener">
                 {t("settings.signupAt", { name: selectedProvider.name })} →
               </a>
             </div>
           )}
 
-          <div className="settings-field" style={{ marginBottom: '20px' }}>
-            <label htmlFor="apiKey" style={{ display: 'block', color: mutedColor, fontWeight: 500 }}>{t("settings.apiKeyLabel")}</label>
+          <div className="settings-field">
+            <label htmlFor="apiKey">{t("settings.apiKeyLabel")}</label>
             <input
               id="apiKey"
               type="password"
               value={apiKey}
               onChange={(e) => { setApiKey(e.target.value); setTestResult(null); }}
               placeholder="sk-..."
-              style={inputStyle}
+              className="settings-input"
             />
           </div>
 
           {(providerId === "custom" || showAdvanced) ? (
             <>
-              <div className="settings-field" style={{ marginBottom: '20px' }}>
-                <label htmlFor="baseUrl" style={{ display: 'block', color: mutedColor, fontWeight: 500 }}>{t("settings.baseUrlLabel")}</label>
+              <div className="settings-field">
+                <label htmlFor="baseUrl">{t("settings.baseUrlLabel")}</label>
                 <input
                   id="baseUrl"
                   type="url"
                   value={baseUrl}
                   onChange={(e) => setBaseUrl(e.target.value)}
                   placeholder="https://api.example.com/v1"
-                  style={inputStyle}
+                  className="settings-input"
                 />
               </div>
-              <div className="settings-field" style={{ marginBottom: '24px' }}>
-                <label htmlFor="model" style={{ display: 'block', color: mutedColor, fontWeight: 500 }}>{t("settings.modelLabel")}</label>
+              <div className="settings-field">
+                <label htmlFor="model">{t("settings.modelLabel")}</label>
                 <input
                   id="model"
                   type="text"
                   value={model}
                   onChange={(e) => setModel(e.target.value)}
                   placeholder="model-name"
-                  style={inputStyle}
+                  className="settings-input"
                 />
               </div>
             </>
           ) : (
-            <button 
-              onClick={() => setShowAdvanced(true)}
-              style={{ background: 'none', border: 'none', color: mutedColor, fontSize: '0.9rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', padding: 0, marginBottom: '24px' }}
-            >
+            <button className="advanced-toggle" onClick={() => setShowAdvanced(true)}>
               <ChevronDown size={14} /> {t("settings.showAdvanced")}
             </button>
           )}
 
           {testResult && (
-            <div style={{ padding: '12px', borderRadius: '8px', marginBottom: '20px', background: testResult.success ? 'rgba(47, 184, 122, 0.1)' : 'rgba(255, 107, 107, 0.1)', border: testResult.success ? '1px solid #2fb87a' : '1px solid #ff6b6b', color: testResult.success ? (isDark ? '#2fb87a' : '#1a7a4a') : (isDark ? '#ff6b6b' : '#cc2222'), display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.9rem' }}>
-              {testResult.success ? <CheckCircle2 size={16} /> : <XCircle size={16} />}
+            <div className={`test-result ${testResult.success ? "success" : "fail"}`}>
+              {testResult.success ? <CheckCircle2 size={14} /> : <XCircle size={14} />}
               {testResult.message}
             </div>
           )}
 
           {error && (
-            <div style={{ padding: '12px', borderRadius: '8px', marginBottom: '20px', background: 'rgba(255, 107, 107, 0.1)', border: '1px solid #ff6b6b', color: isDark ? '#ff6b6b' : '#cc2222', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.9rem' }}>
-              <XCircle size={16} /> {error}
+            <div className="test-result fail">
+              <XCircle size={14} /> {error}
             </div>
           )}
 
-          <div className="settings-actions" style={{ display: 'flex', gap: '12px' }}>
-            <button 
-              onClick={handleTest} 
-              disabled={testing || !apiKey.trim()} 
-              style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 20px', borderRadius: '8px', background: cardBg, border: `1px solid ${borderColor}`, color: headingColor, cursor: (testing || !apiKey.trim()) ? 'not-allowed' : 'pointer', opacity: (testing || !apiKey.trim()) ? 0.5 : 1 }}
+          <div className="settings-actions">
+            <button
+              onClick={handleTest}
+              disabled={testing || !apiKey.trim()}
+              className="test-btn"
+              style={{ opacity: (testing || !apiKey.trim()) ? 0.5 : 1, cursor: (testing || !apiKey.trim()) ? 'not-allowed' : 'pointer' }}
             >
-              {testing ? <><Loader2 size={16} className="spin" /> {t("settings.testing")}</> : <><TestTube2 size={16} /> {t("settings.testConnection")}</>}
+              {testing ? <><Loader2 size={14} className="spin" /> {t("settings.testing")}</> : <><TestTube2 size={14} /> {t("settings.testConnection")}</>}
             </button>
-            <button 
-              onClick={handleSave} 
-              disabled={saving || !apiKey.trim()} 
-              style={{ padding: '10px 24px', borderRadius: '8px', background: THEME_COLOR, border: 'none', color: 'white', fontWeight: 'bold', cursor: (saving || !apiKey.trim()) ? 'not-allowed' : 'pointer', opacity: (saving || !apiKey.trim()) ? 0.5 : 1 }}
+            <button
+              onClick={handleSave}
+              disabled={saving || !apiKey.trim()}
+              className="save-btn"
+              style={{ opacity: (saving || !apiKey.trim()) ? 0.5 : 1, cursor: (saving || !apiKey.trim()) ? 'not-allowed' : 'pointer' }}
             >
               {saving ? t("settings.saving") : t("settings.saveKey")}
             </button>
