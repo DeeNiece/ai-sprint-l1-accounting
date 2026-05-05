@@ -67,7 +67,7 @@ export default function SettingsPage() {
   const headingColor = isDark ? "white" : "#1a1a1a";
   const mutedColor = isDark ? "#aaa" : "#555";
   const borderColor = isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)";
-  const cardBg = isDark ? "rgba(255, 255, 255, 0.03)" : "rgba(0, 0, 0, 0.02)";
+  const cardBg = isDark ? "rgba(255, 255, 255, 0.03)" : "rgba(0, 0, 0, 0.04)";
   const inputBg = isDark ? "rgba(0,0,0,0.2)" : "rgba(0,0,0,0.04)";
   const codeBg = isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.08)";
 
@@ -235,7 +235,7 @@ export default function SettingsPage() {
                 {testing ? <Loader2 size={14} className="spin" /> : <Activity size={14} />} 
                 Check Health
               </button>
-              <button onClick={handleRemove} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 16px', borderRadius: '6px', fontSize: '0.9rem', background: 'transparent', border: '1px solid rgba(255,50,50,0.3)', color: '#ff6b6b', cursor: 'pointer' }}>
+              <button onClick={handleRemove} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 16px', borderRadius: '6px', fontSize: '0.9rem', background: 'transparent', border: isDark ? '1px solid rgba(255,50,50,0.3)' : '1px solid rgba(200,0,0,0.35)', color: isDark ? '#ff6b6b' : '#cc2222', cursor: 'pointer' }}>
                 <Trash2 size={14} /> {t("settings.removeKey")}
               </button>
             </div>
@@ -340,14 +340,14 @@ export default function SettingsPage() {
           )}
 
           {testResult && (
-            <div style={{ padding: '12px', borderRadius: '8px', marginBottom: '20px', background: testResult.success ? 'rgba(47, 184, 122, 0.1)' : 'rgba(255, 107, 107, 0.1)', border: testResult.success ? '1px solid #2fb87a' : '1px solid #ff6b6b', color: testResult.success ? '#2fb87a' : '#ff6b6b', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.9rem' }}>
+            <div style={{ padding: '12px', borderRadius: '8px', marginBottom: '20px', background: testResult.success ? 'rgba(47, 184, 122, 0.1)' : 'rgba(255, 107, 107, 0.1)', border: testResult.success ? '1px solid #2fb87a' : '1px solid #ff6b6b', color: testResult.success ? (isDark ? '#2fb87a' : '#1a7a4a') : (isDark ? '#ff6b6b' : '#cc2222'), display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.9rem' }}>
               {testResult.success ? <CheckCircle2 size={16} /> : <XCircle size={16} />}
               {testResult.message}
             </div>
           )}
 
           {error && (
-            <div style={{ padding: '12px', borderRadius: '8px', marginBottom: '20px', background: 'rgba(255, 107, 107, 0.1)', border: '1px solid #ff6b6b', color: '#ff6b6b', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.9rem' }}>
+            <div style={{ padding: '12px', borderRadius: '8px', marginBottom: '20px', background: 'rgba(255, 107, 107, 0.1)', border: '1px solid #ff6b6b', color: isDark ? '#ff6b6b' : '#cc2222', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.9rem' }}>
               <XCircle size={16} /> {error}
             </div>
           )}
