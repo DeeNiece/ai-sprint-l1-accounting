@@ -90,6 +90,7 @@ export default function HomePage() {
   const [animatedPct, setAnimatedPct] = useState(0);
   const [showArrow, setShowArrow] = useState(true);
   const lessonsRef = useRef<HTMLElement>(null);
+  const confettiFiredRef = useRef<Set<string>>(new Set());
 
   const THEME       = activeLevel === "1" ? L1_COLOR : L2_COLOR;
   const THEME_ALPHA = activeLevel === "1" ? "rgba(13,124,138,0.12)" : "rgba(232,130,12,0.12)";
@@ -148,6 +149,28 @@ export default function HomePage() {
     return () => { if (lessonsRef.current) observer.unobserve(lessonsRef.current); };
   }, []);
 
+  // 🎉 Confetti on week completion
+  useEffect(() => {
+    const weekMap: Record<number, [number, number]> = { 1:[1,7], 2:[8,14], 3:[15,21], 4:[22,28] };
+    [1,2,3,4].forEach((week) => {
+      const [start, end] = weekMap[week];
+      const weekDone = Array.from({length: end - start + 1}, (_,i) => start + i)
+        .every(d => progressMap.get(`${levelPrefix}${d}`));
+      const key = `${activeLevel}-${week}`;
+      if (weekDone && !confettiFiredRef.current.has(key)) {
+        confettiFiredRef.current.add(key);
+        const confetti = (window as any).confetti;
+        if (typeof confetti === "function") {
+          const isL1 = activeLevel === "1";
+          const colors = week === 4
+            ? [isL1 ? "#0d7c8a" : "#e8820c", "#fbbf24", "#ffffff"]
+            : [isL1 ? "#0d7c8a" : "#e8820c", "#ffffff"];
+          confetti({ particleCount: week === 4 ? 180 : 80, spread: 70, origin: { y: 0.5 }, colors });
+        }
+      }
+    });
+  }, [progressMap, activeLevel, levelPrefix]);
+
   const scrollToLessons = () => lessonsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
 
   useEffect(() => {
@@ -200,6 +223,22 @@ export default function HomePage() {
 
   return (
     <div className="page-wrap">
+      <style>{`
+        .progress-bar-fill { background: ${THEME} !important; }
+        .resume-cta { background: ${THEME} !important; box-shadow: 0 4px 20px ${THEME}80 !important; }
+        .view-day-btn { color: ${THEME} !important; border-color: ${THEME} !important; }
+        .complete-btn.done { color: ${THEME} !important; }
+        .week-celebration { color: ${THEME} !important; border-left-color: ${THEME} !important; }
+        .next-recommended {
+          border-color: ${THEME} !important;
+          box-shadow: 0 0 0 2px ${THEME}55, 0 4px 24px ${THEME}22 !important;
+          background: linear-gradient(135deg, var(--color-surface), ${THEME}08) !important;
+        }
+        .next-recommended .day-title { color: ${THEME} !important; }
+        .filter-btn.active { border-color: ${THEME} !important; color: ${THEME} !important; background: ${THEME}1a !important; }
+        .scroll-indicator { border-color: ${THEME} !important; color: ${THEME} !important; }
+        .tagline-strip { color: ${THEME} !important; }
+      `}</style>
       <Nav />
 
       {/* Inject theme color as CSS variable for global class overrides */}
