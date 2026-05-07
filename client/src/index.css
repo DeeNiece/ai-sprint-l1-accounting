@@ -1597,6 +1597,13 @@ a { color: inherit; text-decoration: none; }
 .lp-root {
   min-height: 100vh;
   font-family: var(--font-body);
+  background: #0d0d14;
+  color: #e8e6f4;
+}
+
+@keyframes lpPulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: .5; transform: scale(1.3); }
 }
 
 /* ── Nav ──────────────────────────────────────────────────── */
@@ -1819,6 +1826,7 @@ a { color: inherit; text-decoration: none; }
 /* ── Section structure ────────────────────────────────────── */
 .lp-section {
   padding: 5rem 1.5rem;
+  background: #0d0d14;
 }
 
 .lp-section-inner {
@@ -1831,7 +1839,7 @@ a { color: inherit; text-decoration: none; }
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.12em;
-  color: var(--color-primary);
+  color: #3ab8c8;
   margin-bottom: 0.75rem;
 }
 
@@ -1839,7 +1847,7 @@ a { color: inherit; text-decoration: none; }
   font-family: var(--font-display);
   font-size: clamp(1.75rem, 3vw, 2.75rem);
   font-weight: 900;
-  color: var(--color-text);
+  color: #ffffff;
   line-height: 1.15;
   margin-bottom: 1rem;
   letter-spacing: -0.02em;
@@ -1847,7 +1855,7 @@ a { color: inherit; text-decoration: none; }
 
 .lp-section-sub {
   font-size: var(--text-base);
-  color: var(--color-text-muted);
+  color: #8a87a0;
   max-width: 40rem;
   line-height: 1.6;
   margin-bottom: 2.5rem;
@@ -1861,14 +1869,14 @@ a { color: inherit; text-decoration: none; }
 }
 
 .lp-problem-card {
-  background: var(--color-bg);
-  border: 1px solid var(--color-border);
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
   border-radius: var(--radius-xl);
   padding: 1.75rem;
   transition: box-shadow var(--transition), transform var(--transition);
 }
 .lp-problem-card:hover {
-  box-shadow: var(--shadow-md);
+  box-shadow: 0 4px 24px rgba(0,0,0,0.4);
   transform: translateY(-2px);
 }
 
@@ -1880,15 +1888,16 @@ a { color: inherit; text-decoration: none; }
 }
 
 .lp-why-card {
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
   border-radius: var(--radius-xl);
   padding: 1.75rem;
   transition: box-shadow var(--transition), transform var(--transition);
 }
 .lp-why-card:hover {
-  box-shadow: var(--shadow-md);
+  box-shadow: 0 4px 24px rgba(0,0,0,0.4);
   transform: translateY(-2px);
+  border-color: rgba(255,255,255,0.14);
 }
 
 .lp-why-icon {
@@ -1918,14 +1927,14 @@ a { color: inherit; text-decoration: none; }
   font-family: var(--font-display);
   font-size: 1.0625rem;
   font-weight: 700;
-  color: var(--color-text);
+  color: #e8e6f4;
   margin-bottom: 0.5rem;
   line-height: 1.3;
 }
 
 .lp-card-body {
   font-size: var(--text-sm);
-  color: var(--color-text-muted);
+  color: #8a87a0;
   line-height: 1.6;
 }
 
