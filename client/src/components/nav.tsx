@@ -293,10 +293,10 @@ export default function Nav() {
               </button>
               {blueprintOpen && (
                 <div className="nav-dropdown" onMouseLeave={() => setBlueprintOpen(false)}>
-                  <Link href="/systems" className="dropdown-item"><Terminal size={16} style={{ color: THEME_COLOR }} /> Built Systems</Link>
+                  <Link href="/systems" className="dropdown-item"><Terminal size={16} style={{ color: THEME_COLOR }} /> AI Workflows</Link>
                   <Link href="/portfolio" className="dropdown-item"><FolderKanban size={16} style={{ color: THEME_COLOR }} /> Portfolio Targets</Link>
-                  <Link href="/toolkit" className="dropdown-item"><Wrench size={16} style={{ color: THEME_COLOR }} /> Starter Toolkit</Link>
-                  <Link href="/services" className="dropdown-item"><BarChart2 size={16} style={{ color: THEME_COLOR }} /> Services & Offers</Link>
+                  <Link href="/toolkit" className="dropdown-item"><Wrench size={16} style={{ color: THEME_COLOR }} /> Accountant Toolkit</Link>
+                  <Link href="/services" className="dropdown-item"><BarChart2 size={16} style={{ color: THEME_COLOR }} /> Client Services</Link>
                 </div>
               )}
             </div>
@@ -473,16 +473,16 @@ export default function Nav() {
 
           <div className="mobile-section-label">The Blueprint</div>
           <Link href="/systems" className={`mobile-nav-item ${location === "/systems" ? "active" : ""}`} onClick={() => setMobileMenuOpen(false)}>
-            <Terminal size={16} style={{ color: THEME_COLOR }} /> Built Systems
+            <Terminal size={16} style={{ color: THEME_COLOR }} /> AI Workflows
           </Link>
           <Link href="/portfolio" className={`mobile-nav-item ${location === "/portfolio" ? "active" : ""}`} onClick={() => setMobileMenuOpen(false)}>
             <FolderKanban size={16} style={{ color: THEME_COLOR }} /> Portfolio Targets
           </Link>
           <Link href="/toolkit" className={`mobile-nav-item ${location === "/toolkit" ? "active" : ""}`} onClick={() => setMobileMenuOpen(false)}>
-            <Wrench size={16} style={{ color: THEME_COLOR }} /> Starter Toolkit
+            <Wrench size={16} style={{ color: THEME_COLOR }} /> Accountant Toolkit
           </Link>
           <Link href="/services" className={`mobile-nav-item ${location === "/services" ? "active" : ""}`} onClick={() => setMobileMenuOpen(false)}>
-            <BarChart2 size={16} style={{ color: THEME_COLOR }} /> Services & Offers
+            <BarChart2 size={16} style={{ color: THEME_COLOR }} /> Client Services
           </Link>
 
           <div className="mobile-section-label">Command Center</div>
