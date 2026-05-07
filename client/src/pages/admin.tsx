@@ -305,15 +305,19 @@ export default function AdminPage() {
       const data = await res.json();
       if (!res.ok || !data.ok) {
         setDeleteMsg({ text: data.error || "Failed to delete user.", ok: false });
+        setDeleteTarget(null);
       } else {
-        setDeleteMsg({ text: `User ${deleteTarget} has been removed.`, ok: true });
-        refetch();
+        // Close modal first, then refetch so list is fresh when banner shows
+        const removed = deleteTarget;
+        setDeleteTarget(null);
+        await refetch();
+        setDeleteMsg({ text: `User ${removed} has been removed.`, ok: true });
       }
     } catch {
       setDeleteMsg({ text: "Network error. Please try again.", ok: false });
+      setDeleteTarget(null);
     } finally {
       setDeleteLoading(false);
-      setDeleteTarget(null);
     }
   }
 
