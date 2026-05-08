@@ -12,6 +12,39 @@ const THEME_COLOR = "#0d7c8a";
 const L2_COLOR = "#e8820c";
 const CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789@#$%&";
 
+const LEVEL_THEMES = {
+  "1": {
+    color: THEME_COLOR,
+    name: "Basic",
+    label: "Basic · Foundation",
+    annotation: "AI-ACCT-BASIC",
+    days: "28 DAYS",
+    tagline: "Master the accounting AI foundations every finance professional needs.",
+    heroHeadline: "In 28 days, become the accountant who confidently works with AI.",
+    heroSub: "Built for accountants, bookkeepers, and finance professionals who want to work smarter with AI — without losing the professional judgement that matters.",
+    urgency: "423 accountants enrolled in the Basic track this month",
+    cta: "Start the Basic Track →",
+    dividerMarks: ["↔ 28 DAYS", "📊 BASIC TRACK", "15 MIN/DAY"],
+    sectionLabel: "ACCOUNTING + AI · BASIC TRACK",
+    sectionH2: "The practical way to master accounting with AI in 2026",
+  },
+  "2": {
+    color: L2_COLOR,
+    name: "Advanced",
+    label: "Advanced · Advisory",
+    annotation: "AI-ACCT-ADVANCED",
+    days: "28 DAYS",
+    tagline: "Build advisory-level AI skills that transform how you serve clients.",
+    heroHeadline: "In 28 days, become the accountant who uses AI to deliver advisory-level insight.",
+    heroSub: "Level 2 is for finance professionals ready to move beyond basics — AI audits, operating models, and client-ready advisory deliverables.",
+    urgency: "187 finance professionals enrolled in the Advanced track this month",
+    cta: "Start the Advanced Track →",
+    dividerMarks: ["↔ 28 DAYS", "📈 ADVANCED TRACK", "15 MIN/DAY"],
+    sectionLabel: "ACCOUNTING + AI · ADVANCED TRACK",
+    sectionH2: "Build advisory AI skills that clients will pay a premium for",
+  },
+};
+
 function AuthModal({ onClose, defaultMode = "register" }: { onClose: () => void; defaultMode?: "login" | "register" }) {
   const { login, register } = useAuth();
   const { t } = useLanguage();
@@ -588,14 +621,15 @@ function ContactSection() {
 export default function LandingPage() {
   const [showAuth, setShowAuth] = useState(false);
   const [authMode, setAuthMode] = useState<"login" | "register">("register");
+  const [activeTab, setActiveTab] = useState<"1" | "2">("1");
+  const themeData = LEVEL_THEMES[activeTab];
+  const THEME = themeData.color;
 
   // ── Cursor glow ──────────────────────────────────────────────
   const cursorRef = useRef<HTMLDivElement>(null);
 
-  // ── H1 scramble ──────────────────────────────────────────────
-  const H1_FINAL = "In 28 days, become the accountant who confidently works with AI.";
-  const [scrambledH1, setScrambledH1] = useState(H1_FINAL);
-  const scrambleDone = useRef(false);
+  // ── H1 scramble — re-fires on tab change ─────────────────────
+  const [scrambledH1, setScrambledH1] = useState(LEVEL_THEMES["1"].heroHeadline);
 
   // ── Animated stat counters ────────────────────────────────────
   const [s28, setS28] = useState(0);
@@ -605,14 +639,24 @@ export default function LandingPage() {
   const statsFired = useRef(false);
 
   // ── Ticker ────────────────────────────────────────────────────
-  const TICKS = [
-    "📊 Sarah completed her month-end close checklist · Day 16",
-    "🏆 Daniel unlocked Workflow Architect rank",
-    "✅ Priya just finished her AI prompt library · Day 26",
-    "📋 Marcus built a bank reconciliation workflow · Week 2",
-    "✨ 423 accountants enrolled in the Basic track this month",
-    "🔥 Yuki is on a 10-day streak · Foundations track",
-  ];
+  const TICKS: Record<"1"|"2", string[]> = {
+    "1": [
+      "📊 Sarah completed her month-end close checklist · Day 16",
+      "🏆 Daniel unlocked Workflow Architect rank · Basic",
+      "✅ Priya just finished her AI prompt library · Day 26",
+      "📋 Marcus built a bank reconciliation workflow · Week 2",
+      "✨ 423 accountants enrolled in the Basic track this month",
+      "🔥 Yuki is on a 10-day streak · Basic track",
+    ],
+    "2": [
+      "📈 Sarah delivered her first AI audit report to a client",
+      "🏆 Daniel unlocked Advisory Pro rank · Advanced",
+      "✅ Priya built her AI-ready operating model · Week 4",
+      "📋 Marcus landed a new advisory client using the framework",
+      "✨ 187 professionals enrolled in the Advanced track this month",
+      "🔥 Yuki is on a 14-day streak · Advanced track",
+    ],
+  };
   const [tickerIdx, setTickerIdx] = useState(0);
   const [tickerVisible, setTickerVisible] = useState(true);
 
@@ -639,23 +683,22 @@ export default function LandingPage() {
     return () => window.removeEventListener("mousemove", move);
   }, []);
 
-  // H1 scramble
+  // H1 scramble — re-fires on tab change
   useEffect(() => {
-    if (scrambleDone.current) return;
-    scrambleDone.current = true;
+    const target = LEVEL_THEMES[activeTab].heroHeadline;
     let frame = 0;
     const total = 30;
     const iv = setInterval(() => {
-      setScrambledH1(H1_FINAL.split("").map((char, i) => {
+      setScrambledH1(target.split("").map((char, i) => {
         if (char === " ") return " ";
-        if (frame / total > i / H1_FINAL.length + 0.1) return char;
+        if (frame / total > i / target.length + 0.1) return char;
         return CHARS[Math.floor(Math.random() * CHARS.length)];
       }).join(""));
       frame++;
-      if (frame > total) { setScrambledH1(H1_FINAL); clearInterval(iv); }
+      if (frame > total) { setScrambledH1(target); clearInterval(iv); }
     }, 45);
     return () => clearInterval(iv);
-  }, []);
+  }, [activeTab]);
 
   // Stat counters
   useEffect(() => {
@@ -681,17 +724,19 @@ export default function LandingPage() {
     return () => obs.disconnect();
   }, []);
 
-  // Ticker
+  // Ticker — resets on tab change
   useEffect(() => {
+    setTickerIdx(0);
     const iv = setInterval(() => {
       setTickerVisible(false);
-      setTimeout(() => { setTickerIdx(i => (i + 1) % TICKS.length); setTickerVisible(true); }, 350);
+      setTimeout(() => { setTickerIdx(i => (i + 1) % TICKS[activeTab].length); setTickerVisible(true); }, 350);
     }, 4000);
     return () => clearInterval(iv);
-  }, []);
+  }, [activeTab]);
 
-  // Scroll reveal
+  // Scroll reveal — resets on tab change
   useEffect(() => {
+    setRevealCards(false);
     const el = cardsRef.current;
     if (!el) return;
     const obs = new IntersectionObserver(([e]) => {
@@ -699,7 +744,7 @@ export default function LandingPage() {
     }, { threshold: 0.15 });
     obs.observe(el);
     return () => obs.disconnect();
-  }, []);
+  }, [activeTab]);
 
   // Testimonials reveal
   useEffect(() => {
@@ -737,9 +782,9 @@ export default function LandingPage() {
         padding: "8px 20px", display: "flex", alignItems: "center", gap: 10,
         opacity: tickerVisible ? 1 : 0, transition: "opacity 0.35s ease",
       }}>
-        <span style={{ width: 6, height: 6, borderRadius: "50%", background: THEME_COLOR, boxShadow: `0 0 8px ${THEME_COLOR}`, flexShrink: 0, animation: "lpPulse 2s infinite" }} />
-        <span style={{ fontSize: ".78rem", color: "#888", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{TICKS[tickerIdx]}</span>
-        <span style={{ fontSize: "9px", fontWeight: 700, letterSpacing: "1.5px", textTransform: "uppercase", color: "rgba(13,124,138,.55)", marginLeft: "auto", flexShrink: 0, fontFamily: "monospace" }}>LIVE · ACCOUNTING</span>
+        <span style={{ width: 6, height: 6, borderRadius: "50%", background: THEME, boxShadow: `0 0 8px ${THEME}`, flexShrink: 0, animation: "lpPulse 2s infinite" }} />
+        <span style={{ fontSize: ".78rem", color: "#888", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{TICKS[activeTab][tickerIdx]}</span>
+        <span style={{ fontSize: "9px", fontWeight: 700, letterSpacing: "1.5px", textTransform: "uppercase", color: `${THEME}88`, marginLeft: "auto", flexShrink: 0, fontFamily: "monospace" }}>LIVE · ACCOUNTING</span>
       </div>
 
       <style>{`
@@ -785,11 +830,11 @@ export default function LandingPage() {
           background: "rgba(255,255,255,.025)", border: "1px solid rgba(255,255,255,.07)",
           borderRadius: "16px", maxWidth: "680px", textAlign: "center", position: "relative",
         }}>
-          <div style={{ position:"absolute", top:9, left:14, fontSize:13, fontFamily:"monospace", color:"rgba(13,124,138,.75)", letterSpacing:"1.5px" }}>
-            MODULE No. AI-ACCT-BASIC
+          <div style={{ position:"absolute", top:9, left:14, fontSize:13, fontFamily:"monospace", color:`${THEME}cc`, letterSpacing:"1.5px" }}>
+            MODULE No. {themeData.annotation}
           </div>
-          <div style={{ position:"absolute", top:9, right:14, fontSize:13, fontFamily:"monospace", color:"rgba(13,124,138,.75)", letterSpacing:"1.5px" }}>
-            BASIC · 28 DAYS
+          <div style={{ position:"absolute", top:9, right:14, fontSize:13, fontFamily:"monospace", color:`${THEME}cc`, letterSpacing:"1.5px" }}>
+            {themeData.days}
           </div>
           <div style={{ marginTop: 10 }}>
             <div style={{ fontSize: "clamp(1.3rem,4vw,1.9rem)", fontWeight: 900, color: "white", letterSpacing: ".04em", textTransform: "uppercase", lineHeight: 1.2, marginBottom: ".5rem" }}>
@@ -799,32 +844,57 @@ export default function LandingPage() {
               28-DAY CHALLENGE · 15 MIN/DAY · 2 LEVELS
             </div>
             <div style={{ display: "flex", gap: "10px", justifyContent: "center", flexWrap: "wrap" }}>
-              {/* Basic — current focus of landing page */}
-              <div style={{ fontSize: ".8rem", fontWeight: 700, color: THEME_COLOR, background: `${THEME_COLOR}20`, border: `1px solid ${THEME_COLOR}50`, borderRadius: 100, padding: "3px 12px", cursor: "default" }}>
-                Basic · Days 1–28
-              </div>
-              {/* Advanced — same app, scroll to enroll CTA */}
-              <a href="#enroll" onClick={e => { e.preventDefault(); document.getElementById("lp-cta")?.scrollIntoView({ behavior: "smooth" }); }}
-                style={{ fontSize: ".8rem", fontWeight: 700, color: L2_COLOR, background: `${L2_COLOR}10`, border: `1px solid ${L2_COLOR}25`, borderRadius: 100, padding: "3px 12px", textDecoration: "none", cursor: "pointer", transition: "all 0.2s" }}
-                onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.background = `${L2_COLOR}22`; (e.currentTarget as HTMLAnchorElement).style.borderColor = `${L2_COLOR}55`; }}
-                onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.background = `${L2_COLOR}10`; (e.currentTarget as HTMLAnchorElement).style.borderColor = `${L2_COLOR}25`; }}>
-                Advanced · Days 1–28 →
-              </a>
+              <button onClick={() => setActiveTab("1")} style={{
+                fontSize: ".82rem", fontWeight: 700, color: THEME_COLOR,
+                background: activeTab === "1" ? `${THEME_COLOR}25` : `${THEME_COLOR}12`,
+                border: `1px solid ${activeTab === "1" ? THEME_COLOR : `${THEME_COLOR}25`}`,
+                borderRadius: 100, padding: "3px 12px", cursor: "pointer", transition: "all 0.2s",
+              }}>Basic · Days 1–28</button>
+              <button onClick={() => setActiveTab("2")} style={{
+                fontSize: ".82rem", fontWeight: 700, color: L2_COLOR,
+                background: activeTab === "2" ? `${L2_COLOR}25` : `${L2_COLOR}12`,
+                border: `1px solid ${activeTab === "2" ? L2_COLOR : `${L2_COLOR}25`}`,
+                borderRadius: 100, padding: "3px 12px", cursor: "pointer", transition: "all 0.2s",
+              }}>Advanced · Days 1–28</button>
             </div>
           </div>
         </div>
 
         {/* Scrambled H1 */}
         <h1 className="lp-hero-h1" style={{ fontFamily: "monospace", letterSpacing: "-.01em" }}>{scrambledH1}</h1>
-        <p className="lp-hero-tagline" style={{ color: THEME_COLOR }}>Master accounting fundamentals and AI workflows in just 15 minutes a day.</p>
-        <p className="lp-hero-sub">
-          Built for accountants, bookkeepers, and finance professionals who want to work smarter with AI — without losing the professional judgement that matters.
-        </p>
+        <p className="lp-hero-tagline" style={{ color: THEME }}>{themeData.tagline}</p>
+        <p className="lp-hero-sub">{themeData.heroSub}</p>
+
+        {/* Level tab buttons — same as Architecture */}
+        <div style={{ display: "flex", gap: "12px", justifyContent: "center", margin: "1.5rem 0 1rem", flexWrap: "wrap" }}>
+          {(["1", "2"] as const).map((lvl) => {
+            const color = LEVEL_THEMES[lvl].color;
+            const active = activeTab === lvl;
+            return (
+              <button key={lvl} onClick={() => setActiveTab(lvl)} style={{
+                display: "flex", alignItems: "center", gap: 8,
+                padding: "9px 22px", borderRadius: 100, cursor: "pointer",
+                border: `1.5px solid ${active ? color : "rgba(255,255,255,.15)"}`,
+                background: active ? `${color}1a` : "transparent",
+                color: active ? color : "rgba(255,255,255,.5)",
+                fontWeight: 700, fontSize: ".88rem", transition: "all 0.2s",
+              }}>
+                <span style={{ width: 7, height: 7, borderRadius: "50%", background: color, flexShrink: 0 }} />
+                {LEVEL_THEMES[lvl].label}
+              </button>
+            );
+          })}
+        </div>
 
         <div className="lp-hero-actions">
-          <button className="lp-hero-cta" style={{ background: THEME_COLOR }} onClick={() => openAuth("register")}>
-            Start the 28-Day Challenge →
+          <button className="lp-hero-cta" style={{ background: THEME }} onClick={() => openAuth("register")}>
+            {themeData.cta}
           </button>
+          {activeTab === "2" && (
+            <button className="lp-hero-outline" onClick={() => setActiveTab("1")}>
+              Start with Basic first
+            </button>
+          )}
         </div>
 
         {/* Urgency pill */}
@@ -837,7 +907,7 @@ export default function LandingPage() {
             color: "#fb923c", fontWeight: 700,
           }}>
             <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#f97316", display: "inline-block", animation: "lpPulse 2s infinite" }} />
-            423 accountants enrolled in the Basic track this month
+            {themeData.urgency}
           </div>
         </div>
 
@@ -855,13 +925,13 @@ export default function LandingPage() {
 
       {/* Finance ledger divider 1 */}
       <div style={{ display:"flex", alignItems:"center", padding:"0 24px 40px", zIndex:1, position:"relative" }}>
-        <div style={{ flex:1, height:1, background:"rgba(13,124,138,.18)" }} />
+        <div style={{ flex:1, height:1, background:`${THEME}25` }} />
         <div style={{ display:"flex", gap:10, padding:"0 18px", flexWrap:"wrap", justifyContent:"center" }}>
-          {["↔ 28 DAYS", "📊 BASIC TRACK", "15 MIN/DAY"].map((m,i) => (
-            <span key={i} style={{ fontFamily:"monospace", fontSize:"12px", letterSpacing:"2px", color:"rgba(13,124,138,.6)" }}>[ {m} ]</span>
+          {themeData.dividerMarks.map((m,i) => (
+            <span key={i} style={{ fontFamily:"monospace", fontSize:"12px", letterSpacing:"2px", color:`${THEME}99` }}>[ {m} ]</span>
           ))}
         </div>
-        <div style={{ flex:1, height:1, background:"rgba(13,124,138,.18)" }} />
+        <div style={{ flex:1, height:1, background:`${THEME}25` }} />
       </div>
 
       {/* Hero visual cards — accounting/finance aesthetic */}
@@ -984,16 +1054,22 @@ export default function LandingPage() {
       {/* What's included */}
       <section className="lp-section" style={{ background: "#0d0d14" }}>
         <div className="lp-section-inner">
-          <div className="lp-section-label">ACCOUNTING + AI · BASIC TRACK</div>
-          <h2 className="lp-section-h2">The practical way to master accounting with AI in 2026</h2>
+          <div className="lp-section-label" style={{ color: THEME }}>{themeData.sectionLabel}</div>
+          <h2 className="lp-section-h2">{themeData.sectionH2}</h2>
           <p className="lp-section-sub">
-            A structured, practical path to using AI in your daily accounting work — without the overwhelm.
+            {activeTab === "1"
+              ? "A structured, practical path to using AI in your daily accounting work — without the overwhelm."
+              : "Level 2 builds on your foundation to deliver advisory AI skills — audits, operating models, and client deliverables that command premium rates."}
           </p>
           <div className="lp-why-grid" ref={cardsRef}>
-            {[
+            {activeTab === "1" ? [
               { icon: "⏱", color: THEME_COLOR, bg: "rgba(13,124,138,.1)", title: "15 minutes a day", body: "Each lesson is structured: concept, walkthrough, and one practical accounting task.", delay: "0s" },
               { icon: "🧾", color: "#2f6fa8", bg: "rgba(47,111,168,.1)", title: "Real accounting workflows", body: "Learn how AI fits into bookkeeping, reconciliation, month-end close, and reporting.", delay: ".12s" },
               { icon: "🏆", color: L2_COLOR, bg: "rgba(232,130,12,.1)", title: "Build your prompt library", body: "Leave with 10+ reusable accounting prompts and a personal AI workflow — not just theory.", delay: ".24s" },
+            ] : [
+              { icon: "📊", color: L2_COLOR, bg: "rgba(232,130,12,.1)", title: "Strategic AI audits", body: "Use AI to identify automation opportunities and deliver structured recommendations to clients.", delay: "0s" },
+              { icon: "🏛️", color: "#7c3aed", bg: "rgba(124,58,237,.1)", title: "AI-ready operating model", body: "Build a 90-day roadmap that transforms how your practice or client's finance function uses AI.", delay: ".12s" },
+              { icon: "💼", color: "#2f6fa8", bg: "rgba(47,111,168,.1)", title: "Advisory-level deliverables", body: "Create client-ready reports, capability assessments, and AI governance frameworks.", delay: ".24s" },
             ].map((c, i) => (
               <div key={i} className={`lp-why-card lp-reveal ${revealCards ? "visible" : ""}`}
                 style={{ transition: `opacity .65s ease ${c.delay}, transform .65s ease ${c.delay}` }}>
@@ -1023,19 +1099,23 @@ export default function LandingPage() {
           <div className="lp-two-col">
             <div className="lp-col-block">
               <h3 className="lp-col-heading">What you'll learn</h3>
-              <p className="lp-col-body">Accounting fundamentals, AI-assisted bookkeeping, reconciliation, month-end close, prompting, controls, ethics, and reporting — all 2026 relevant.</p>
               <ul className="lp-check-list">
-                {["AI prompting for accounting tasks","Bookkeeping and reconciliation with AI","Month-end close and variance commentary","Internal controls and AI ethics in finance","Build a personal accountant prompt library"].map((item,i) => (
-                  <li key={i} className="lp-check-item"><span className="lp-check-icon" style={{ color: THEME_COLOR }}>✓</span> {item}</li>
+                {(activeTab === "1"
+                  ? ["AI prompting for accounting tasks","Bookkeeping and reconciliation with AI","Month-end close and variance commentary","Internal controls and AI ethics in finance","Build a personal accountant prompt library"]
+                  : ["Strategic AI audit methodology","AI-ready operating model design","Advisory deliverable frameworks","Client-facing AI governance policy","90-day transformation roadmap"]
+                ).map((item,i) => (
+                  <li key={i} className="lp-check-item"><span className="lp-check-icon" style={{ color: THEME }}>✓</span> {item}</li>
                 ))}
               </ul>
             </div>
             <div className="lp-col-block">
               <h3 className="lp-col-heading">Who it's for</h3>
-              <p className="lp-col-body">Accountants, bookkeepers, junior finance staff, and non-finance founders who want to use AI confidently in their daily finance work.</p>
               <ul className="lp-check-list">
-                {["No prior AI experience needed","Relevant for all accounting software users","Ideal foundation before the Advanced track"].map((item,i) => (
-                  <li key={i} className="lp-check-item"><span className="lp-check-icon" style={{ color: THEME_COLOR }}>✓</span> {item}</li>
+                {(activeTab === "1"
+                  ? ["No prior AI experience needed","Relevant for all accounting software users","Ideal foundation before the Advanced track"]
+                  : ["Basic track graduates","Senior accountants & finance managers","Advisory-focused practitioners & firm owners"]
+                ).map((item,i) => (
+                  <li key={i} className="lp-check-item"><span className="lp-check-icon" style={{ color: THEME }}>✓</span> {item}</li>
                 ))}
               </ul>
             </div>
@@ -1054,15 +1134,23 @@ export default function LandingPage() {
             <p style={{ color:"#888", fontSize:".92rem" }}>Every lesson is 15 minutes. Every day builds your accounting AI toolkit.</p>
           </div>
           <div style={{ display:"flex", flexDirection:"column", gap:".6rem" }}>
-            {[
+            {(activeTab === "1" ? [
               { day:1, title:"What Accounting Looks Like in the AI Era", cat:"Foundations", color:THEME_COLOR },
               { day:2, title:"The Accounting Equation & Double-Entry — Refreshed", cat:"Foundations", color:THEME_COLOR },
               { day:3, title:"Reading Financial Statements with AI Assistance", cat:"Foundations", color:THEME_COLOR },
               { day:4, title:"The Modern Finance Tech Stack", cat:"Foundations", color:"#2f6fa8" },
               { day:5, title:"Your First AI Accounting Prompt", cat:"Apply", color:"#2f6fa8" },
               { day:6, title:"AI Errors in Accounting — What to Watch For", cat:"Controls", color:"#2f8c5c" },
-              { day:7, title:"Mini-Project: AI Review Checklist & Finance Stack Map", cat:"Sprint 🏆", color:"#e8820c" },
-            ].map((d) => (
+              { day:7, title:"Mini-Project: AI Review Checklist & Finance Stack Map", cat:"Sprint 🏆", color:L2_COLOR },
+            ] : [
+              { day:1, title:"Advanced Prompting for Finance — Chains & Templates", cat:"Advanced", color:L2_COLOR },
+              { day:2, title:"AI Audit Framework — The 5-Pillar Assessment", cat:"Advisory", color:L2_COLOR },
+              { day:3, title:"Capability Scoring — Mapping Client AI Maturity", cat:"Advisory", color:"#7c3aed" },
+              { day:4, title:"Automation Opportunity Identification", cat:"Strategy", color:"#2f6fa8" },
+              { day:5, title:"Building the 90-Day Roadmap", cat:"Strategy", color:"#2f6fa8" },
+              { day:6, title:"AI Governance & Controls for Advisory Firms", cat:"Controls", color:"#2f8c5c" },
+              { day:7, title:"Mini-Project: AI Audit Report for a Real Client", cat:"Sprint 🏆", color:L2_COLOR },
+            ]).map((d) => (
               <div key={d.day} style={{
                 display:"flex", alignItems:"center", gap:"1rem",
                 background:"rgba(255,255,255,.03)", border:"1px solid rgba(255,255,255,.07)",
@@ -1075,7 +1163,7 @@ export default function LandingPage() {
             ))}
           </div>
           <div style={{ textAlign:"center", marginTop:24 }}>
-            <button onClick={() => openAuth("register")} style={{ background:"transparent", border:`1px solid rgba(13,124,138,.5)`, color:THEME_COLOR, padding:"10px 28px", borderRadius:100, fontWeight:700, fontSize:".88rem", cursor:"pointer" }}>
+            <button onClick={() => openAuth("register")} style={{ background:"transparent", border:`1px solid ${THEME}80`, color:THEME, padding:"10px 28px", borderRadius:100, fontWeight:700, fontSize:".88rem", cursor:"pointer" }}>
               See all 28 days & enroll →
             </button>
           </div>
@@ -1133,12 +1221,18 @@ export default function LandingPage() {
       </div>
 
       {/* Final CTA */}
-      <section id="lp-cta" className="lp-cta-section" style={{ background: THEME_COLOR, paddingBottom: "60px" }}>
+      <section id="lp-cta" className="lp-cta-section" style={{ background: THEME, paddingBottom: "60px" }}>
         <div className="lp-section-inner" style={{ textAlign: "center" }}>
-          <h2 className="lp-cta-h2">Ready to become an AI-ready accountant?</h2>
-          <p className="lp-cta-sub">Join accountants and finance professionals building smarter workflows with AI — 15 minutes a day, 28 days, no fluff.</p>
-          <button className="lp-cta-btn" style={{ background:"#ffffff", color:THEME_COLOR, fontWeight:"bold" }} onClick={() => openAuth("register")}>
-            Start the Basic Track →
+          <h2 className="lp-cta-h2">
+            {activeTab === "1" ? "Ready to become an AI-ready accountant?" : "Ready to deliver advisory-level AI work?"}
+          </h2>
+          <p className="lp-cta-sub">
+            {activeTab === "1"
+              ? "Join 423 accounting professionals building smarter workflows with AI — 15 minutes a day, 28 days, no fluff."
+              : "Join 187 finance professionals building advisory AI skills that clients pay a premium for."}
+          </p>
+          <button className="lp-cta-btn" style={{ background:"#ffffff", color:THEME, fontWeight:"bold" }} onClick={() => openAuth("register")}>
+            {themeData.cta}
           </button>
         </div>
       </section>
