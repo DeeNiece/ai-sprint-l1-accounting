@@ -619,6 +619,8 @@ export default function LandingPage() {
   // ── Scroll reveal ─────────────────────────────────────────────
   const [revealCards, setRevealCards] = useState(false);
   const cardsRef = useRef<HTMLDivElement>(null);
+  const [revealTestimonials, setRevealTestimonials] = useState(false);
+  const testimonialsRef = useRef<HTMLDivElement>(null);
 
   function openAuth(mode: "login" | "register" = "register") {
     setAuthMode(mode);
@@ -695,6 +697,17 @@ export default function LandingPage() {
     const obs = new IntersectionObserver(([e]) => {
       if (e.isIntersecting) setRevealCards(true);
     }, { threshold: 0.15 });
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
+
+  // Testimonials reveal
+  useEffect(() => {
+    const el = testimonialsRef.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(([e]) => {
+      if (e.isIntersecting) setRevealTestimonials(true);
+    }, { threshold: 0.1 });
     obs.observe(el);
     return () => obs.disconnect();
   }, []);
@@ -786,8 +799,17 @@ export default function LandingPage() {
               28-DAY CHALLENGE · 15 MIN/DAY · 2 LEVELS
             </div>
             <div style={{ display: "flex", gap: "10px", justifyContent: "center", flexWrap: "wrap" }}>
-              <div style={{ fontSize: ".8rem", fontWeight: 700, color: THEME_COLOR, background: `${THEME_COLOR}20`, border: `1px solid ${THEME_COLOR}50`, borderRadius: 100, padding: "3px 12px" }}>Basic · Days 1–28</div>
-              <div style={{ fontSize: ".8rem", fontWeight: 700, color: L2_COLOR, background: `${L2_COLOR}10`, border: `1px solid ${L2_COLOR}25`, borderRadius: 100, padding: "3px 12px" }}>Advanced · Days 1–28</div>
+              {/* Basic — current focus of landing page */}
+              <div style={{ fontSize: ".8rem", fontWeight: 700, color: THEME_COLOR, background: `${THEME_COLOR}20`, border: `1px solid ${THEME_COLOR}50`, borderRadius: 100, padding: "3px 12px", cursor: "default" }}>
+                Basic · Days 1–28
+              </div>
+              {/* Advanced — same app, scroll to enroll CTA */}
+              <a href="#enroll" onClick={e => { e.preventDefault(); document.getElementById("lp-cta")?.scrollIntoView({ behavior: "smooth" }); }}
+                style={{ fontSize: ".8rem", fontWeight: 700, color: L2_COLOR, background: `${L2_COLOR}10`, border: `1px solid ${L2_COLOR}25`, borderRadius: 100, padding: "3px 12px", textDecoration: "none", cursor: "pointer", transition: "all 0.2s" }}
+                onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.background = `${L2_COLOR}22`; (e.currentTarget as HTMLAnchorElement).style.borderColor = `${L2_COLOR}55`; }}
+                onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.background = `${L2_COLOR}10`; (e.currentTarget as HTMLAnchorElement).style.borderColor = `${L2_COLOR}25`; }}>
+                Advanced · Days 1–28 →
+              </a>
             </div>
           </div>
         </div>
@@ -1070,17 +1092,16 @@ export default function LandingPage() {
             <h2 style={{ fontSize:"clamp(1.5rem,3.5vw,2rem)", fontWeight:800, color:"white", margin:"0 0 10px" }}>Real results from finance professionals</h2>
             <p style={{ color:"#888", fontSize:".95rem" }}>Accountants who went from AI-curious to AI-confident.</p>
           </div>
-          <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(260px,1fr))", gap:"1rem" }}>
+          <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(260px,1fr))", gap:"1rem" }} ref={testimonialsRef}>
             {[
               { text: "Month-end close used to take 3 days. After the AI accounting sprint I'm doing it in under 6 hours. My CFO thinks I hired someone. I didn't.", name:"Daniel M.", role:"Senior Accountant, Sydney", initials:"DM", color:THEME_COLOR },
               { text: "I came in skeptical — I've been an accountant for 12 years. By Day 14 I had prompts that saved me 2 hours a week on reconciliations alone. Completely changed my view.", name:"Sarah K.", role:"Practice Owner, London", initials:"SK", color:"#2f6fa8" },
               { text: "The internal controls module alone was worth the entire course. My team now has a documented AI usage policy for client work. That's table stakes in 2026.", name:"Yuki S.", role:"Audit Manager, Tokyo", initials:"YS", color:L2_COLOR },
             ].map((t, i) => (
-              <div key={i} className="lp-reveal" style={{
+              <div key={i} className={`lp-reveal ${revealTestimonials ? "visible" : ""}`} style={{
                 background:"rgba(255,255,255,.03)", border:"1px solid rgba(255,255,255,.08)",
                 borderRadius:16, padding:"1.4rem 1.5rem",
                 display:"flex", flexDirection:"column", gap:"1rem",
-                opacity:0, transform:"translateY(28px)",
                 transition:`opacity .65s ease ${i*.15}s, transform .65s ease ${i*.15}s`,
               }}>
                 <div style={{ fontSize:".78rem", fontWeight:700, letterSpacing:1, textTransform:"uppercase", color:t.color, background:`${t.color}18`, border:`1px solid ${t.color}33`, borderRadius:100, padding:"3px 10px", width:"fit-content" }}>Accounting · Basic</div>
@@ -1112,7 +1133,7 @@ export default function LandingPage() {
       </div>
 
       {/* Final CTA */}
-      <section className="lp-cta-section" style={{ background: THEME_COLOR, paddingBottom: "60px" }}>
+      <section id="lp-cta" className="lp-cta-section" style={{ background: THEME_COLOR, paddingBottom: "60px" }}>
         <div className="lp-section-inner" style={{ textAlign: "center" }}>
           <h2 className="lp-cta-h2">Ready to become an AI-ready accountant?</h2>
           <p className="lp-cta-sub">Join accountants and finance professionals building smarter workflows with AI — 15 minutes a day, 28 days, no fluff.</p>
