@@ -734,9 +734,8 @@ export default function LandingPage() {
     return () => clearInterval(iv);
   }, [activeTab]);
 
-  // Scroll reveal — resets on tab change
+  // Scroll reveal — fires once, stays visible across tab changes
   useEffect(() => {
-    setRevealCards(false);
     const el = cardsRef.current;
     if (!el) return;
     const obs = new IntersectionObserver(([e]) => {
@@ -1071,9 +1070,8 @@ export default function LandingPage() {
               { icon: "🏛️", color: "#7c3aed", bg: "rgba(124,58,237,.1)", title: "AI-ready operating model", body: "Build a 90-day roadmap that transforms how your practice or client's finance function uses AI.", delay: ".12s" },
               { icon: "💼", color: "#2f6fa8", bg: "rgba(47,111,168,.1)", title: "Advisory-level deliverables", body: "Create client-ready reports, capability assessments, and AI governance frameworks.", delay: ".24s" },
             ].map((c, i) => (
-              <div key={i} className={`lp-why-card lp-reveal ${revealCards ? "visible" : ""}`}
-                style={{ transition: `opacity .65s ease ${c.delay}, transform .65s ease ${c.delay}` }}>
-                <div className="lp-why-icon" style={{ color: c.color, background: c.bg, fontSize: "1.4rem", width:48, height:48, display:"flex", alignItems:"center", justifyContent:"center", borderRadius:12, marginBottom:"1rem" }}>{c.icon}</div>
+              <div key={i} className="lp-why-card lp-reveal visible"
+                style={{ transition: `opacity .65s ease ${c.delay}, transform .65s ease ${c.delay}` }}>                <div className="lp-why-icon" style={{ color: c.color, background: c.bg, fontSize: "1.4rem", width:48, height:48, display:"flex", alignItems:"center", justifyContent:"center", borderRadius:12, marginBottom:"1rem" }}>{c.icon}</div>
                 <h3 className="lp-card-title">{c.title}</h3>
                 <p className="lp-card-body">{c.body}</p>
               </div>
