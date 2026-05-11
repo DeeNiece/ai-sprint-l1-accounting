@@ -131,8 +131,8 @@ function ContactSection() {
           </h2>
           <p style={{ color: "#888", fontSize: "1rem", margin: 0 }}>
             Send us a message and we'll get back to you at{" "}
-            <a href="mailto:aisprint.app@outlook.com" style={{ color: "#0d7c8a", textDecoration: "underline", textUnderlineOffset: 3 }}>
-              aisprint.app@outlook.com
+            <a href="mailto:support@aisprint.app" style={{ color: "#0d7c8a", textDecoration: "underline", textUnderlineOffset: 3 }}>
+              support@aisprint.app
             </a>
           </p>
         </div>
@@ -149,7 +149,7 @@ function ContactSection() {
         ) : (
           <form onSubmit={handleSubmit} style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 16, padding: "36px 32px", display: "flex", flexDirection: "column", gap: 18 }}>
             <input type="hidden" name="access_key" value="9354c53d-f37d-4c31-845b-88286c03d1d4" />
-            <input type="hidden" name="to" value="aisprint.app@outlook.com" />
+            <input type="hidden" name="to" value="support@aisprint.app" />
             <input type="hidden" name="subject" value="Accounting Sprint Support Request" />
             <input type="hidden" name="from_name" value="AI Sprint Accounting Pricing Page" />
 
