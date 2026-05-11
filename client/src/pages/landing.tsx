@@ -55,6 +55,7 @@ function AuthModal({ onClose, defaultMode = "register" }: { onClose: () => void;
   const [displayName, setDisplayName] = useState("");
   const [showPw, setShowPw] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [purchaseUrl, setPurchaseUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
@@ -66,8 +67,10 @@ function AuthModal({ onClose, defaultMode = "register" }: { onClose: () => void;
 
     if (mode === "login") {
       const res = await login(email, password);
-      if (res) err = res.message || String(res);
-      else { window.location.href = "/#/"; return; }
+      if (res) {
+        err = res.message || String(res);
+        if ("purchaseUrl" in res && res.purchaseUrl) setPurchaseUrl(res.purchaseUrl);
+      } else { onClose(); return; }
     } else {
       if (!displayName.trim()) {
         setError(t("auth.nameRequired"));
@@ -75,8 +78,10 @@ function AuthModal({ onClose, defaultMode = "register" }: { onClose: () => void;
         return;
       }
       const res = await register(email, password, displayName);
-      if (res) err = res.message || String(res);
-      else { window.location.href = "/#/"; return; }
+      if (res) {
+        err = res.message || String(res);
+        if ("purchaseUrl" in res && res.purchaseUrl) setPurchaseUrl(res.purchaseUrl);
+      } else { onClose(); return; }
     }
 
     if (err) setError(err);
@@ -125,6 +130,12 @@ function AuthModal({ onClose, defaultMode = "register" }: { onClose: () => void;
         {error && (
           <div className="auth-error" style={{ color: "#ef4444", display: "flex", alignItems: "center", gap: "8px", marginBottom: "1rem" }}>
             <AlertCircle size={14} /> {error}
+          </div>
+        )}
+        {purchaseUrl && (
+          <div className="auth-error" style={{ color: "#ef4444", display: "flex", alignItems: "center", gap: "8px", marginBottom: "1rem" }}>
+            <AlertCircle size={14} />
+            <span>You may need a valid license. <a href={purchaseUrl} target="_blank" rel="noopener noreferrer" style={{ textDecoration: "underline", fontWeight: 600, color: "#fca5a5" }}>View Pricing →</a></span>
           </div>
         )}
 
@@ -314,6 +325,7 @@ function AuthModal({ onClose, defaultMode = "register" }: { onClose: () => void;
                   onClick={() => {
                     setMode("register");
                     setError(null);
+                    setPurchaseUrl(null);
                   }}
                   style={{ background: "none", border: "none", color: "#3ab8c8", fontWeight: 700, cursor: "pointer", textDecoration: "underline", padding: 0 }}
                 >
@@ -324,7 +336,7 @@ function AuthModal({ onClose, defaultMode = "register" }: { onClose: () => void;
               <p style={{ marginTop: "0.75rem", fontSize: "0.85rem", color: "#aaa" }}>
                 Having trouble logging in?{" "}
                 <a
-                  href="mailto:aisprint.app@outlook.com"
+                  href="mailto:support@aisprint.app"
                   style={{ textDecoration: "underline", textUnderlineOffset: "2px", color: "#ccc" }}
                 >
                   Contact Support
@@ -339,6 +351,7 @@ function AuthModal({ onClose, defaultMode = "register" }: { onClose: () => void;
                 onClick={() => {
                   setMode("login");
                   setError(null);
+                  setPurchaseUrl(null);
                 }}
                 style={{ background: "none", border: "none", color: "#3ab8c8", fontWeight: 700, cursor: "pointer", textDecoration: "underline", padding: 0 }}
               >
@@ -389,8 +402,9 @@ function ContactSection() {
     <section
       style={{
         padding: "80px 20px",
-        background: "var(--color-surface, #111)",
+        background: "#111",
       }}
+      className="lp-contact-section"
     >
       <div style={{ maxWidth: 560, margin: "0 auto" }}>
         <div style={{ textAlign: "center", marginBottom: 40 }}>
@@ -427,10 +441,10 @@ function ContactSection() {
           <p style={{ color: "#888", fontSize: "1rem", margin: 0 }}>
             Send us a message and we'll get back to you at{" "}
             <a
-              href="mailto:aisprint.app@outlook.com"
+              href="mailto:support@aisprint.app"
               style={{ color: "#0d7c8a", textDecoration: "underline", textUnderlineOffset: 3 }}
             >
-              aisprint.app@outlook.com
+              support@aisprint.app
             </a>
           </p>
         </div>
@@ -482,7 +496,7 @@ function ContactSection() {
             }}
           >
             <input type="hidden" name="access_key" value="9354c53d-f37d-4c31-845b-88286c03d1d4" />
-            <input type="hidden" name="to" value="aisprint.app@outlook.com" />
+            <input type="hidden" name="to" value="support@aisprint.app" />
             <input type="hidden" name="subject" value="Accounting Sprint Support Request" />
             <input type="hidden" name="from_name" value="AI Sprint Accounting Landing Page" />
 
@@ -507,6 +521,7 @@ function ContactSection() {
             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
               <label
                 htmlFor="contact-name"
+                className="lp-form-label"
                 style={{ fontSize: "0.8rem", fontWeight: 600, color: "#ddd", display: "flex", alignItems: "center", gap: 6 }}
               >
                 <UserCircle size={13} /> Your Name
@@ -534,6 +549,7 @@ function ContactSection() {
             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
               <label
                 htmlFor="contact-email"
+                className="lp-form-label"
                 style={{ fontSize: "0.8rem", fontWeight: 600, color: "#ddd", display: "flex", alignItems: "center", gap: 6 }}
               >
                 <Mail size={13} /> Your Email
@@ -561,6 +577,7 @@ function ContactSection() {
             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
               <label
                 htmlFor="contact-message"
+                className="lp-form-label"
                 style={{ fontSize: "0.8rem", fontWeight: 600, color: "#ddd" }}
               >
                 Message
@@ -622,6 +639,7 @@ export default function LandingPage() {
   const [showAuth, setShowAuth] = useState(false);
   const [authMode, setAuthMode] = useState<"login" | "register">("register");
   const [activeTab, setActiveTab] = useState<"1" | "2">("1");
+  const [isDark, setIsDark] = useState(true);
   const themeData = LEVEL_THEMES[activeTab];
   const THEME = themeData.color;
 
@@ -665,6 +683,11 @@ export default function LandingPage() {
   const cardsRef = useRef<HTMLDivElement>(null);
   const [revealTestimonials, setRevealTestimonials] = useState(false);
   const testimonialsRef = useRef<HTMLDivElement>(null);
+
+  // Auto-scroll refs
+  const deliverablesScrollRef = useRef<HTMLDivElement>(null);
+  const sevenDayScrollRef = useRef<HTMLDivElement>(null);
+  const testiScrollRef = useRef<HTMLDivElement>(null);
 
   function openAuth(mode: "login" | "register" = "register") {
     setAuthMode(mode);
@@ -756,8 +779,52 @@ export default function LandingPage() {
     return () => obs.disconnect();
   }, []);
 
+  // ── AUTO-SCROLL: one card at a time, smooth, works on mobile ──
+  useEffect(() => {
+    function makeCardScroller(getEl: () => HTMLDivElement | null, intervalMs: number) {
+      let timer: ReturnType<typeof setInterval> | null = null;
+      let paused = false;
+      function advance() {
+        const el = getEl();
+        if (!el || paused) return;
+        const step = el.clientWidth;
+        const atEnd = el.scrollLeft + el.clientWidth >= el.scrollWidth - 4;
+        if (atEnd) {
+          el.style.scrollBehavior = "auto";
+          el.scrollLeft = 0;
+          requestAnimationFrame(() => { el.style.scrollBehavior = "smooth"; });
+        } else {
+          el.style.scrollBehavior = "smooth";
+          el.scrollLeft += step;
+        }
+      }
+      function start() { if (timer) return; timer = setInterval(advance, intervalMs); }
+      function stop() { if (timer) { clearInterval(timer); timer = null; } }
+      const el = getEl();
+      if (el) {
+        el.style.scrollBehavior = "smooth";
+        el.addEventListener("mouseenter", () => { paused = true; });
+        el.addEventListener("mouseleave", () => { paused = false; });
+        el.addEventListener("touchstart", () => { paused = true; }, { passive: true });
+        el.addEventListener("touchend", () => { setTimeout(() => { paused = false; }, 1500); }, { passive: true });
+      }
+      start();
+      return stop;
+    }
+    const cleanups = [
+      makeCardScroller(() => deliverablesScrollRef.current, 2800),
+      makeCardScroller(() => sevenDayScrollRef.current,     2600),
+      makeCardScroller(() => testiScrollRef.current,        3200),
+    ];
+    return () => cleanups.forEach(c => c?.());
+  }, []);
+
   return (
-    <div className="lp-root" style={{ background: "#0d0d14", color: "#e8e6f4", minHeight: "100vh" } as any}>
+    <div className={`lp-root${isDark ? "" : " lp-light"}`} style={{
+      background: isDark ? "#0d0d14" : "#f4f6fb",
+      color: isDark ? "#e8e6f4" : "#1a1a2e",
+      minHeight: "100vh",
+    } as any}>
 
       {/* Cursor glow — teal */}
       <div ref={cursorRef} style={{
@@ -774,30 +841,153 @@ export default function LandingPage() {
         WebkitMaskImage: "linear-gradient(to bottom,rgba(0,0,0,.55) 0%,transparent 55%)",
       }} />
 
-      {/* Live ticker bar */}
-      <div style={{
-        position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 50,
-        background: "rgba(13,15,26,.92)", borderTop: "1px solid rgba(255,255,255,.06)",
-        padding: "8px 20px", display: "flex", alignItems: "center", gap: 10,
-        opacity: tickerVisible ? 1 : 0, transition: "opacity 0.35s ease",
-      }}>
-        <span style={{ width: 6, height: 6, borderRadius: "50%", background: THEME, boxShadow: `0 0 8px ${THEME}`, flexShrink: 0, animation: "lpPulse 2s infinite" }} />
-        <span style={{ fontSize: ".78rem", color: "#888", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{TICKS[activeTab][tickerIdx]}</span>
-        <span style={{ fontSize: "9px", fontWeight: 700, letterSpacing: "1.5px", textTransform: "uppercase", color: `${THEME}88`, marginLeft: "auto", flexShrink: 0, fontFamily: "monospace" }}>LIVE · ACCOUNTING</span>
+      {/* Live ticker pill */}
+      <div className="lp-ticker" style={{
+        position:"fixed", bottom:16, left:"50%", transform:"translateX(-50%)",
+        zIndex:50, maxWidth:360, width:"calc(100% - 40px)",
+        background:"rgba(13,15,26,.92)", border:"1px solid rgba(255,255,255,.1)",
+        borderRadius:100, padding:"7px 16px",
+        display:"flex", alignItems:"center", gap:10,
+        backdropFilter:"blur(12px)", WebkitBackdropFilter:"blur(12px)" as any,
+        boxShadow:"0 4px 24px rgba(0,0,0,.4)",
+        opacity: tickerVisible ? 1 : 0, transition:"opacity 0.35s ease" }}>
+        <span style={{ width:6, height:6, borderRadius:"50%", background:THEME, boxShadow:`0 0 8px ${THEME}`, flexShrink:0, animation:"lpPulse 2s infinite" }}/>
+        <span className="lp-ticker-text" style={{ fontSize:".75rem", color:"#aaa", whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis", flex:1 }}>{TICKS[activeTab][tickerIdx]}</span>
+        <span style={{ fontSize:"8px", fontWeight:700, letterSpacing:"1.5px", textTransform:"uppercase", color:`${THEME_COLOR}99`, flexShrink:0, fontFamily:"monospace" }}>LIVE</span>
       </div>
 
       <style>{`
         @keyframes lpPulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(1.3)} }
         .lp-reveal { opacity:0; transform:translateY(24px); transition:opacity .65s ease, transform .65s ease; }
         .lp-reveal.visible { opacity:1; transform:translateY(0); }
+        [data-autoscroll]::-webkit-scrollbar { display: none; }
+
+        /* ── DARK MODE ── */
+        .lp-root { --lp-body: #c8c6e0; --lp-muted: #9896b0; --lp-card-bg: rgba(255,255,255,.04); --lp-card-border: rgba(255,255,255,.09); }
+        .lp-root p, .lp-root li { color: var(--lp-body); }
+
+        /* ── LIGHT MODE ── */
+        .lp-light { --lp-body: #374151; --lp-muted: #6b7280; --lp-card-bg: #ffffff; --lp-card-border: rgba(0,0,0,.08); }
+        .lp-light section { background: #f4f6fb !important; }
+        .lp-light .lp-dark-section { background: #ffffff !important; }
+        .lp-light .lp-section { background: #f4f6fb !important; }
+        .lp-light .lp-cta-section { background: ${THEME_COLOR} !important; }
+        .lp-light h1, .lp-light h2, .lp-light h3 { color: #111827 !important; }
+        .lp-light p { color: #374151 !important; }
+        .lp-light .lp-hero-sub { color: #4b5563 !important; }
+        .lp-light .lp-hero-tagline { color: ${THEME_COLOR} !important; }
+        .lp-light .lp-nav { background: rgba(255,255,255,.95) !important; border-bottom: 1px solid rgba(0,0,0,.07); }
+        .lp-light .lp-btn-ghost { color: #374151 !important; border-color: rgba(0,0,0,.15) !important; }
+        .lp-light .lp-hero-module-card { background: #ffffff !important; border-color: rgba(0,0,0,.09) !important; color: #374151 !important; }
+        .lp-light .lp-hero-h1 { color: #111827 !important; }
+        .lp-light .lp-hero-outline { color: #374151 !important; border-color: rgba(0,0,0,.2) !important; }
+        .lp-light .lp-why-card { background: #ffffff !important; border-color: rgba(13,124,138,.15) !important; box-shadow: 0 2px 12px rgba(0,0,0,.06); }
+        .lp-light .lp-card-title { color: #111827 !important; }
+        .lp-light .lp-card-body { color: #4b5563 !important; }
+        .lp-light .lp-two-col { background: #f4f6fb !important; }
+        .lp-light .lp-col-block { background: #ffffff !important; border-color: rgba(0,0,0,.08) !important; box-shadow: 0 2px 12px rgba(0,0,0,.05); }
+        .lp-light .lp-col-heading { color: #111827 !important; }
+        .lp-light .lp-col-body { color: #4b5563 !important; }
+        .lp-light .lp-check-item { color: #374151 !important; }
+        .lp-light .lp-check-icon { color: ${THEME_COLOR} !important; }
+        .lp-light .lp-seven-day-section { background: #f4f6fb !important; }
+        .lp-light .lp-seven-day-section h2 { color: #111827 !important; }
+        .lp-light .lp-seven-day-section p { color: #6b7280 !important; }
+        .lp-light .lp-day-card { background: #ffffff !important; border-color: rgba(0,0,0,.09) !important; box-shadow: 0 2px 8px rgba(0,0,0,.05); }
+        .lp-light .lp-day-title { color: #111827 !important; }
+        .lp-light .lp-day-hint { color: #9ca3af !important; }
+        .lp-light .lp-testi-section { background: #f4f6fb !important; }
+        .lp-light .lp-testi-section h2 { color: #111827 !important; }
+        .lp-light .lp-testi-section p { color: #6b7280 !important; }
+        .lp-light .lp-testi-card { background: #ffffff !important; border-color: rgba(0,0,0,.08) !important; box-shadow: 0 2px 12px rgba(0,0,0,.06); }
+        .lp-light .lp-testi-text { color: #374151 !important; }
+        .lp-light .lp-testi-name { color: #111827 !important; }
+        .lp-light .lp-testi-role { color: #9ca3af !important; }
+        .lp-light .lp-join-banner { color: #111827 !important; }
+        .lp-light .lp-join-banner span { color: #374151 !important; }
+        .lp-light .lp-contact-section { background: #f4f6fb !important; }
+        .lp-light .lp-contact-section h2 { color: #111827 !important; }
+        .lp-light .lp-contact-section p { color: #4b5563 !important; }
+        .lp-light .lp-contact-form { background: #ffffff !important; border-color: rgba(0,0,0,.08) !important; }
+        .lp-light .lp-form-label { color: #374151 !important; }
+        .lp-light input, .lp-light textarea { background: #f9fafb !important; color: #111827 !important; border-color: rgba(0,0,0,.12) !important; }
+        .lp-light .lp-ticker { background: rgba(255,255,255,.95) !important; border-color: rgba(0,0,0,.1) !important; }
+        .lp-light .lp-ticker-text { color: #374151 !important; }
+        .lp-light .lp-human-section { background: #ffffff !important; }
+        .lp-light .lp-human-section h2 { color: #111827 !important; }
+        .lp-light .lp-human-section p { color: #4b5563 !important; }
+        .lp-light .lp-human-bullet { color: #374151 !important; }
+        .lp-root:not(.lp-light) .lp-swipe-hint { color: #9896b0 !important; }
+        .lp-light .lp-swipe-hint { color: #374151 !important; }
+
+        /* deliverable cards */
+        .lp-root:not(.lp-light) .lp-deliverable-card { background: #0d0f1a !important; box-shadow: none !important; }
+        .lp-root:not(.lp-light) .lp-deliverable-card.c1 { border-color: rgba(13,124,138,0.20) !important; }
+        .lp-root:not(.lp-light) .lp-deliverable-card.c2 { border-color: rgba(13,124,138,0.22) !important; }
+        .lp-root:not(.lp-light) .lp-deliverable-card.c3 { border-color: rgba(232,130,12,0.18) !important; }
+        .lp-root:not(.lp-light) .lp-hero-card-title { color: #e8e6f4 !important; }
+        .lp-root:not(.lp-light) .lp-hero-card-sub { color: #9896b0 !important; }
+        .lp-root:not(.lp-light) .svg-bg { fill: #050810 !important; }
+        .lp-root:not(.lp-light) .svg-inner-bg { fill: #070d18 !important; }
+        .lp-root:not(.lp-light) .svg-text { fill: #c8c6d8 !important; }
+        .lp-light .lp-deliverable-card { background: #ffffff !important; box-shadow: 0 4px 12px rgba(0,0,0,.05) !important; }
+        .lp-light .lp-deliverable-card.c1 { border-color: rgba(13,124,138,0.20) !important; }
+        .lp-light .lp-deliverable-card.c2 { border-color: rgba(13,124,138,0.22) !important; }
+        .lp-light .lp-deliverable-card.c3 { border-color: rgba(232,130,12,0.18) !important; }
+        .lp-light .lp-hero-card-title { color: #111827 !important; }
+        .lp-light .lp-hero-card-sub { color: #6b7280 !important; }
+        .lp-light .svg-bg { fill: #f4f6fb !important; }
+        .lp-light .svg-inner-bg { fill: #ffffff !important; }
+        .lp-light .svg-text { fill: #374151 !important; }
+
+        /* ── HERO STATS ── */
+        .lp-light .lp-stats { background: rgba(0,0,0,.04) !important; border: 1px solid rgba(0,0,0,.08) !important; backdrop-filter: none !important; }
+        .lp-light .lp-stats .lp-stat-num { color: #111827 !important; text-shadow: none !important; }
+        .lp-light .lp-stats .lp-stat-label { color: #6b7280 !important; }
+        .lp-light .lp-stats .lp-stat-divider { background: rgba(0,0,0,.15) !important; }
+        .lp-light .lp-stats .lp-stat { color: #111827 !important; }
+
+        /* ── THEME TOGGLE BUTTON ── */
+        .lp-theme-toggle {
+          width: 42px; height: 22px; border-radius: 100px;
+          border: 1px solid rgba(13,124,138,.4);
+          background: rgba(13,124,138,.12);
+          cursor: pointer; position: relative;
+          display: flex; align-items: center; padding: 0 2px;
+          transition: background .3s, border-color .3s;
+          flex-shrink: 0;
+        }
+        .lp-theme-toggle:hover { border-color: ${THEME_COLOR}; }
+        .lp-theme-toggle-thumb {
+          width: 16px; height: 16px; border-radius: 50%;
+          background: linear-gradient(135deg, #00857a, #00c9b1);
+          transition: transform .3s cubic-bezier(.22,1,.36,1);
+          box-shadow: 0 2px 5px rgba(0,0,0,.25);
+        }
+        .lp-theme-toggle.light .lp-theme-toggle-thumb {
+          transform: translateX(20px);
+          background: linear-gradient(135deg, #f97316, #fdba74);
+        }
       `}</style>
 
       {showAuth && <AuthModal onClose={() => setShowAuth(false)} defaultMode={authMode} />}
 
       {/* Nav */}
-      <nav className="lp-nav" style={{ position: "relative", zIndex: 10 }}>
-        <div className="lp-nav-logo"><img src={logoImg} alt="AI Sprint" className="lp-nav-logo-img" /></div>
+      <nav className="lp-nav" style={{ position:"relative", zIndex:10 }}>
+        <div className="lp-nav-logo">
+          <a href="https://aisprint.app" style={{ display:"flex", alignItems:"center", textDecoration:"none" }}>
+            <img src={logoImg} alt="AI Sprint" className="lp-nav-logo-img"/>
+          </a>
+        </div>
         <div className="lp-nav-actions">
+          <button
+            className={`lp-theme-toggle${isDark ? "" : " light"}`}
+            onClick={() => setIsDark(d => !d)}
+            aria-label="Toggle dark/light mode"
+            title={isDark ? "Switch to light mode" : "Switch to dark mode"}
+          >
+            <div className="lp-theme-toggle-thumb" />
+          </button>
           <button className="lp-btn-ghost" onClick={() => openAuth("login")}>Log In</button>
           <button className="lp-btn-primary" style={{ background: THEME_COLOR }} onClick={() => openAuth("register")}>
             Start Your Journey →
@@ -934,14 +1124,15 @@ export default function LandingPage() {
       </div>
 
       {/* Hero visual cards — accounting/finance aesthetic */}
-      <section style={{ padding: "0 1.5rem 3.5rem", background: "transparent", position: "relative", zIndex: 1 }}>
-        <div style={{ maxWidth: 900, margin: "0 auto" }}>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "14px" }}>
+      <section style={{ padding:"0 1.5rem 3.5rem", background:"transparent", position:"relative", zIndex:1 }}>
+        <div style={{ maxWidth:900, margin:"0 auto", display:"flex", flexDirection:"column", alignItems:"center" }}>
+          <div style={{ maxWidth:400, width:"100%" }}>
+          <div ref={deliverablesScrollRef} data-autoscroll="1" style={{ display:"flex", flexDirection:"row", overflow:"hidden", scrollbarWidth:"none" as any }}>
 
             {/* Card 1 — Prompt Library */}
-            <div style={{ borderRadius: 14, overflow: "hidden", border: "1px solid rgba(13,124,138,.2)", background: "#0d0f1a", display: "flex", flexDirection: "column" }}>
+            <div className="lp-deliverable-card c1" style={{ borderRadius:14, overflow:"hidden", borderStyle:"solid", borderWidth:"1px", display:"flex", flexDirection:"column", flex:"0 0 100%", minWidth:0 }}>
               <svg width="100%" height="168" viewBox="0 0 220 168" aria-label="Accountant prompt library deliverable">
-                <rect width="220" height="168" fill="#050810"/>
+                <rect className="svg-bg" width="220" height="168"/>
                 <text x="12" y="18" fill="#0d7c8a" fontSize="7" fontFamily="monospace" opacity=".8" letterSpacing="1">ACCOUNTANT PROMPT LIBRARY · v1.0</text>
                 <line x1="12" y1="22" x2="208" y2="22" stroke="#0a2030" strokeWidth=".5"/>
                 {[
@@ -966,15 +1157,15 @@ export default function LandingPage() {
               </svg>
               <div style={{ padding: "12px 14px 14px" }}>
                 <div style={{ display:"inline-block", fontSize:10, fontWeight:700, letterSpacing:"1.2px", textTransform:"uppercase", padding:"2px 8px", borderRadius:99, marginBottom:8, background:"rgba(13,124,138,.15)", color:"#0d7c8a" }}>Basic · Week 4</div>
-                <div style={{ fontSize:".82rem", fontWeight:700, color:"white", marginBottom:".2rem" }}>Accountant prompt library</div>
-                <div style={{ fontSize:".7rem", color:"#5a587a", letterSpacing:".4px" }}>Day 26 · Your reusable system</div>
+                <div className="lp-hero-card-title" style={{ fontSize:".82rem", fontWeight:700, color:"white", marginBottom:".2rem" }}>Accountant prompt library</div>
+                <div className="lp-hero-card-sub" style={{ fontSize:".7rem", color:"#5a587a", letterSpacing:".4px" }}>Day 26 · Your reusable system</div>
               </div>
             </div>
 
             {/* Card 2 — Bank Reconciliation */}
-            <div style={{ borderRadius: 14, overflow: "hidden", border: "1px solid rgba(13,124,138,.22)", background: "#0d0f1a", display: "flex", flexDirection: "column" }}>
+            <div className="lp-deliverable-card c2" style={{ borderRadius:14, overflow:"hidden", borderStyle:"solid", borderWidth:"1px", display:"flex", flexDirection:"column", flex:"0 0 100%", minWidth:0 }}>
               <svg width="100%" height="168" viewBox="0 0 220 168" aria-label="Bank reconciliation workflow">
-                <rect width="220" height="168" fill="#06080f"/>
+                <rect className="svg-bg" width="220" height="168"/>
                 <text x="110" y="16" textAnchor="middle" fill="#0d7c8a" fontSize="7" fontFamily="monospace" opacity=".7" letterSpacing="1">BANK RECONCILIATION · WORKFLOW</text>
                 <line x1="12" y1="20" x2="208" y2="20" stroke="#0a2030" strokeWidth=".5"/>
                 {/* Ledger rows */}
@@ -1005,15 +1196,15 @@ export default function LandingPage() {
               </svg>
               <div style={{ padding: "12px 14px 14px" }}>
                 <div style={{ display:"inline-block", fontSize:10, fontWeight:700, letterSpacing:"1.2px", textTransform:"uppercase", padding:"2px 8px", borderRadius:99, marginBottom:8, background:"rgba(13,124,138,.15)", color:"#0d7c8a" }}>Basic · Week 2</div>
-                <div style={{ fontSize:".82rem", fontWeight:700, color:"white", marginBottom:".2rem" }}>Bank reconciliation</div>
-                <div style={{ fontSize:".7rem", color:"#5a587a", letterSpacing:".4px" }}>Day 10 · AI anomaly detection</div>
+                <div className="lp-hero-card-title" style={{ fontSize:".82rem", fontWeight:700, color:"white", marginBottom:".2rem" }}>Bank reconciliation</div>
+                <div className="lp-hero-card-sub" style={{ fontSize:".7rem", color:"#5a587a", letterSpacing:".4px" }}>Day 10 · AI anomaly detection</div>
               </div>
             </div>
 
             {/* Card 3 — Month-End Close Checklist */}
-            <div style={{ borderRadius: 14, overflow: "hidden", border: "1px solid rgba(232,130,12,.18)", background: "#0d0f1a", display: "flex", flexDirection: "column" }}>
+            <div className="lp-deliverable-card c3" style={{ borderRadius:14, overflow:"hidden", borderStyle:"solid", borderWidth:"1px", display:"flex", flexDirection:"column", flex:"0 0 100%", minWidth:0 }}>
               <svg width="100%" height="168" viewBox="0 0 220 168" aria-label="Month-end close checklist">
-                <rect width="220" height="168" fill="#080610"/>
+                <rect className="svg-bg" width="220" height="168"/>
                 <text x="12" y="18" fill="#e8820c" fontSize="7" fontFamily="monospace" opacity=".8" letterSpacing="1">MONTH-END CLOSE · MAY 2026</text>
                 <line x1="12" y1="22" x2="208" y2="22" stroke="#2a1200" strokeWidth=".5"/>
                 {[
@@ -1038,16 +1229,17 @@ export default function LandingPage() {
               </svg>
               <div style={{ padding: "12px 14px 14px" }}>
                 <div style={{ display:"inline-block", fontSize:10, fontWeight:700, letterSpacing:"1.2px", textTransform:"uppercase", padding:"2px 8px", borderRadius:99, marginBottom:8, background:"rgba(232,130,12,.15)", color:"#e8820c" }}>Advanced · Week 1</div>
-                <div style={{ fontSize:".82rem", fontWeight:700, color:"white", marginBottom:".2rem" }}>Month-end close checklist</div>
-                <div style={{ fontSize:".7rem", color:"#5a587a", letterSpacing:".4px" }}>Day 16 · AI-assisted close</div>
+                <div className="lp-hero-card-title" style={{ fontSize:".82rem", fontWeight:700, color:"white", marginBottom:".2rem" }}>Month-end close checklist</div>
+                <div className="lp-hero-card-sub" style={{ fontSize:".7rem", color:"#5a587a", letterSpacing:".4px" }}>Day 16 · AI-assisted close</div>
               </div>
             </div>
 
-          </div>
-          <p style={{ textAlign:"center", fontSize:".72rem", color:"#555", marginTop:".75rem", letterSpacing:"1px", textTransform:"uppercase" }}>
-            Sample deliverables — built by accountants in 15 minutes/day
-          </p>
-        </div>
+          </div>{/* end scroll */}
+          </div>{/* end maxWidth 400 */}
+        </div>{/* end maxWidth 900 */}
+        <p className="lp-swipe-hint" style={{ textAlign:"center", fontSize:".65rem", color:"#555", letterSpacing:"1.5px", textTransform:"uppercase", marginTop:".8rem" }}>
+          Sample deliverables — built by accountants in 15 minutes/day
+        </p>
       </section>
 
       {/* What's included */}
@@ -1123,7 +1315,7 @@ export default function LandingPage() {
       </section>
 
       {/* Curriculum preview — Days 1–7 */}
-      <section style={{ padding: "60px 20px", background: "#111", position: "relative", zIndex: 1 }}>
+      <section className="lp-seven-day-section" style={{ padding:"60px 20px", background:"#111", position:"relative", zIndex:1 }}>
         <div style={{ maxWidth: 760, margin: "0 auto" }}>
           <div style={{ textAlign: "center", marginBottom: 32 }}>
             <div style={{ display:"inline-flex", alignItems:"center", gap:6, fontSize:".72rem", fontWeight:700, letterSpacing:".1em", textTransform:"uppercase", color:THEME_COLOR, background:`rgba(13,124,138,.1)`, border:`1px solid rgba(13,124,138,.2)`, borderRadius:20, padding:"5px 14px", marginBottom:14 }}>
@@ -1132,7 +1324,7 @@ export default function LandingPage() {
             <h2 style={{ fontSize:"clamp(1.5rem,3.5vw,2rem)", fontWeight:800, color:"white", margin:"0 0 10px" }}>Your first 7 days, previewed</h2>
             <p style={{ color:"#888", fontSize:".92rem" }}>Every lesson is 15 minutes. Every day builds your accounting AI toolkit.</p>
           </div>
-          <div style={{ display:"flex", flexDirection:"column", gap:".6rem" }}>
+          <div ref={sevenDayScrollRef} style={{ display:"flex", flexDirection:"row", overflow:"hidden", scrollbarWidth:"none" as any }}>
             {(activeTab === "1" ? [
               { day:1, title:"What Accounting Looks Like in the AI Era", cat:"Foundations", color:THEME_COLOR },
               { day:2, title:"The Accounting Equation & Double-Entry — Refreshed", cat:"Foundations", color:THEME_COLOR },
@@ -1150,73 +1342,120 @@ export default function LandingPage() {
               { day:6, title:"AI Governance & Controls for Advisory Firms", cat:"Controls", color:"#2f8c5c" },
               { day:7, title:"Mini-Project: AI Audit Report for a Real Client", cat:"Sprint 🏆", color:L2_COLOR },
             ]).map((d) => (
-              <div key={d.day} style={{
+              <div key={d.day} className="lp-day-card" style={{
                 display:"flex", alignItems:"center", gap:"1rem",
                 background:"rgba(255,255,255,.03)", border:"1px solid rgba(255,255,255,.07)",
                 borderRadius:12, padding:".85rem 1.2rem",
+                flex:"0 0 100%", minWidth:0,
               }}>
                 <div style={{ width:34, height:34, borderRadius:"50%", border:`2px solid ${d.color}`, color:d.color, display:"flex", alignItems:"center", justifyContent:"center", fontWeight:800, fontSize:".72rem", flexShrink:0, fontFamily:"monospace" }}>{d.day}</div>
-                <div style={{ flex:1, fontWeight:600, color:"white", fontSize:".88rem" }}>{d.title}</div>
+                <div className="lp-day-title" style={{ flex:1, fontWeight:600, color:"white", fontSize:".88rem" }}>{d.title}</div>
                 <div style={{ fontSize:".65rem", fontWeight:700, letterSpacing:1.5, textTransform:"uppercase", color:d.color, background:`${d.color}18`, borderRadius:100, padding:"3px 10px", whiteSpace:"nowrap" }}>{d.cat}</div>
               </div>
             ))}
           </div>
+          <p className="lp-swipe-hint lp-day-hint" style={{ textAlign:"center", fontSize:".65rem", color:"#555", letterSpacing:"1.5px", textTransform:"uppercase", marginTop:".5rem" }}>← swipe all 7 days →</p>
           <div style={{ textAlign:"center", marginTop:24 }}>
             <button onClick={() => openAuth("register")} style={{ background:"transparent", border:`1px solid ${THEME}80`, color:THEME, padding:"10px 28px", borderRadius:100, fontWeight:700, fontSize:".88rem", cursor:"pointer" }}>
-              See all 28 days & enroll →
+              See all 28 days — start today →
             </button>
           </div>
         </div>
       </section>
 
       {/* Testimonials */}
-      <section style={{ padding:"60px 20px", background:"#0d0d14", borderTop:"1px solid rgba(255,255,255,.06)", position:"relative", zIndex:1 }}>
-        <div style={{ maxWidth:880, margin:"0 auto" }}>
+      <section className="lp-testi-section" style={{ padding:"60px 20px", background:"#0d0d14", borderTop:"1px solid rgba(255,255,255,.06)", position:"relative", zIndex:1 }}>
+        <div style={{ maxWidth:480, margin:"0 auto" }}>
           <div style={{ textAlign:"center", marginBottom:36 }}>
             <div style={{ display:"inline-flex", alignItems:"center", gap:6, fontSize:".72rem", fontWeight:700, letterSpacing:".1em", textTransform:"uppercase", color:THEME_COLOR, background:`rgba(13,124,138,.1)`, border:`1px solid rgba(13,124,138,.2)`, borderRadius:20, padding:"5px 14px", marginBottom:14 }}>
               Student Stories
             </div>
-            <h2 style={{ fontSize:"clamp(1.5rem,3.5vw,2rem)", fontWeight:800, color:"white", margin:"0 0 10px" }}>Real results from finance professionals</h2>
+            <h2 style={{ fontSize:"clamp(1.5rem,3.5vw,2rem)", fontWeight:800, color:"inherit", margin:"0 0 10px" }}>Real results from finance professionals</h2>
             <p style={{ color:"#888", fontSize:".95rem" }}>Accountants who went from AI-curious to AI-confident.</p>
           </div>
-          <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(260px,1fr))", gap:"1rem" }} ref={testimonialsRef}>
+          <div style={{ display:"flex", flexDirection:"row", overflow:"hidden", scrollbarWidth:"none" as any }}
+            ref={(el) => { (testimonialsRef as any).current = el; (testiScrollRef as any).current = el; }}>
             {[
-              { text: "Month-end close used to take 3 days. After the AI accounting sprint I'm doing it in under 6 hours. My CFO thinks I hired someone. I didn't.", name:"Daniel M.", role:"Senior Accountant, Sydney", initials:"DM", color:THEME_COLOR },
-              { text: "I came in skeptical — I've been an accountant for 12 years. By Day 14 I had prompts that saved me 2 hours a week on reconciliations alone. Completely changed my view.", name:"Sarah K.", role:"Practice Owner, London", initials:"SK", color:"#2f6fa8" },
-              { text: "The internal controls module alone was worth the entire course. My team now has a documented AI usage policy for client work. That's table stakes in 2026.", name:"Yuki S.", role:"Audit Manager, Tokyo", initials:"YS", color:L2_COLOR },
+              { text:"Month-end close used to take 3 days. I'd been doing it the same way for 8 years. After the AI accounting sprint I'm done in under 6 hours. My CFO thinks I hired someone. I didn't.", name:"Daniel M.", role:"Senior Accountant, Sydney", initials:"DM", color:THEME_COLOR, photo:"/assets/testimonials/face-e.png" },
+              { text:"I came in skeptical — I've been an accountant for 12 years and I've seen every productivity trend come and go. By Day 14 I had prompts that saved me 2 hours a week on reconciliations alone.", name:"Sarah K.", role:"Practice Owner, London", initials:"SK", color:"#2f6fa8", photo: null },
+              { text:"The internal controls module alone was worth the entire course. My team now has a documented AI usage policy for client work. That's table stakes in 2026.", name:"Yuki S.", role:"Audit Manager, Tokyo", initials:"YS", color:L2_COLOR, photo:"/assets/testimonials/face-f.png" },
             ].map((t, i) => (
-              <div key={i} className={`lp-reveal ${revealTestimonials ? "visible" : ""}`} style={{
+              <div key={i} className={`lp-testi-card lp-reveal ${revealTestimonials ? "visible" : ""}`} style={{
                 background:"rgba(255,255,255,.03)", border:"1px solid rgba(255,255,255,.08)",
                 borderRadius:16, padding:"1.4rem 1.5rem",
                 display:"flex", flexDirection:"column", gap:"1rem",
                 transition:`opacity .65s ease ${i*.15}s, transform .65s ease ${i*.15}s`,
+                flex:"0 0 min(100%, 380px)",
               }}>
-                <div style={{ fontSize:".78rem", fontWeight:700, letterSpacing:1, textTransform:"uppercase", color:t.color, background:`${t.color}18`, border:`1px solid ${t.color}33`, borderRadius:100, padding:"3px 10px", width:"fit-content" }}>Accounting · Basic</div>
-                <div style={{ color:"#ddd", fontSize:".88rem", lineHeight:1.7, fontStyle:"italic" }}>"{t.text}"</div>
+                <div style={{ fontSize:".78rem", fontWeight:700, letterSpacing:1, textTransform:"uppercase", color:t.color, background:`${t.color}18`, border:`1px solid ${t.color}33`, borderRadius:100, padding:"3px 10px", width:"fit-content" }}>Accounting · {activeTab === "1" ? "Basic" : "Advanced"}</div>
+                <div className="lp-testi-text" style={{ color:"#ddd", fontSize:".88rem", lineHeight:1.7, fontStyle:"italic" }}>"{t.text}"</div>
                 <div style={{ display:"flex", alignItems:"center", gap:".7rem", marginTop:"auto" }}>
-                  <div style={{ width:36, height:36, borderRadius:"50%", background:`${t.color}22`, color:t.color, display:"flex", alignItems:"center", justifyContent:"center", fontWeight:700, fontSize:".78rem", flexShrink:0 }}>{t.initials}</div>
+                  {t.photo
+                    ? <img src={t.photo} alt={t.name} style={{ width:36, height:36, borderRadius:"50%", objectFit:"cover", flexShrink:0, border:`2px solid ${t.color}33` }} />
+                    : <div style={{ width:36, height:36, borderRadius:"50%", background:`${t.color}22`, color:t.color, display:"flex", alignItems:"center", justifyContent:"center", fontWeight:700, fontSize:".78rem", flexShrink:0 }}>{t.initials}</div>
+                  }
                   <div>
-                    <div style={{ fontSize:".82rem", fontWeight:700, color:"white" }}>{t.name}</div>
-                    <div style={{ fontSize:".72rem", color:"#666" }}>{t.role}</div>
+                    <div className="lp-testi-name" style={{ fontSize:".82rem", fontWeight:700, color:"inherit" }}>{t.name}</div>
+                    <div className="lp-testi-role" style={{ fontSize:".72rem", color:"#666" }}>{t.role}</div>
                   </div>
                 </div>
               </div>
             ))}
           </div>
+          <p className="lp-swipe-hint" style={{ textAlign:"center", fontSize:".65rem", color:"#555", letterSpacing:"1.5px", textTransform:"uppercase", marginTop:".5rem" }}>← swipe for more →</p>
         </div>
       </section>
 
       <ContactSection />
 
+      {/* ── HUMANIZING IMAGE SECTION ── */}
+      <section className="lp-human-section" style={{ padding:"60px 20px", background:"#0d0d14", position:"relative", zIndex:1 }}>
+        <div style={{ maxWidth:"820px", margin:"0 auto", display:"flex", flexDirection:"row", alignItems:"center", gap:"3rem", flexWrap:"wrap" }}>
+          <div style={{ flex:"0 0 260px", maxWidth:"100%" }}>
+            <img src="/assets/testimonials/face-e.png" alt="Accountant using AI at work"
+              style={{ width:"100%", borderRadius:20, objectFit:"cover", objectPosition:"center top",
+                boxShadow:"0 20px 60px rgba(0,0,0,.4), 0 0 0 1px rgba(13,124,138,.15)",
+                border:"1px solid rgba(13,124,138,.2)" }} />
+          </div>
+          <div style={{ flex:1, minWidth:240 }}>
+            <div style={{ fontSize:".7rem", fontWeight:700, letterSpacing:"2.5px", textTransform:"uppercase", color:THEME_COLOR, marginBottom:"1rem" }}>✦ Who this is for</div>
+            <h2 style={{ fontSize:"clamp(1.4rem,3vw,1.9rem)", fontWeight:800, color:"inherit", lineHeight:1.25, marginBottom:"1rem" }}>
+              You don't need to be a tech person.<br/>You need to be a better accountant.
+            </h2>
+            <p style={{ color:"var(--lp-body,#9896b0)", lineHeight:1.75, fontSize:".95rem", marginBottom:"1.25rem" }}>
+              AI Sprint Accounting is built for finance professionals who want AI to make their actual work faster and sharper — not replace their judgement.
+            </p>
+            <div style={{ display:"flex", flexDirection:"column", gap:".6rem", marginBottom:"1.5rem" }}>
+              {[
+                "Perfect if you work in accounting, bookkeeping, or finance",
+                "Built around real workflows — reconciliation, close, reporting",
+                "15 minutes a day — less than your morning commute",
+              ].map((item, i) => (
+                <div key={i} style={{ display:"flex", gap:".65rem", alignItems:"flex-start" }}>
+                  <span style={{ color:THEME_COLOR, fontWeight:800, flexShrink:0, marginTop:2 }}>✓</span>
+                  <span className="lp-human-bullet" style={{ color:"var(--lp-body,#c8c6e0)", fontSize:".9rem", lineHeight:1.6 }}>{item}</span>
+                </div>
+              ))}
+            </div>
+            <button onClick={() => openAuth("register")}
+              style={{ background:THEME_COLOR, color:"white", border:"none", padding:".75rem 1.8rem",
+                borderRadius:100, fontWeight:700, fontSize:".9rem", cursor:"pointer",
+                boxShadow:`0 8px 24px rgba(13,124,138,.3)` }}>
+              {themeData.cta}
+            </button>
+          </div>
+        </div>
+      </section>
+
       {/* Final CTA divider */}
-      <div style={{ display:"flex", alignItems:"center", padding:"40px 24px 0", zIndex:1, position:"relative" }}>
-        <div style={{ flex:1, height:1, background:`rgba(13,124,138,.35)` }} />
+      <div className="lp-join-banner" style={{ display:"flex", alignItems:"center", padding:"40px 24px 0", zIndex:1, position:"relative" }}>
+        <div style={{ flex:1, height:1, background:`rgba(13,124,138,.35)` }}/>
         <div style={{ display:"flex", gap:10, padding:"0 18px" }}>
-          {["ENROLL NOW", "START BASIC TRACK"].map((m,i) => (
+          {["START TODAY", activeTab === "1" ? "START BASIC TRACK" : "START ADVANCED TRACK"].map((m,i) => (
             <span key={i} style={{ fontFamily:"monospace", fontSize:"12px", letterSpacing:"2px", color:THEME_COLOR, opacity:.7 }}>[ {m} ]</span>
           ))}
         </div>
-        <div style={{ flex:1, height:1, background:`rgba(13,124,138,.35)` }} />
+        <div style={{ flex:1, height:1, background:`rgba(13,124,138,.35)` }}/>
       </div>
 
       {/* Final CTA */}
@@ -1225,7 +1464,7 @@ export default function LandingPage() {
           <h2 className="lp-cta-h2">
             {activeTab === "1" ? "Ready to become an AI-ready accountant?" : "Ready to deliver advisory-level AI work?"}
           </h2>
-          <p className="lp-cta-sub">
+          <p className="lp-cta-sub" style={{ color:"rgba(255,255,255,.9)", fontWeight:600, fontSize:"1.05rem" }}>
             {activeTab === "1"
               ? "Join 423 accounting professionals building smarter workflows with AI — 15 minutes a day, 28 days, no fluff."
               : "Join 187 finance professionals building advisory AI skills that clients pay a premium for."}
