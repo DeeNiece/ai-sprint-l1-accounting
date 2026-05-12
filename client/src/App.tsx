@@ -1,3 +1,7 @@
+// ── AI Sprint · Accounting ───────────────────────────────────────────────────
+// File: App.tsx  |  Repo: accounting
+// Last updated: May 2026
+
 import { useEffect } from "react";
 import { Router, Switch, Route, Redirect } from "wouter";
 import { useHashLocation } from "wouter/use-hash-location";
