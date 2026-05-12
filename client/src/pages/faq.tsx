@@ -1,3 +1,7 @@
+// ── AI Sprint · Accounting ───────────────────────────────────────────────────
+// File: faq.tsx  |  Repo: accounting
+// Last updated: May 2026
+
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import Nav from "@/components/nav";
@@ -25,29 +29,46 @@ interface FAQItem {
   a: string;
 }
 
-function FAQSection({ title, icon, items }: { title: string; icon: React.ReactNode; items: FAQItem[] }) {
+function FAQSection({ title, icon, items, accent }: { title: string; icon: React.ReactNode; items: FAQItem[]; accent?: string }) {
   const [openIdx, setOpenIdx] = useState<number | null>(null);
+  const isRealTalk = !!accent;
+  const accentColor = accent || "#0d7c8a";
 
   return (
-    <div className="faq-section" style={{ marginBottom: "2rem" }}>
+    <div className="faq-section" style={{ marginBottom: "2.5rem" }}>
+      {isRealTalk && (
+        <div style={{
+          display: "inline-flex", alignItems: "center", gap: 6,
+          background: "rgba(13,124,138,.08)", border: "1px solid rgba(13,124,138,.22)",
+          borderRadius: 100, padding: "4px 14px", marginBottom: "1rem",
+          fontSize: ".7rem", fontWeight: 700, letterSpacing: "1.5px",
+          textTransform: "uppercase" as any, color: accentColor,
+        }}>
+          ✦ The questions most people are actually thinking
+        </div>
+      )}
       <h2 className="faq-section-title" style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "1.25rem", fontWeight: 700, marginBottom: "1rem" }}>
         {icon} {title}
       </h2>
       <div className="faq-list" style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
         {items.map((item, i) => (
-          <div key={i} className={`faq-item ${openIdx === i ? "open" : ""}`} style={{ background: "rgba(22, 23, 30, 0.4)", border: "1px solid rgba(255, 255, 255, 0.08)", borderRadius: "12px", overflow: "hidden" }}>
-            <button 
-              className="faq-question" 
+          <div key={i} className={`faq-item ${openIdx === i ? "open" : ""}`} style={{
+            background: isRealTalk ? "rgba(13,124,138,.04)" : "rgba(22, 23, 30, 0.4)",
+            border: `1px solid ${openIdx === i ? accentColor + "44" : isRealTalk ? "rgba(13,124,138,.18)" : "rgba(255,255,255,0.08)"}`,
+            borderRadius: "12px", overflow: "hidden", transition: "border-color .2s",
+          }}>
+            <button
+              className="faq-question"
               onClick={() => setOpenIdx(openIdx === i ? null : i)}
-              style={{ width: "100%", display: "flex", justifyContent: "space-between", alignItems: "center", padding: "1.25rem", background: "none", border: "none", color: "white", fontWeight: 600, cursor: "pointer", textAlign: "left" }}
+              style={{ width: "100%", display: "flex", justifyContent: "space-between", alignItems: "center", padding: "1.25rem", background: "none", border: "none", color: "white", fontWeight: 600, cursor: "pointer", textAlign: "left", fontSize: isRealTalk ? "1rem" : undefined }}
             >
               <span>{item.q}</span>
-              {openIdx === i ? <ChevronUp size={16} color="#0d7c8a" /> : <ChevronDown size={16} color="#888" />}
+              {openIdx === i ? <ChevronUp size={16} color={accentColor} /> : <ChevronDown size={16} color="#888" />}
             </button>
             {openIdx === i && (
-              <div className="faq-answer" style={{ padding: "0 1.25rem 1.25rem", color: "#aaa", fontSize: "0.95rem", lineHeight: "1.6" }}>
+              <div className="faq-answer" style={{ padding: "0 1.25rem 1.25rem", color: isRealTalk ? "#ccc" : "#aaa", fontSize: "0.95rem", lineHeight: "1.7" }}>
                 {item.a.split("\n").map((line, j) => (
-                  <p key={j} style={{ margin: "0 0 0.5rem 0" }}>{line}</p>
+                  line.trim() ? <p key={j} style={{ margin: "0 0 0.6rem 0" }}>{line}</p> : null
                 ))}
               </div>
             )}
@@ -82,10 +103,10 @@ function ContactSupportForm() {
         setSubmitted(true);
         form.reset();
       } else {
-        setError("Something went wrong. Please email us directly at aisprint.app@outlook.com");
+        setError("Something went wrong. Please email us directly at support@aisprint.app");
       }
     } catch {
-      setError("Network error. Please email us directly at aisprint.app@outlook.com");
+      setError("Network error. Please email us directly at support@aisprint.app");
     } finally {
       setSubmitting(false);
     }
@@ -120,7 +141,7 @@ function ContactSupportForm() {
       }}
     >
       <input type="hidden" name="access_key" value="9354c53d-f37d-4c31-845b-88286c03d1d4" />
-      <input type="hidden" name="to" value="aisprint.app@outlook.com" />
+      <input type="hidden" name="to" value="support@aisprint.app" />
       <input type="hidden" name="subject" value="AI Sprint Support Request" />
       <input type="hidden" name="from_name" value="AI Sprint FAQ Page" />
 
@@ -185,6 +206,19 @@ export default function FAQPage() {
   });
 
   const sections = [
+    {
+      title: t("faq.realTalk"),
+      icon: <MessageSquare size={18} color="#0d7c8a" />,
+      accent: "#0d7c8a",
+      items: [
+        { q: t("faq.rt1"), a: t("faq.rt1a") },
+        { q: t("faq.rt2"), a: t("faq.rt2a") },
+        { q: t("faq.rt3"), a: t("faq.rt3a") },
+        { q: t("faq.rt4"), a: t("faq.rt4a") },
+        { q: t("faq.rt5"), a: t("faq.rt5a") },
+        { q: t("faq.rt6"), a: t("faq.rt6a") },
+      ],
+    },
     {
       title: t("faq.gettingStarted"),
       icon: <HelpCircle size={18} color="#0d7c8a" />,
@@ -291,7 +325,7 @@ export default function FAQPage() {
         {/* FAQs */}
         <div style={{ marginBottom: "4rem" }}>
           {sections.map((s, i) => (
-            <FAQSection key={i} title={s.title} icon={s.icon} items={s.items} />
+            <FAQSection key={i} title={s.title} icon={s.icon} items={s.items} accent={(s as any).accent} />
           ))}
         </div>
 
@@ -304,8 +338,8 @@ export default function FAQPage() {
           </h2>
           <p style={{ color: "#888", fontSize: "0.9rem", marginBottom: "1.5rem" }}>
             We'll get back to you at{" "}
-            <a href="mailto:aisprint.app@outlook.com" style={{ color: "#0d7c8a", textDecoration: "underline", textUnderlineOffset: 3 }}>
-              aisprint.app@outlook.com
+            <a href="mailto:support@aisprint.app" style={{ color: "#0d7c8a", textDecoration: "underline", textUnderlineOffset: 3 }}>
+              support@aisprint.app
             </a>
           </p>
           <ContactSupportForm />
