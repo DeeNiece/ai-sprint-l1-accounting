@@ -146,8 +146,24 @@ const en: Record<string, string> = {
 
   // ── FAQ page ────────────────────────────────────────────────────────────────
   "faq.title":          "Help & FAQ",
-  "faq.desc":           "Everything you need to know about AI Sprint, the AI Coach, and setting up your API key.",
+  "faq.desc":           "Honest answers to the questions most people are actually thinking — plus everything about the AI Coach and API setup.",
   "faq.footer":         "Still have questions? The AI Coach inside each lesson can help you with any topic covered in the course!",
+
+  // ── Real Talk — objection-handling Q&As ─────────────────────────────────────
+  "faq.realTalk":   "Real Questions, Honest Answers",
+  "faq.rt1":  "I've tried learning AI before and always quit. Why would this be different?",
+  "faq.rt1a": "Most AI courses fail because they're built like textbooks — long, dense, and disconnected from your actual work. AI Sprint is 15 minutes a day with a hands-on task. That's it.\n\nIf you've quit before, it wasn't a willpower problem. It was a format problem. We built this for exactly that situation.",
+  "faq.rt2":  "I'm not technical at all. Is this really for me?",
+  "faq.rt2a": "Yes — and we mean it. Day 1 is literally just having a conversation with an AI tool. No code. No setup. No jargon.\n\nBuilt for accounting and finance professionals who want practical AI skills without needing a computer science degree.",
+  "faq.rt3":  "How is this different from a YouTube tutorial or a free ChatGPT course?",
+  "faq.rt3a": "YouTube tutorials teach you what AI can do. AI Sprint teaches you what to do with it — in your accounting workflow, on a deadline, for a real deliverable.\n\nThe daily format and progress tracking creates the momentum that free resources rarely do.",
+  "faq.rt4":  "Will this still be relevant in 6 months when AI changes again?",
+  "faq.rt4a": "The specific tools will change. The skills won't.\n\nAI Sprint teaches you how to think with AI — prompting, evaluation, workflow-building. Those principles work regardless of which model is trending. We update content continuously and your lifetime access means you always have the current version.",
+  "faq.rt5":  "What if I fall behind or miss a day?",
+  "faq.rt5a": "Pick up exactly where you left off. No deadlines, no expiry dates, no streaks to protect.\n\nThe 28-day structure is a guide, not a contract. Your progress saves automatically and your access never expires.",
+  "faq.rt6":  "Do you offer refunds?",
+  "faq.rt6a": "Yes. If you purchase and feel the course isn't right for you, contact us at support@aisprint.app within 48 hours of purchase and we'll refund you — no lengthy forms, no interrogation.\n\nWe'd rather you find the right fit than hold onto your money.",
+
   "faq.gettingStarted": "Getting Started",
   "faq.aiCoach":        "AI Coach Chat & PromptLab",
   "faq.apiSetup":       "Setting Up Your API Key",
