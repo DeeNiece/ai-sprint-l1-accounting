@@ -1385,7 +1385,7 @@ export default function LandingPage() {
                 borderRadius:16, padding:"1.4rem 1.5rem",
                 display:"flex", flexDirection:"column", gap:"1rem",
                 transition:`opacity .65s ease ${i*.15}s, transform .65s ease ${i*.15}s`,
-                flex:"0 0 min(100%, 380px)",
+                flex: "0 0 100%", minWidth: 0,
               }}>
                 <div style={{ fontSize:".78rem", fontWeight:700, letterSpacing:1, textTransform:"uppercase", color:t.color, background:`${t.color}18`, border:`1px solid ${t.color}33`, borderRadius:100, padding:"3px 10px", width:"fit-content" }}>Accounting · {activeTab === "1" ? "Basic" : "Advanced"}</div>
                 <div className="lp-testi-text" style={{ color:"#ddd", fontSize:".88rem", lineHeight:1.7, fontStyle:"italic" }}>"{t.text}"</div>
