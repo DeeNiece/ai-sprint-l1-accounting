@@ -973,27 +973,48 @@ export default function LandingPage() {
       {showAuth && <AuthModal onClose={() => setShowAuth(false)} defaultMode={authMode} />}
 
       {/* Nav */}
-      <nav className="lp-nav" style={{ position:"relative", zIndex:10 }}>
-        <div className="lp-nav-logo">
-          <a href="https://aisprint.app" style={{ display:"flex", alignItems:"center", textDecoration:"none" }}>
-            <img src={logoImg} alt="AI Sprint" className="lp-nav-logo-img"/>
-          </a>
-        </div>
-        <div className="lp-nav-actions">
-          <button
-            className={`lp-theme-toggle${isDark ? "" : " light"}`}
-            onClick={() => setIsDark(d => !d)}
-            aria-label="Toggle dark/light mode"
-            title={isDark ? "Switch to light mode" : "Switch to dark mode"}
-          >
-            <div className="lp-theme-toggle-thumb" />
-          </button>
-          <button className="lp-btn-ghost" onClick={() => openAuth("login")}>Log In</button>
-          <button className="lp-btn-primary" style={{ background: THEME_COLOR }} onClick={() => openAuth("register")}>
-            Start Your Journey →
-          </button>
-        </div>
-      </nav>
+      <nav
+  className="lp-nav"
+  style={{
+    position: "sticky",
+    top: 0,
+    zIndex: 1000,
+    backdropFilter: "blur(12px)",
+    WebkitBackdropFilter: "blur(12px)",
+  }}
+>
+  <div className="lp-nav-logo">
+    <a
+      href="https://aisprint.app"
+      style={{ display: "flex", alignItems: "center", textDecoration: "none" }}
+    >
+      <img src={logoImg} alt="AI Sprint" className="lp-nav-logo-img" />
+    </a>
+  </div>
+
+  <div className="lp-nav-actions">
+    <button
+      className={`lp-theme-toggle${isDark ? "" : " light"}`}
+      onClick={() => setIsDark((d) => !d)}
+      aria-label="Toggle dark/light mode"
+      title={isDark ? "Switch to light mode" : "Switch to dark mode"}
+    >
+      <div className="lp-theme-toggle-thumb" />
+    </button>
+
+    <button className="lp-btn-ghost" onClick={() => openAuth(activeTab, "login")}>
+      Log In
+    </button>
+
+    <button
+      className="lp-btn-primary"
+      style={{ background: THEME }}
+      onClick={() => openAuth(activeTab, "register")}
+    >
+      {activeTab === "2" ? "Start Level 2 Journey →" : "Start Level 1 Journey →"}
+    </button>
+  </div>
+</nav>
 
       {/* Hero */}
       <section className="lp-hero" style={{ position: "relative", zIndex: 1, paddingBottom: "2rem" }}>
