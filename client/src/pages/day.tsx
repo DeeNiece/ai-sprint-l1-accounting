@@ -1,3 +1,7 @@
+// ── AI Sprint · Accounting ───────────────────────────────────────────────────
+// File: day.tsx  |  Repo: accounting
+// Last updated: May 2026
+
 import { useEffect, useState } from "react";
 import { Link, useRoute } from "wouter";
 import { useQuery, useMutation } from "@tanstack/react-query";
@@ -25,9 +29,33 @@ import {
   X,
 } from "lucide-react";
 import DayChat from "@/components/day-chat";
+import { useAuth } from "@/components/auth-provider";
 import { useLanguage } from "@/i18n";
 import { useRegion, isToolBlocked, getAlternatives } from "@/hooks/useRegion";
 import PromptLab from "@/components/PromptLab";
+
+// ── AI Sprint · Day Tracking ──────────────────────────────────────────────────
+const TRACKING_URL = "https://script.google.com/macros/s/AKfycbzFZZJk_VcQHlNRSOjMvgfc4MrD2AATiZa8GXOou5OOpZes_Mql6gaYw3fIVS4A-lzc/exec";
+
+async function trackDayOpen(user: any, dayNum: string | number, level: string, course: string) {
+  try {
+    await fetch(TRACKING_URL, {
+      method: "POST",
+      headers: { "Content-Type": "text/plain" },
+      body: JSON.stringify({
+        email:       user?.email       || "unknown",
+        displayName: user?.displayName || "",
+        course:      course,
+        day:         String(dayNum),
+        action:      "open",
+        level:       level,
+      }),
+    });
+  } catch {
+    // Silent fail — never interrupts the user
+  }
+}
+
 
 // Floating Celebration Component (same as before)
 function FloatingCelebration({
@@ -158,6 +186,7 @@ function getWhatYouLearned(day: {
 }
 
 export default function DayPage({ params: propParams }: DayPageProps) {
+  const { user } = useAuth();
   const { t } = useLanguage();
   const { blockedTools, countryCode } = useRegion();
 
@@ -202,6 +231,14 @@ export default function DayPage({ params: propParams }: DayPageProps) {
     sub: string;
   } | null>(null);
   const [dismissReminder, setDismissReminder] = useState(false);
+
+
+  // ── Track day open ────────────────────────────────────────────────────────
+  useEffect(() => {
+    if (user && dayNum) {
+      trackDayOpen(user, dayNum, String(level), "Accounting");
+    }
+  }, [dayNum, level]);
 
   useEffect(() => {
     window.scrollTo(0, 0);
