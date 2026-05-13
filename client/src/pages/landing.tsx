@@ -1,25 +1,56 @@
-// ── AI Sprint · AI Strategy for Business Leaders ────────────────────────────────────────────────
-// File: landing.tsx | Repo: ai-strategy
+// ── AI Sprint · Mastering Accounting with AI ────────────────────────────────────────────────
+// File: landing.tsx | Repo: ai-accounting
 // Last updated: May 2025
 import { useState, useEffect, useRef } from "react";
-import logoImg from "@assets/ai-sprint-logo.jpg";
+import logoImg from "@/ai-sprint-logo.png";
 import { useAuth } from "@/components/auth-provider";
 import { useLanguage } from "@/i18n";
+import bannerVideo from "@/assets/Challenge-Badge Trim_small.mp4";
 import {
   Mail, Lock, UserCircle, ArrowRight, AlertCircle,
-  Eye, EyeOff, X, Brain, BarChart2, Shield,
-  BookOpen, Target, Layers, Send, CheckCircle2,
+  Eye, EyeOff, X, Send, CheckCircle2,
 } from "lucide-react";
 
-const L1_COLOR = "#0d7c8a";
-const L2_COLOR = "#d97706";
+const THEME_COLOR = "#0d7c8a";
+const L2_COLOR = "#e8820c";
 const CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789@#$%&";
 
-// ── Auth Modal ────────────────────────────────────────────────────
-function AuthModal({ onClose, defaultLevel, defaultMode = "register" }: { onClose: () => void; defaultLevel: "1" | "2"; defaultMode?: "login" | "register" }) {
+const LEVEL_THEMES = {
+  "1": {
+    color: THEME_COLOR,
+    name: "Basic",
+    label: "Basic · Foundation",
+    annotation: "AI-ACCT-BASIC",
+    days: "28 DAYS",
+    tagline: "Master the accounting AI foundations every finance professional needs.",
+    heroHeadline: "In 28 days, become the accountant who confidently works with AI.",
+    heroSub: "Built for accountants, bookkeepers, and finance professionals who want to work smarter with AI — without losing the professional judgement that matters.",
+    urgency: "423 accountants enrolled in the Basic track this month",
+    cta: "Start the Basic Track →",
+    dividerMarks: ["↔ 28 DAYS", "📊 BASIC TRACK", "15 MIN/DAY"],
+    sectionLabel: "ACCOUNTING + AI · BASIC TRACK",
+    sectionH2: "The practical way to master accounting with AI in 2026",
+  },
+  "2": {
+    color: L2_COLOR,
+    name: "Advanced",
+    label: "Advanced · Advisory",
+    annotation: "AI-ACCT-ADVANCED",
+    days: "28 DAYS",
+    tagline: "Build advisory-level AI skills that transform how you serve clients.",
+    heroHeadline: "In 28 days, become the accountant who uses AI to deliver advisory-level insight.",
+    heroSub: "Level 2 is for finance professionals ready to move beyond basics — AI audits, operating models, and client-ready advisory deliverables.",
+    urgency: "187 finance professionals enrolled in the Advanced track this month",
+    cta: "Start the Advanced Track →",
+    dividerMarks: ["↔ 28 DAYS", "📈 ADVANCED TRACK", "15 MIN/DAY"],
+    sectionLabel: "ACCOUNTING + AI · ADVANCED TRACK",
+    sectionH2: "Build advisory AI skills that clients will pay a premium for",
+  },
+};
+
+function AuthModal({ onClose, defaultMode = "register" }: { onClose: () => void; defaultMode?: "login" | "register" }) {
   const { login, register } = useAuth();
   const { t } = useLanguage();
-  const THEME = defaultLevel === "2" ? L2_COLOR : L1_COLOR;
 
   const [mode, setMode] = useState<"login" | "register">(defaultMode);
   const [email, setEmail] = useState("");
@@ -33,7 +64,6 @@ function AuthModal({ onClose, defaultLevel, defaultMode = "register" }: { onClos
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
-    setPurchaseUrl(null);
     setLoading(true);
 
     let err: string | null = null;
@@ -68,47 +98,47 @@ function AuthModal({ onClose, defaultLevel, defaultMode = "register" }: { onClos
   return (
     <div className="lp-modal-overlay" onMouseDown={handleOverlayClick}>
       <div className="lp-modal-card">
-        <button className="lp-modal-close" onClick={onClose} aria-label="Close"><X size={18} /></button>
+        <button className="lp-modal-close" onClick={onClose} aria-label="Close">
+          <X size={18} />
+        </button>
 
-        {/* Logo & tagline — forced light text */}
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "0.5rem", marginBottom: "1.25rem" }}>
+        <div
+          className="auth-logo"
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: "0.5rem",
+            marginBottom: "1.25rem",
+          }}
+        >
           <img src={logoImg} alt="AI Sprint" className="auth-logo-img" />
-          <div className="auth-tagline" style={{ color: "#ddd" }}>Learn AI Fast. Stay Ahead Forever.</div>
+          <div className="auth-tagline" style={{ color: "#ddd" }}>
+            Master Accounting. Leverage AI. Stay Ahead.
+          </div>
         </div>
 
-        {/* Headings — forced white */}
+        {/* 
+          All text inside the modal now has explicit inline styles 
+          – no CSS classes can override these.
+        */}
         <h1 className="auth-heading" style={{ color: "white", fontSize: "1.75rem", fontWeight: 800, marginBottom: "0.5rem", textAlign: "center" }}>
-          {mode === "login"
-            ? `Welcome back to ${defaultLevel === "2" ? "Level 2 Advanced" : "Level 1 Basic"}`
-            : t("auth.createAccount")
-          }
+          {mode === "login" ? "Welcome Back to Accounting in the AI Era" : t("auth.createAccount")}
         </h1>
 
         <p className="auth-subtext" style={{ color: "#ccc", marginBottom: "1.5rem", fontSize: "0.95rem", textAlign: "center" }}>
-          {mode === "login"
-            ? defaultLevel === "2"
-              ? "Build the AI strategy and governance skills that organizations need now."
-              : "Build the AI fluency that makes you valuable in any AI conversation."
-            : t("auth.signupSubtext")
-          }
+          {mode === "login" ? t("auth.loginSubtext") : t("auth.signupSubtext")}
         </p>
 
-        {/* Error messages */}
         {error && (
           <div className="auth-error" style={{ color: "#ef4444", display: "flex", alignItems: "center", gap: "8px", marginBottom: "1rem" }}>
             <AlertCircle size={14} /> {error}
           </div>
         )}
-
         {purchaseUrl && (
           <div className="auth-error" style={{ color: "#ef4444", display: "flex", alignItems: "center", gap: "8px", marginBottom: "1rem" }}>
             <AlertCircle size={14} />
-            <span>
-              You may need a valid license for this level.{" "}
-              <a href={purchaseUrl} target="_blank" rel="noopener noreferrer" style={{ textDecoration: "underline", fontWeight: 600, color: "#fca5a5" }}>
-                View Pricing & Upgrades →
-              </a>
-            </span>
+            <span>You may need a valid license. <a href={purchaseUrl} target="_blank" rel="noopener noreferrer" style={{ textDecoration: "underline", fontWeight: 600, color: "#fca5a5" }}>View Pricing →</a></span>
           </div>
         )}
 
@@ -145,9 +175,11 @@ function AuthModal({ onClose, defaultLevel, defaultMode = "register" }: { onClos
             <input
               id="modal-email"
               type="email"
+              inputMode="email"
+              autoComplete="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="you@example.com"
+              placeholder={t("auth.emailPlaceholder")}
               required
               style={{
                 width: "100%",
@@ -171,8 +203,13 @@ function AuthModal({ onClose, defaultLevel, defaultMode = "register" }: { onClos
                 type={showPw ? "text" : "password"}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="Your password"
+                placeholder={
+                  mode === "register"
+                    ? t("auth.passwordPlaceholder")
+                    : t("auth.loginPasswordPlaceholder")
+                }
                 required
+                minLength={mode === "register" ? 6 : 1}
                 style={{
                   width: "100%",
                   padding: "12px",
@@ -187,6 +224,7 @@ function AuthModal({ onClose, defaultLevel, defaultMode = "register" }: { onClos
                 type="button"
                 className="pw-toggle"
                 onClick={() => setShowPw((s) => !s)}
+                aria-label="Toggle password visibility"
                 style={{
                   position: "absolute",
                   right: "12px",
@@ -206,46 +244,121 @@ function AuthModal({ onClose, defaultLevel, defaultMode = "register" }: { onClos
           <button
             type="submit"
             className="auth-submit"
-            style={{ background: THEME, color: "#000", fontWeight: 800, display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", padding: "12px", borderRadius: "8px", border: "none", cursor: loading ? "not-allowed" : "pointer", marginTop: "10px", boxShadow: `0 4px 14px ${THEME}66` }}
             disabled={loading}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: "8px",
+              padding: "12px",
+              background: "#3ab8c8",
+              color: "#000",
+              fontWeight: 800,
+              textTransform: "uppercase",
+              letterSpacing: "0.5px",
+              border: "none",
+              borderRadius: "8px",
+              cursor: loading ? "not-allowed" : "pointer",
+              marginTop: "10px",
+              boxShadow: "0 4px 14px rgba(58, 184, 200, 0.4)",
+            }}
           >
-            {loading ? "Please wait..." : mode === "login" ? "Log in" : "Create Account"}
+            {loading
+              ? t("auth.pleaseWait")
+              : mode === "login"
+              ? t("auth.login")
+              : t("auth.createAccountBtn")}
             {!loading && <ArrowRight size={16} />}
           </button>
 
-          <div style={{ position: "relative", margin: "25px 0" }}>
-            <hr style={{ border: "none", borderTop: "1px solid rgba(255,255,255,0.1)" }} />
-            <span style={{ position: "absolute", top: "-10px", left: "50%", transform: "translateX(-50%)", background: "rgba(22, 23, 30, 0.8)", padding: "0 15px", fontSize: "0.7rem", color: "#ccc", fontWeight: 800, letterSpacing: "1px" }}>OR</span>
-          </div>
+          <div style={{ marginTop: "20px", textAlign: "center" }}>
+            <div style={{ position: "relative", margin: "20px 0" }}>
+              <hr style={{ border: "none", borderTop: "1px solid #444" }} />
+              <span
+                style={{
+                  position: "absolute",
+                  top: "-10px",
+                  left: "50%",
+                  transform: "translateX(-50%)",
+                  background: "rgba(22, 23, 30, 0.8)",
+                  backdropFilter: "blur(10px)",
+                  padding: "0 10px",
+                  fontSize: "0.75rem",
+                  color: "#ccc",
+                  fontWeight: 600,
+                }}
+              >
+                OR
+              </span>
+            </div>
 
-          <a
-            href="/api/auth/google"
-            style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "12px", width: "100%", padding: "12px", borderRadius: "8px", background: "#f0f0f0", color: "#000", fontWeight: "bold", textDecoration: "none", transition: "transform 0.2s" }}
-          >
-            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="18" alt="Google" />
-            {mode === "login" ? "Sign in with Google" : "Sign up with Google"}
-          </a>
+            <a
+              href="/api/auth/google"
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "12px",
+                width: "100%",
+                padding: "12px",
+                borderRadius: "8px",
+                background: "#f0f0f0",
+                color: "#000",
+                fontWeight: "bold",
+                textDecoration: "none",
+              }}
+            >
+              <img
+                src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
+                width="20"
+                alt="Google"
+              />
+              {mode === "login" ? "Sign in with Google" : "Sign up with Google"}
+            </a>
+          </div>
         </form>
 
-        <div style={{ marginTop: "2rem", textAlign: "center", fontSize: "0.9rem", color: "#ccc" }}>
+        <div className="auth-switch" style={{ marginTop: "1.5rem", textAlign: "center", fontSize: "0.85rem", color: "#ccc" }}>
           {mode === "login" ? (
             <>
               <p>
-                Don't have an account?{" "}
-                <button onClick={() => { setMode("register"); setError(null); setPurchaseUrl(null); }} style={{ background: "none", border: "none", color: THEME, fontWeight: 700, cursor: "pointer", textDecoration: "underline", padding: 0 }}>
-                  Sign up
+                {t("auth.noAccount")}{" "}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMode("register");
+                    setError(null);
+                    setPurchaseUrl(null);
+                  }}
+                  style={{ background: "none", border: "none", color: "#3ab8c8", fontWeight: 700, cursor: "pointer", textDecoration: "underline", padding: 0 }}
+                >
+                  {t("auth.signup")}
                 </button>
               </p>
-              <p style={{ marginTop: "1rem" }}>
-                Having trouble?{" "}
-                <a href="mailto:support@aisprint.app" style={{ textDecoration: "underline", color: "#aaa" }}>Contact Support</a>
+
+              <p style={{ marginTop: "0.75rem", fontSize: "0.85rem", color: "#aaa" }}>
+                Having trouble logging in?{" "}
+                <a
+                  href="mailto:support@aisprint.app"
+                  style={{ textDecoration: "underline", textUnderlineOffset: "2px", color: "#ccc" }}
+                >
+                  Contact Support
+                </a>
               </p>
             </>
           ) : (
             <p>
-              Already have an account?{" "}
-              <button onClick={() => { setMode("login"); setError(null); setPurchaseUrl(null); }} style={{ background: "none", border: "none", color: THEME, fontWeight: 700, cursor: "pointer", textDecoration: "underline", padding: 0 }}>
-                Log in
+              {t("auth.hasAccount")}{" "}
+              <button
+                type="button"
+                onClick={() => {
+                  setMode("login");
+                  setError(null);
+                  setPurchaseUrl(null);
+                }}
+                style={{ background: "none", border: "none", color: "#3ab8c8", fontWeight: 700, cursor: "pointer", textDecoration: "underline", padding: 0 }}
+              >
+                {t("auth.login")}
               </button>
             </p>
           )}
@@ -255,8 +368,8 @@ function AuthModal({ onClose, defaultLevel, defaultMode = "register" }: { onClos
   );
 }
 
-// ── Contact Section (unchanged, but label colors improved) ──────
-function ContactSection({ theme }: { theme: string }) {
+// ── Contact Support Section (unchanged, but labels made lighter) ──
+function ContactSection() {
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -265,13 +378,22 @@ function ContactSection({ theme }: { theme: string }) {
     e.preventDefault();
     setSubmitting(true);
     setError(null);
+
     const form = e.currentTarget;
     const data = new FormData(form);
+
     try {
-      const res = await fetch("https://api.web3forms.com/submit", { method: "POST", body: data });
+      const res = await fetch("https://api.web3forms.com/submit", {
+        method: "POST",
+        body: data,
+      });
       const json = await res.json();
-      if (json.success) { setSubmitted(true); form.reset(); }
-      else setError("Something went wrong. Please try emailing us directly.");
+      if (json.success) {
+        setSubmitted(true);
+        form.reset();
+      } else {
+        setError("Something went wrong. Please try emailing us directly.");
+      }
     } catch {
       setError("Network error. Please try emailing us directly.");
     } finally {
@@ -280,44 +402,231 @@ function ContactSection({ theme }: { theme: string }) {
   }
 
   return (
-    <section className="lp-contact-section" style={{ padding: "80px 20px", background: "#111" }}>
+    <section
+      style={{
+        padding: "80px 20px",
+        background: "#111",
+      }}
+      className="lp-contact-section"
+    >
       <div style={{ maxWidth: 560, margin: "0 auto" }}>
         <div style={{ textAlign: "center", marginBottom: 40 }}>
-          <div style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: "0.75rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: theme, background: `${theme}1a`, border: `1px solid ${theme}33`, borderRadius: 20, padding: "5px 14px", marginBottom: 16 }}>
+          <div
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 6,
+              fontSize: "0.75rem",
+              fontWeight: 700,
+              letterSpacing: "0.1em",
+              textTransform: "uppercase",
+              color: "#0d7c8a",
+              background: "rgba(13, 124, 138, 0.1)",
+              border: "1px solid rgba(13, 124, 138, 0.2)",
+              borderRadius: 20,
+              padding: "5px 14px",
+              marginBottom: 16,
+            }}
+          >
             <Mail size={12} /> Contact Support
           </div>
-          <h2 style={{ fontSize: "clamp(1.6rem, 4vw, 2.2rem)", fontWeight: 800, color: "inherit", margin: "0 0 12px", lineHeight: 1.2 }}>Need help? We're here.</h2>
+          <h2
+            style={{
+              fontSize: "clamp(1.6rem, 4vw, 2.2rem)",
+              fontWeight: 800,
+              margin: "0 0 12px",
+              lineHeight: 1.2,
+            }}
+          >
+            Need help? We're here.
+          </h2>
           <p style={{ color: "#888", fontSize: "1rem", margin: 0 }}>
             Send us a message and we'll get back to you at{" "}
-            <a href="mailto:support@aisprint.app" style={{ color: theme, textDecoration: "underline", textUnderlineOffset: 3 }}>support@aisprint.app</a>
+            <a
+              href="mailto:support@aisprint.app"
+              style={{ color: "#0d7c8a", textDecoration: "underline", textUnderlineOffset: 3 }}
+            >
+              support@aisprint.app
+            </a>
           </p>
         </div>
+
         {submitted ? (
-          <div style={{ background: "rgba(34,197,94,0.08)", border: "1px solid rgba(34,197,94,0.2)", borderRadius: 16, padding: "40px 32px", textAlign: "center" }}>
+          <div
+            style={{
+              background: "rgba(34, 197, 94, 0.08)",
+              border: "1px solid rgba(34, 197, 94, 0.2)",
+              borderRadius: 16,
+              padding: "40px 32px",
+              textAlign: "center",
+            }}
+          >
             <CheckCircle2 size={48} color="#22c55e" style={{ margin: "0 auto 16px" }} />
-            <h3 className="lp-contact-success-title" style={{ margin: "0 0 8px", fontSize: "1.2rem" }}>Message sent!</h3>
-            <p className="lp-contact-success-text" style={{ margin: 0 }}>We'll get back to you within 24 hours.</p>
-            <button onClick={() => setSubmitted(false)} style={{ marginTop: 20, background: "none", border: "1px solid #333", color: "#888", padding: "8px 20px", borderRadius: 8, cursor: "pointer", fontSize: "0.85rem" }}>Send another message</button>
+            <h3 className="lp-contact-success-title" style={{ margin: "0 0 8px", fontSize: "1.2rem" }}>
+              Message sent!
+            </h3>
+            <p className="lp-contact-success-text" style={{ margin: 0 }}>
+              We'll get back to you within 24 hours.
+            </p>
+            <button
+              onClick={() => setSubmitted(false)}
+              style={{
+                marginTop: 20,
+                background: "none",
+                border: "1px solid #333",
+                color: "#888",
+                padding: "8px 20px",
+                borderRadius: 8,
+                cursor: "pointer",
+                fontSize: "0.85rem",
+              }}
+            >
+              Send another message
+            </button>
           </div>
         ) : (
-          <form onSubmit={handleSubmit} style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 16, padding: "36px 32px", display: "flex", flexDirection: "column", gap: 18 }}>
+          <form
+            onSubmit={handleSubmit}
+            style={{
+              background: "rgba(255,255,255,0.03)",
+              border: "1px solid rgba(255,255,255,0.08)",
+              borderRadius: 16,
+              padding: "36px 32px",
+              display: "flex",
+              flexDirection: "column",
+              gap: 18,
+            }}
+          >
             <input type="hidden" name="access_key" value="9354c53d-f37d-4c31-845b-88286c03d1d4" />
-            <input type="hidden" name="subject" value="AI Sprint Strategy Course Support Request" />
-            <input type="hidden" name="from_name" value="AI Sprint Strategy Course Landing Page" />
-            {error && <div style={{ background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.2)", color: "#ef4444", padding: "10px 14px", borderRadius: 8, fontSize: "0.875rem", display: "flex", alignItems: "center", gap: 8 }}><AlertCircle size={14} /> {error}</div>}
+            <input type="hidden" name="to" value="support@aisprint.app" />
+            <input type="hidden" name="subject" value="Accounting Sprint Support Request" />
+            <input type="hidden" name="from_name" value="AI Sprint Accounting Landing Page" />
+
+            {error && (
+              <div
+                style={{
+                  background: "rgba(239,68,68,0.1)",
+                  border: "1px solid rgba(239,68,68,0.2)",
+                  color: "#ef4444",
+                  padding: "10px 14px",
+                  borderRadius: 8,
+                  fontSize: "0.875rem",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 8,
+                }}
+              >
+                <AlertCircle size={14} /> {error}
+              </div>
+            )}
+
             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-              <label className="lp-form-label" style={{ fontSize: "0.8rem", fontWeight: 600, color: "#ddd", display: "flex", alignItems: "center", gap: 6 }}><UserCircle size={13} /> Your Name</label>
-              <input type="text" name="name" placeholder="Jane Doe" required className="lp-contact-input" style={{ padding: "11px 14px", borderRadius: 8, border: "1px solid rgba(255,255,255,0.1)", background: "rgba(0,0,0,0.3)", color: "white", fontSize: "0.95rem", outline: "none", width: "100%", boxSizing: "border-box" }} />
+              <label
+                htmlFor="contact-name"
+                className="lp-form-label"
+                style={{ fontSize: "0.8rem", fontWeight: 600, color: "#ddd", display: "flex", alignItems: "center", gap: 6 }}
+              >
+                <UserCircle size={13} /> Your Name
+              </label>
+              <input
+                id="contact-name"
+                type="text"
+                name="name"
+                placeholder="Jane Doe"
+                required
+                style={{
+                  padding: "11px 14px",
+                  borderRadius: 8,
+                  border: "1px solid rgba(255,255,255,0.1)",
+                  background: "rgba(0,0,0,0.3)",
+                  color: "white",
+                  fontSize: "0.95rem",
+                  outline: "none",
+                  width: "100%",
+                  boxSizing: "border-box",
+                }}
+              />
             </div>
+
             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-              <label className="lp-form-label" style={{ fontSize: "0.8rem", fontWeight: 600, color: "#ddd", display: "flex", alignItems: "center", gap: 6 }}><Mail size={13} /> Your Email</label>
-              <input type="email" name="email" placeholder="you@example.com" required className="lp-contact-input" style={{ padding: "11px 14px", borderRadius: 8, border: "1px solid rgba(255,255,255,0.1)", background: "rgba(0,0,0,0.3)", color: "white", fontSize: "0.95rem", outline: "none", width: "100%", boxSizing: "border-box" }} />
+              <label
+                htmlFor="contact-email"
+                className="lp-form-label"
+                style={{ fontSize: "0.8rem", fontWeight: 600, color: "#ddd", display: "flex", alignItems: "center", gap: 6 }}
+              >
+                <Mail size={13} /> Your Email
+              </label>
+              <input
+                id="contact-email"
+                type="email"
+                name="email"
+                placeholder="you@example.com"
+                required
+                style={{
+                  padding: "11px 14px",
+                  borderRadius: 8,
+                  border: "1px solid rgba(255,255,255,0.1)",
+                  background: "rgba(0,0,0,0.3)",
+                  color: "white",
+                  fontSize: "0.95rem",
+                  outline: "none",
+                  width: "100%",
+                  boxSizing: "border-box",
+                }}
+              />
             </div>
+
             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-              <label className="lp-form-label" style={{ fontSize: "0.8rem", fontWeight: 600, color: "#ddd" }}>Message</label>
-              <textarea name="message" placeholder="Describe your issue or question…" required rows={5} className="lp-contact-input lp-contact-textarea" style={{ padding: "11px 14px", borderRadius: 8, border: "1px solid rgba(255,255,255,0.1)", background: "rgba(0,0,0,0.3)", color: "white", fontSize: "0.95rem", outline: "none", width: "100%", boxSizing: "border-box", resize: "vertical", fontFamily: "inherit", lineHeight: 1.5 }} />
+              <label
+                htmlFor="contact-message"
+                className="lp-form-label"
+                style={{ fontSize: "0.8rem", fontWeight: 600, color: "#ddd" }}
+              >
+                Message
+              </label>
+              <textarea
+                id="contact-message"
+                name="message"
+                placeholder="Describe your issue or question…"
+                required
+                rows={5}
+                style={{
+                  padding: "11px 14px",
+                  borderRadius: 8,
+                  border: "1px solid rgba(255,255,255,0.1)",
+                  background: "rgba(0,0,0,0.3)",
+                  color: "white",
+                  fontSize: "0.95rem",
+                  outline: "none",
+                  width: "100%",
+                  boxSizing: "border-box",
+                  resize: "vertical",
+                  fontFamily: "inherit",
+                  lineHeight: 1.5,
+                }}
+              />
             </div>
-            <button type="submit" disabled={submitting} style={{ padding: "13px", borderRadius: 8, border: "none", background: submitting ? "#555" : theme, color: "white", fontWeight: 700, fontSize: "0.95rem", cursor: submitting ? "not-allowed" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, transition: "background 0.2s", boxShadow: submitting ? "none" : `0 4px 14px ${theme}55` }}>
+
+            <button
+              type="submit"
+              disabled={submitting}
+              style={{
+                padding: "13px",
+                borderRadius: 8,
+                border: "none",
+                background: submitting ? "#555" : "#0d7c8a",
+                color: "white",
+                fontWeight: 700,
+                fontSize: "0.95rem",
+                cursor: submitting ? "not-allowed" : "pointer",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 8,
+                transition: "background 0.2s",
+                boxShadow: submitting ? "none" : "0 4px 14px rgba(13, 124, 138, 0.35)",
+              }}
+            >
               <Send size={15} />
               {submitting ? "Sending…" : "Send Message"}
             </button>
@@ -328,47 +637,44 @@ function ContactSection({ theme }: { theme: string }) {
   );
 }
 
-// ── Landing Page (unchanged except AuthModal integration) ────────
 export default function LandingPage() {
   const [showAuth, setShowAuth] = useState(false);
-  const [authLevel, setAuthLevel] = useState<"1" | "2">("1");
   const [authMode, setAuthMode] = useState<"login" | "register">("register");
   const [activeTab, setActiveTab] = useState<"1" | "2">("1");
-  const THEME = activeTab === "2" ? L2_COLOR : L1_COLOR;
+  const [isDark, setIsDark] = useState(true);
+  const themeData = LEVEL_THEMES[activeTab];
+  const THEME = themeData.color;
 
   // ── Cursor glow ──────────────────────────────────────────────
   const cursorRef = useRef<HTMLDivElement>(null);
 
   // ── H1 scramble — re-fires on tab change ─────────────────────
-  const H1s = {
-    "1": "In 28 days, go from AI-aware to AI-fluent — and lead with confidence.",
-    "2": "In 28 days, become the leader who sets AI strategy, policy, and direction.",
-  };
-  const [scrambledH1, setScrambledH1] = useState(H1s["1"]);
+  const [scrambledH1, setScrambledH1] = useState(LEVEL_THEMES["1"].heroHeadline);
 
   // ── Animated stat counters ────────────────────────────────────
   const [s28, setS28] = useState(0);
   const [s15, setS15] = useState(0);
-  const [s2, setS2] = useState(0);
-  const [s0, setS0] = useState(1);
+  const [sEnrolled, setSEnrolled] = useState(0);
   const statsRef = useRef<HTMLDivElement>(null);
   const statsFired = useRef(false);
 
   // ── Ticker ────────────────────────────────────────────────────
   const TICKS: Record<"1"|"2", string[]> = {
     "1": [
-      "🚀 Sarah just completed her AI Fluency audit · Day 14",
-      "🏆 James unlocked Prompt Pro rank · Basic",
-      "✨ 3 new business leaders enrolled in Basic today",
-      "🧠 Emily mapped her team's AI risk framework · Week 2",
-      "🔥 Dee is on a 9-day streak · Basic track",
+      "📊 Sarah completed her month-end close checklist · Day 16",
+      "🏆 Daniel unlocked Workflow Architect rank · Basic",
+      "✅ Priya just finished her AI prompt library · Day 26",
+      "📋 Marcus built a bank reconciliation workflow · Week 2",
+      "✨ 423 accountants enrolled in the Basic track this month",
+      "🔥 Yuki is on a 10-day streak · Basic track",
     ],
     "2": [
-      "📋 Sarah presented her AI governance policy to the board",
-      "🏆 James unlocked AI Strategy Leader rank · Advanced",
-      "✨ 187 executives enrolled in Advanced this month",
-      "🧠 Emily launched her organisation's AI roadmap · Week 3",
-      "🔥 Dee is on a 14-day streak · Advanced track",
+      "📈 Sarah delivered her first AI audit report to a client",
+      "🏆 Daniel unlocked Advisory Pro rank · Advanced",
+      "✅ Priya built her AI-ready operating model · Week 4",
+      "📋 Marcus landed a new advisory client using the framework",
+      "✨ 187 professionals enrolled in the Advanced track this month",
+      "🔥 Yuki is on a 14-day streak · Advanced track",
     ],
   };
   const [tickerIdx, setTickerIdx] = useState(0);
@@ -379,11 +685,13 @@ export default function LandingPage() {
   const cardsRef = useRef<HTMLDivElement>(null);
   const [revealTestimonials, setRevealTestimonials] = useState(false);
   const testimonialsRef = useRef<HTMLDivElement>(null);
-  const [isDark, setIsDark] = useState(true);
+
+  // Auto-scroll refs
+  const deliverablesScrollRef = useRef<HTMLDivElement>(null);
+  const sevenDayScrollRef = useRef<HTMLDivElement>(null);
   const testiScrollRef = useRef<HTMLDivElement>(null);
 
-  function openAuth(level: "1" | "2", mode: "login" | "register" = "register") {
-    setAuthLevel(level);
+  function openAuth(mode: "login" | "register" = "register") {
     setAuthMode(mode);
     setShowAuth(true);
   }
@@ -402,9 +710,9 @@ export default function LandingPage() {
 
   // H1 scramble — re-fires on tab change
   useEffect(() => {
-    const target = H1s[activeTab];
+    const target = LEVEL_THEMES[activeTab].heroHeadline;
     let frame = 0;
-    const total = 28;
+    const total = 30;
     const iv = setInterval(() => {
       setScrambledH1(target.split("").map((char, i) => {
         if (char === " ") return " ";
@@ -413,7 +721,7 @@ export default function LandingPage() {
       }).join(""));
       frame++;
       if (frame > total) { setScrambledH1(target); clearInterval(iv); }
-    }, 40);
+    }, 45);
     return () => clearInterval(iv);
   }, [activeTab]);
 
@@ -435,8 +743,7 @@ export default function LandingPage() {
       };
       run(setS28, 28, 1000);
       run(setS15, 15, 800);
-      run(setS2, 2, 600);
-      run(setS0, 0, 400);
+      run(setSEnrolled, 423, 1200);
     }, { threshold: 0.5 });
     obs.observe(el);
     return () => obs.disconnect();
@@ -452,7 +759,7 @@ export default function LandingPage() {
     return () => clearInterval(iv);
   }, [activeTab]);
 
-  // Scroll reveal — feature cards
+  // Scroll reveal — fires once, stays visible across tab changes
   useEffect(() => {
     const el = cardsRef.current;
     if (!el) return;
@@ -463,7 +770,7 @@ export default function LandingPage() {
     return () => obs.disconnect();
   }, [activeTab]);
 
-  // Scroll reveal — testimonials
+  // Testimonials reveal
   useEffect(() => {
     const el = testimonialsRef.current;
     if (!el) return;
@@ -474,48 +781,66 @@ export default function LandingPage() {
     return () => obs.disconnect();
   }, []);
 
-  // ── AUTO-SCROLL testimonials: one card at a time ──
+  // ── AUTO-SCROLL: one card at a time, smooth, works on mobile ──
   useEffect(() => {
-    let timer: ReturnType<typeof setInterval> | null = null;
-    let paused = false;
-    function advance() {
-      const el = testiScrollRef.current;
-      if (!el || paused) return;
-      const atEnd = el.scrollLeft + el.clientWidth >= el.scrollWidth - 4;
-      if (atEnd) {
-        el.style.scrollBehavior = "auto"; el.scrollLeft = 0;
-        requestAnimationFrame(() => { el.style.scrollBehavior = "smooth"; });
-      } else { el.style.scrollBehavior = "smooth"; el.scrollLeft += el.clientWidth; }
+    function makeCardScroller(getEl: () => HTMLDivElement | null, intervalMs: number) {
+      let timer: ReturnType<typeof setInterval> | null = null;
+      let paused = false;
+      function advance() {
+        const el = getEl();
+        if (!el || paused) return;
+        const step = el.clientWidth;
+        const atEnd = el.scrollLeft + el.clientWidth >= el.scrollWidth - 4;
+        if (atEnd) {
+          el.style.scrollBehavior = "auto";
+          el.scrollLeft = 0;
+          requestAnimationFrame(() => { el.style.scrollBehavior = "smooth"; });
+        } else {
+          el.style.scrollBehavior = "smooth";
+          el.scrollLeft += step;
+        }
+      }
+      function start() { if (timer) return; timer = setInterval(advance, intervalMs); }
+      function stop() { if (timer) { clearInterval(timer); timer = null; } }
+      const el = getEl();
+      if (el) {
+        el.style.scrollBehavior = "smooth";
+        el.addEventListener("mouseenter", () => { paused = true; });
+        el.addEventListener("mouseleave", () => { paused = false; });
+        el.addEventListener("touchstart", () => { paused = true; }, { passive: true });
+        el.addEventListener("touchend", () => { setTimeout(() => { paused = false; }, 1500); }, { passive: true });
+      }
+      start();
+      return stop;
     }
-    const el = testiScrollRef.current;
-    if (el) {
-      el.style.scrollBehavior = "smooth";
-      el.addEventListener("mouseenter", () => { paused = true; });
-      el.addEventListener("mouseleave", () => { paused = false; });
-      el.addEventListener("touchstart", () => { paused = true; }, { passive: true });
-      el.addEventListener("touchend", () => { setTimeout(() => { paused = false; }, 1500); }, { passive: true });
-    }
-    timer = setInterval(advance, 3200);
-    return () => { if (timer) clearInterval(timer); };
+    const cleanups = [
+      makeCardScroller(() => deliverablesScrollRef.current, 2800),
+      makeCardScroller(() => sevenDayScrollRef.current,     2600),
+      makeCardScroller(() => testiScrollRef.current,        3200),
+    ];
+    return () => cleanups.forEach(c => c?.());
   }, []);
 
   return (
-    <div className={`lp-root${isDark ? "" : " lp-light"}`} style={{ "--color-primary": THEME, background: isDark ? "#0d0d14" : "#f4f6fb", color: isDark ? "#e8e6f4" : "#1a1a2e", minHeight: "100vh" } as any}>
+    <div className={`lp-root${isDark ? "" : " lp-light"}`} style={{
+      background: isDark ? "#0d0d14" : "#f4f6fb",
+      color: isDark ? "#e8e6f4" : "#1a1a2e",
+      minHeight: "100vh",
+    } as any}>
 
-      {/* Cursor glow */}
+      {/* Cursor glow — teal */}
       <div ref={cursorRef} style={{
         position: "fixed", inset: 0, pointerEvents: "none", zIndex: 0,
-        background: `radial-gradient(600px at var(--cx,50%) var(--cy,50%), ${THEME}12, transparent 70%)`,
-        transition: "background 0.4s ease",
+        background: "radial-gradient(600px at var(--cx,50%) var(--cy,50%), rgba(13,124,138,.07), transparent 70%)",
       }} />
 
-      {/* Circuit grid */}
+      {/* Ledger grid background — teal lines like accounting paper */}
       <div style={{
         position: "fixed", inset: 0, pointerEvents: "none", zIndex: 0,
-        backgroundImage: `linear-gradient(${THEME}06 1px,transparent 1px),linear-gradient(90deg,${THEME}06 1px,transparent 1px)`,
-        backgroundSize: "36px 36px",
-        maskImage: "linear-gradient(to bottom,rgba(0,0,0,.6) 0%,transparent 55%)",
-        WebkitMaskImage: "linear-gradient(to bottom,rgba(0,0,0,.6) 0%,transparent 55%)",
+        backgroundImage: `linear-gradient(rgba(13,124,138,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(13,124,138,.03) 1px,transparent 1px)`,
+        backgroundSize: "100% 28px, 80px 28px",
+        maskImage: "linear-gradient(to bottom,rgba(0,0,0,.55) 0%,transparent 55%)",
+        WebkitMaskImage: "linear-gradient(to bottom,rgba(0,0,0,.55) 0%,transparent 55%)",
       }} />
 
       {/* Live ticker pill */}
@@ -530,7 +855,7 @@ export default function LandingPage() {
         opacity: tickerVisible ? 1 : 0, transition:"opacity 0.35s ease" }}>
         <span style={{ width:6, height:6, borderRadius:"50%", background:THEME, boxShadow:`0 0 8px ${THEME}`, flexShrink:0, animation:"lpPulse 2s infinite" }}/>
         <span className="lp-ticker-text" style={{ fontSize:".75rem", color:"#aaa", whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis", flex:1 }}>{TICKS[activeTab][tickerIdx]}</span>
-        <span style={{ fontSize:"8px", fontWeight:700, letterSpacing:"1.5px", textTransform:"uppercase", color:`${THEME}99`, flexShrink:0, fontFamily:"monospace" }}>LIVE</span>
+        <span style={{ fontSize:"8px", fontWeight:700, letterSpacing:"1.5px", textTransform:"uppercase", color:`${THEME_COLOR}99`, flexShrink:0, fontFamily:"monospace" }}>LIVE</span>
       </div>
 
       <style>{`
@@ -548,17 +873,17 @@ export default function LandingPage() {
         .lp-light section { background: #f4f6fb !important; }
         .lp-light .lp-dark-section { background: #ffffff !important; }
         .lp-light .lp-section { background: #f4f6fb !important; }
-        .lp-light .lp-cta-section { background: var(--color-primary) !important; }
+        .lp-light .lp-cta-section { background: ${THEME_COLOR} !important; }
         .lp-light h1, .lp-light h2, .lp-light h3 { color: #111827 !important; }
         .lp-light p { color: #374151 !important; }
         .lp-light .lp-hero-sub { color: #4b5563 !important; }
-        .lp-light .lp-hero-tagline { color: var(--color-primary) !important; }
+        .lp-light .lp-hero-tagline { color: ${THEME_COLOR} !important; }
         .lp-light .lp-nav { background: rgba(255,255,255,.95) !important; border-bottom: 1px solid rgba(0,0,0,.07); }
         .lp-light .lp-btn-ghost { color: #374151 !important; border-color: rgba(0,0,0,.15) !important; }
         .lp-light .lp-hero-module-card { background: #ffffff !important; border-color: rgba(0,0,0,.09) !important; color: #374151 !important; }
         .lp-light .lp-hero-h1 { color: #111827 !important; }
         .lp-light .lp-hero-outline { color: #374151 !important; border-color: rgba(0,0,0,.2) !important; }
-        .lp-light .lp-why-card { background: #ffffff !important; box-shadow: 0 2px 12px rgba(0,0,0,.06); }
+        .lp-light .lp-why-card { background: #ffffff !important; border-color: rgba(13,124,138,.15) !important; box-shadow: 0 2px 12px rgba(0,0,0,.06); }
         .lp-light .lp-card-title { color: #111827 !important; }
         .lp-light .lp-card-body { color: #4b5563 !important; }
         .lp-light .lp-two-col { background: #f4f6fb !important; }
@@ -566,7 +891,13 @@ export default function LandingPage() {
         .lp-light .lp-col-heading { color: #111827 !important; }
         .lp-light .lp-col-body { color: #4b5563 !important; }
         .lp-light .lp-check-item { color: #374151 !important; }
-        .lp-light .lp-check-icon { color: var(--color-primary) !important; }
+        .lp-light .lp-check-icon { color: ${THEME_COLOR} !important; }
+        .lp-light .lp-seven-day-section { background: #f4f6fb !important; }
+        .lp-light .lp-seven-day-section h2 { color: #111827 !important; }
+        .lp-light .lp-seven-day-section p { color: #6b7280 !important; }
+        .lp-light .lp-day-card { background: #ffffff !important; border-color: rgba(0,0,0,.09) !important; box-shadow: 0 2px 8px rgba(0,0,0,.05); }
+        .lp-light .lp-day-title { color: #111827 !important; }
+        .lp-light .lp-day-hint { color: #9ca3af !important; }
         .lp-light .lp-testi-section { background: #f4f6fb !important; }
         .lp-light .lp-testi-section h2 { color: #111827 !important; }
         .lp-light .lp-testi-section p { color: #6b7280 !important; }
@@ -591,27 +922,56 @@ export default function LandingPage() {
         .lp-root:not(.lp-light) .lp-swipe-hint { color: #9896b0 !important; }
         .lp-light .lp-swipe-hint { color: #374151 !important; }
 
+        /* deliverable cards */
+        .lp-root:not(.lp-light) .lp-deliverable-card { background: #0d0f1a !important; box-shadow: none !important; }
+        .lp-root:not(.lp-light) .lp-deliverable-card.c1 { border-color: rgba(13,124,138,0.20) !important; }
+        .lp-root:not(.lp-light) .lp-deliverable-card.c2 { border-color: rgba(13,124,138,0.22) !important; }
+        .lp-root:not(.lp-light) .lp-deliverable-card.c3 { border-color: rgba(232,130,12,0.18) !important; }
+        .lp-root:not(.lp-light) .lp-hero-card-title { color: #e8e6f4 !important; }
+        .lp-root:not(.lp-light) .lp-hero-card-sub { color: #9896b0 !important; }
+        .lp-root:not(.lp-light) .svg-bg { fill: #050810 !important; }
+        .lp-root:not(.lp-light) .svg-inner-bg { fill: #070d18 !important; }
+        .lp-root:not(.lp-light) .svg-text { fill: #c8c6d8 !important; }
+        .lp-light .lp-deliverable-card { background: #ffffff !important; box-shadow: 0 4px 12px rgba(0,0,0,.05) !important; }
+        .lp-light .lp-deliverable-card.c1 { border-color: rgba(13,124,138,0.20) !important; }
+        .lp-light .lp-deliverable-card.c2 { border-color: rgba(13,124,138,0.22) !important; }
+        .lp-light .lp-deliverable-card.c3 { border-color: rgba(232,130,12,0.18) !important; }
+        .lp-light .lp-hero-card-title { color: #111827 !important; }
+        .lp-light .lp-hero-card-sub { color: #6b7280 !important; }
+        .lp-light .svg-bg { fill: #f4f6fb !important; }
+        .lp-light .svg-inner-bg { fill: #ffffff !important; }
+        .lp-light .svg-text { fill: #374151 !important; }
 
-        /* 7-day preview */
-        .lp-light .lp-seven-day-section { background: #f4f6fb !important; }
-        .lp-light .lp-seven-day-section h2 { color: #111827 !important; }
-        .lp-light .lp-seven-day-section p { color: #6b7280 !important; }
-        .lp-light .lp-day-card { background: #ffffff !important; border-color: rgba(0,0,0,.09) !important; box-shadow: 0 2px 8px rgba(0,0,0,.05); }
-        .lp-light .lp-day-title { color: #111827 !important; }
-        .lp-light .lp-day-hint { color: #9ca3af !important; }
-        /* contact — granular selectors */
+
+        /* check lists */
+        .lp-light .lp-check-item { color: #374151 !important; }
+        .lp-light .lp-check-icon { color: #0d7c8a !important; }
+        /* testimonials */
+        .lp-light .lp-testi-section { background: #f4f6fb !important; }
+        .lp-light .lp-testi-section h2 { color: #111827 !important; }
+        .lp-light .lp-testi-section p { color: #6b7280 !important; }
+        .lp-light .lp-testi-card { background: #ffffff !important; border-color: rgba(0,0,0,.08) !important; box-shadow: 0 2px 12px rgba(0,0,0,.06); }
+        .lp-light .lp-testi-text { color: #374151 !important; }
+        .lp-light .lp-testi-name { color: #111827 !important; }
+        .lp-light .lp-testi-role { color: #9ca3af !important; }
+        /* join banner */
+        .lp-light .lp-join-banner { color: #111827 !important; }
+        .lp-light .lp-join-banner span { color: #374151 !important; }
+        /* contact section */
+        .lp-light .lp-contact-section { background: #f4f6fb !important; }
         .lp-light .lp-contact-title { color: #111827 !important; }
         .lp-light .lp-contact-subtext { color: #4b5563 !important; }
         .lp-light .lp-contact-success-title { color: #111827 !important; }
         .lp-light .lp-contact-success-text { color: #6b7280 !important; }
         .lp-light .lp-contact-form { background: #ffffff !important; border: 1px solid rgba(0,0,0,.08) !important; box-shadow: 0 10px 30px rgba(0,0,0,.05); }
+        .lp-light .lp-form-label { color: #374151 !important; }
+        .lp-light input, .lp-light textarea { background: #f9fafb !important; color: #111827 !important; border-color: rgba(0,0,0,.12) !important; }
+        .lp-light .lp-ticker { background: rgba(255,255,255,.95) !important; border-color: rgba(0,0,0,.1) !important; }
         .lp-contact-input::placeholder { color: rgba(255,255,255,0.55); }
         .lp-light .lp-contact-input::placeholder { color: rgba(17,17,17,0.45); }
         .lp-light .lp-contact-input { box-shadow: 0 1px 2px rgba(0,0,0,0.03); }
-        .lp-light .lp-contact-input:focus, .lp-contact-input:focus { border-color: var(--color-primary) !important; box-shadow: 0 0 0 3px rgba(0,0,0,0.08); }
+        .lp-light .lp-contact-input:focus, .lp-contact-input:focus { border-color: #0d7c8a !important; box-shadow: 0 0 0 3px rgba(13,124,138,0.15); }
 
-
-        .lp-light .lp-recommendation-text { color: #111827 !important; }
         /* ── HERO STATS ── */
         .lp-light .lp-stats { background: rgba(0,0,0,.04) !important; border: 1px solid rgba(0,0,0,.08) !important; backdrop-filter: none !important; }
         .lp-light .lp-stats .lp-stat-num { color: #111827 !important; text-shadow: none !important; }
@@ -626,8 +986,10 @@ export default function LandingPage() {
           background: rgba(13,124,138,.12);
           cursor: pointer; position: relative;
           display: flex; align-items: center; padding: 0 2px;
-          transition: background .3s, border-color .3s; flex-shrink: 0;
+          transition: background .3s, border-color .3s;
+          flex-shrink: 0;
         }
+        .lp-theme-toggle:hover { border-color: ${THEME_COLOR}; }
         .lp-theme-toggle-thumb {
           width: 16px; height: 16px; border-radius: 50%;
           background: linear-gradient(135deg, #00857a, #00c9b1);
@@ -640,7 +1002,7 @@ export default function LandingPage() {
         }
       `}</style>
 
-      {showAuth && <AuthModal onClose={() => setShowAuth(false)} defaultLevel={authLevel} defaultMode={authMode} />}
+      {showAuth && <AuthModal onClose={() => setShowAuth(false)} defaultMode={authMode} />}
 
       {/* Nav */}
       <nav
@@ -687,106 +1049,92 @@ export default function LandingPage() {
 </nav>
 
       {/* Hero */}
-      <section className="lp-hero">
-        <div className="lp-hero-badge" style={{ color: THEME, background: `${THEME}1a`, borderColor: `${THEME}44` }}>
-          {activeTab === "2" ? "⚡ AI Leadership & Strategy" : "🚀 AI Fluency for Professionals"}
+      <section className="lp-hero" style={{ position: "relative", zIndex: 1, paddingBottom: "2rem" }}>
+
+        {/* Badge video */}
+        <div style={{ marginBottom: "2rem", display: "flex", justifyContent: "center", padding: "0 20px" }}>
+          <video autoPlay loop muted playsInline style={{
+            width: "100%", maxWidth: "680px", borderRadius: "16px",
+            boxShadow: `0 20px 40px rgba(13,124,138,.25)`,
+            border: `1px solid rgba(13,124,138,.3)`,
+          }}>
+            <source src={bannerVideo} type="video/mp4" />
+          </video>
         </div>
 
-        {/* Course identity block */}
+        <div className="lp-hero-badge" style={{ color: THEME_COLOR, background: "rgba(13,124,138,.1)", borderColor: "rgba(13,124,138,.2)" }}>
+          ⚡ Accounting · AI · 28 Days
+        </div>
+
+        {/* Identity block */}
         <div style={{
           margin: "1.2rem auto 0", padding: "22px 28px 20px",
           background: "rgba(255,255,255,.025)", border: "1px solid rgba(255,255,255,.07)",
           borderRadius: "16px", maxWidth: "680px", textAlign: "center", position: "relative",
         }}>
           <div style={{ position:"absolute", top:9, left:14, fontSize:13, fontFamily:"monospace", color:`${THEME}cc`, letterSpacing:"1.5px" }}>
-            MODULE No. AI-STRAT-L0{activeTab}
+            MODULE No. {themeData.annotation}
           </div>
           <div style={{ position:"absolute", top:9, right:14, fontSize:13, fontFamily:"monospace", color:`${THEME}cc`, letterSpacing:"1.5px" }}>
-            {activeTab === "1" ? "BASIC · 28 DAYS" : "ADVANCED · 28 DAYS"}
+            {themeData.days}
           </div>
           <div style={{ marginTop: 10 }}>
-            <div style={{ fontSize: "clamp(1.3rem,4vw,1.9rem)", fontWeight: 900, color: "inherit", letterSpacing: ".04em", textTransform: "uppercase", lineHeight: 1.2, marginBottom: ".5rem" }}>
-              AI Strategy for Business Leaders
+            <div style={{ fontSize: "clamp(1.3rem,4vw,1.9rem)", fontWeight: 900, color: isDark ? "white" : "#111827", letterSpacing: ".04em", textTransform: "uppercase", lineHeight: 1.2, marginBottom: ".5rem" }}>
+              Mastering Accounting with AI
             </div>
             <div style={{ fontSize: ".8rem", color: "#555", letterSpacing: ".06em", marginBottom: ".75rem", fontFamily: "monospace" }}>
-              56-DAY COURSE · 15 MIN/DAY · 2 LEVELS
+              28-DAY CHALLENGE · 15 MIN/DAY · 2 LEVELS
             </div>
             <div style={{ display: "flex", gap: "10px", justifyContent: "center", flexWrap: "wrap" }}>
               <button onClick={() => setActiveTab("1")} style={{
-                fontSize: ".82rem", fontWeight: 700, color: L1_COLOR,
-                background: activeTab === "1" ? `${L1_COLOR}25` : `${L1_COLOR}12`,
-                border: `1px solid ${activeTab === "1" ? L1_COLOR : `${L1_COLOR}25`}`,
+                fontSize: ".82rem", fontWeight: 700, color: THEME_COLOR,
+                background: activeTab === "1" ? `${THEME_COLOR}25` : `${THEME_COLOR}12`,
+                border: `1px solid ${activeTab === "1" ? THEME_COLOR : `${THEME_COLOR}25`}`,
                 borderRadius: 100, padding: "3px 12px", cursor: "pointer", transition: "all 0.2s",
-              }}>L1 · Basic · Days 1–28</button>
+              }}>Basic · Days 1–28</button>
               <button onClick={() => setActiveTab("2")} style={{
                 fontSize: ".82rem", fontWeight: 700, color: L2_COLOR,
                 background: activeTab === "2" ? `${L2_COLOR}25` : `${L2_COLOR}12`,
                 border: `1px solid ${activeTab === "2" ? L2_COLOR : `${L2_COLOR}25`}`,
                 borderRadius: 100, padding: "3px 12px", cursor: "pointer", transition: "all 0.2s",
-              }}>L2 · Advanced · Days 29–56</button>
+              }}>Advanced · Days 1–28</button>
             </div>
           </div>
         </div>
 
+        {/* Scrambled H1 */}
         <h1 className="lp-hero-h1" style={{ fontFamily: "monospace", letterSpacing: "-.01em" }}>{scrambledH1}</h1>
-        <p className="lp-hero-tagline" style={{ color: THEME }}>
-          {activeTab === "2" ? "Board-ready strategy. Governance. Agentic AI." : "Fluency. Prompting. Tools. Risk."}
-        </p>
-        <p className="lp-hero-sub">
-          {activeTab === "2"
-            ? "Level 2 is for professionals who already have AI fluency and are ready to design strategy, govern AI systems, and lead organizational transformation."
-            : "Level 1 builds the AI foundation every professional needs — the language, tools, mindset, and risk awareness to stop being a passenger in AI conversations."
-          }
-        </p>
+        <p className="lp-hero-tagline" style={{ color: THEME }}>{themeData.tagline}</p>
+        <p className="lp-hero-sub">{themeData.heroSub}</p>
 
-        {/* Audience line */}
-        <p style={{
-          fontSize: "0.88rem",
-          color: "var(--color-text-muted, #888)",
-          maxWidth: "520px",
-          margin: "0 auto",
-          lineHeight: 1.6,
-          textAlign: "center",
-          fontStyle: "italic",
-        }}>
-          Designed for non‑technical business leaders, marketing, and operations professionals. No coding required.
-        </p>
-
-        {/* Level tabs */}
-        <div style={{ display: "flex", gap: "12px", justifyContent: "center", margin: "2rem 0 1rem", flexWrap: "wrap" }}>
+        {/* Level tab buttons — same as Architecture */}
+        <div style={{ display: "flex", gap: "12px", justifyContent: "center", margin: "1.5rem 0 1rem", flexWrap: "wrap" }}>
           {(["1", "2"] as const).map((lvl) => {
-            const color = lvl === "1" ? L1_COLOR : L2_COLOR;
-            const label = lvl === "1" ? "Level 1 · Basic" : "Level 2 · Advanced";
+            const color = LEVEL_THEMES[lvl].color;
             const active = activeTab === lvl;
             return (
-              <button
-                key={lvl}
-                onClick={() => setActiveTab(lvl)}
-                style={{
-                  display: "flex", alignItems: "center", gap: "8px",
-                  padding: "10px 24px", borderRadius: "50px", cursor: "pointer",
-                  border: `1.5px solid ${active ? color : "rgba(255,255,255,0.15)"}`,
-                  background: active ? `${color}1a` : "transparent",
-                  color: active ? color : "rgba(255,255,255,0.5)",
-                  fontWeight: 700, fontSize: "0.9rem",
-                  transition: "all 0.2s",
-                }}
-              >
-                <span style={{ width: 8, height: 8, borderRadius: "50%", background: color, flexShrink: 0 }} />
-                {label}
+              <button key={lvl} onClick={() => setActiveTab(lvl)} style={{
+                display: "flex", alignItems: "center", gap: 8,
+                padding: "9px 22px", borderRadius: 100, cursor: "pointer",
+                border: `1.5px solid ${active ? color : "rgba(255,255,255,.15)"}`,
+                background: active ? `${color}1a` : "transparent",
+                color: active ? color : "rgba(255,255,255,.5)",
+                fontWeight: 700, fontSize: ".88rem", transition: "all 0.2s",
+              }}>
+                <span style={{ width: 7, height: 7, borderRadius: "50%", background: color, flexShrink: 0 }} />
+                {LEVEL_THEMES[lvl].label}
               </button>
             );
           })}
         </div>
 
         <div className="lp-hero-actions">
-          <button className="lp-hero-cta" style={{ background: THEME }}
-            onClick={() => openAuth(activeTab, "register")}>
-            {activeTab === "2" ? "Start Level 2 Journey →" : "Start Level 1 Journey →"}
+          <button className="lp-hero-cta" style={{ background: THEME }} onClick={() => openAuth("register")}>
+            {themeData.cta}
           </button>
           {activeTab === "2" && (
             <button className="lp-hero-outline" onClick={() => setActiveTab("1")}>
-              Start with Level 1 first
+              Start with Basic first
             </button>
           )}
         </div>
@@ -801,7 +1149,7 @@ export default function LandingPage() {
             color: "#fb923c", fontWeight: 700,
           }}>
             <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#f97316", display: "inline-block", animation: "lpPulse 2s infinite" }} />
-            {activeTab === "1" ? "412 business leaders enrolled in Basic this month" : "187 executives enrolled in Advanced this month"}
+            {themeData.urgency}
           </div>
         </div>
 
@@ -811,184 +1159,288 @@ export default function LandingPage() {
           <div className="lp-stat-divider" />
           <div className="lp-stat"><span className="lp-stat-num">{s15}</span><span className="lp-stat-label">Min/Day</span></div>
           <div className="lp-stat-divider" />
-          <div className="lp-stat"><span className="lp-stat-num">{s2}</span><span className="lp-stat-label">Levels</span></div>
+          <div className="lp-stat"><span className="lp-stat-num">{sEnrolled}</span><span className="lp-stat-label">Enrolled</span></div>
           <div className="lp-stat-divider" />
-          <div className="lp-stat">
-            <span className="lp-stat-num">{s0}</span>
-            <span className="lp-stat-label">Exp. Needed</span>
-          </div>
+          <div className="lp-stat"><span className="lp-stat-num">2</span><span className="lp-stat-label">Levels</span></div>
         </div>
       </section>
 
-      {/* Tech divider */}
+      {/* Finance ledger divider 1 */}
       <div style={{ display:"flex", alignItems:"center", padding:"0 24px 40px", zIndex:1, position:"relative" }}>
-        <div style={{ flex:1, height:1, background:`${THEME}25` }}/>
+        <div style={{ flex:1, height:1, background:`${THEME}25` }} />
         <div style={{ display:"flex", gap:10, padding:"0 18px", flexWrap:"wrap", justifyContent:"center" }}>
-          {["↔ 28 DAYS", `⚡ LEVEL 0${activeTab}`, "15 MIN/DAY"].map((m,i) => (
-            <span key={i} style={{ fontFamily:"monospace", fontSize:"12px", letterSpacing:"2px", color:`${THEME}88` }}>[ {m} ]</span>
+          {themeData.dividerMarks.map((m,i) => (
+            <span key={i} style={{ fontFamily:"monospace", fontSize:"12px", letterSpacing:"2px", color:`${THEME}99` }}>[ {m} ]</span>
           ))}
         </div>
-        <div style={{ flex:1, height:1, background:`${THEME}25` }}/>
+        <div style={{ flex:1, height:1, background:`${THEME}25` }} />
       </div>
 
-      {/* What you'll learn */}
+      {/* Hero visual cards — accounting/finance aesthetic */}
+      <section style={{ padding:"0 1.5rem 3.5rem", background:"transparent", position:"relative", zIndex:1 }}>
+        <div style={{ maxWidth:900, margin:"0 auto", display:"flex", flexDirection:"column", alignItems:"center" }}>
+          <div style={{ maxWidth:400, width:"100%" }}>
+          <div ref={deliverablesScrollRef} data-autoscroll="1" style={{ display:"flex", flexDirection:"row", overflow:"hidden", scrollbarWidth:"none" as any }}>
+
+            {/* Card 1 — Prompt Library */}
+            <div className="lp-deliverable-card c1" style={{ borderRadius:14, overflow:"hidden", borderStyle:"solid", borderWidth:"1px", display:"flex", flexDirection:"column", flex:"0 0 100%", minWidth:0 }}>
+              <svg width="100%" height="168" viewBox="0 0 220 168" aria-label="Accountant prompt library deliverable">
+                <rect className="svg-bg" width="220" height="168"/>
+                <text x="12" y="18" fill="#0d7c8a" fontSize="7" fontFamily="monospace" opacity=".8" letterSpacing="1">ACCOUNTANT PROMPT LIBRARY · v1.0</text>
+                <line x1="12" y1="22" x2="208" y2="22" stroke="#0a2030" strokeWidth=".5"/>
+                {[
+                  { y:36, label:"01 · Transaction categorisation", cat:"BOOKKEEP" },
+                  { y:54, label:"02 · Bank reconciliation review", cat:"RECONCILE" },
+                  { y:72, label:"03 · Month-end close checklist", cat:"CLOSE" },
+                  { y:90, label:"04 · Variance commentary draft", cat:"REPORT" },
+                  { y:108, label:"05 · Client communication email", cat:"COMMS" },
+                  { y:126, label:"06 · Expense policy checker", cat:"CONTROLS" },
+                ].map((r,i) => (
+                  <g key={i}>
+                    <rect x="12" y={r.y-11} width="196" height="14" rx="2" fill={i%2===0 ? "rgba(13,124,138,.06)" : "transparent"}/>
+                    <text x="18" y={r.y} fill="#c8c6d8" fontSize="7.5" fontFamily="monospace">{r.label}</text>
+                    <rect x="158" y={r.y-10} width="46" height="12" rx="2" fill="rgba(13,124,138,.15)"/>
+                    <text x="181" y={r.y} fill="#0d7c8a" fontSize="6" fontFamily="monospace" textAnchor="middle">{r.cat}</text>
+                  </g>
+                ))}
+                <text x="12" y="155" fill="#0d7c8a" fontSize="6" fontFamily="monospace" opacity=".5">AI SPRINT · DAY 26</text>
+                <circle cx="206" cy="151" r="4" fill="none" stroke="#0d7c8a" strokeWidth=".6" opacity=".5">
+                  <animate attributeName="opacity" values=".5;1;.5" dur="2s" repeatCount="indefinite"/>
+                </circle>
+              </svg>
+              <div style={{ padding: "12px 14px 14px" }}>
+                <div style={{ display:"inline-block", fontSize:10, fontWeight:700, letterSpacing:"1.2px", textTransform:"uppercase", padding:"2px 8px", borderRadius:99, marginBottom:8, background:"rgba(13,124,138,.15)", color:"#0d7c8a" }}>Basic · Week 4</div>
+                <div className="lp-hero-card-title" style={{ fontSize:".82rem", fontWeight:700, marginBottom:".2rem" }}>Accountant prompt library</div>
+                <div className="lp-hero-card-sub" style={{ fontSize:".7rem", color:"#5a587a", letterSpacing:".4px" }}>Day 26 · Your reusable system</div>
+              </div>
+            </div>
+
+            {/* Card 2 — Bank Reconciliation */}
+            <div className="lp-deliverable-card c2" style={{ borderRadius:14, overflow:"hidden", borderStyle:"solid", borderWidth:"1px", display:"flex", flexDirection:"column", flex:"0 0 100%", minWidth:0 }}>
+              <svg width="100%" height="168" viewBox="0 0 220 168" aria-label="Bank reconciliation workflow">
+                <rect className="svg-bg" width="220" height="168"/>
+                <text x="110" y="16" textAnchor="middle" fill="#0d7c8a" fontSize="7" fontFamily="monospace" opacity=".7" letterSpacing="1">BANK RECONCILIATION · WORKFLOW</text>
+                <line x1="12" y1="20" x2="208" y2="20" stroke="#0a2030" strokeWidth=".5"/>
+                {/* Ledger rows */}
+                <rect x="12" y="26" width="196" height="12" rx="2" fill="rgba(13,124,138,.12)"/>
+                <text x="18" y="35" fill="#0d7c8a" fontSize="6.5" fontFamily="monospace" opacity=".8">DATE</text>
+                <text x="65" y="35" fill="#0d7c8a" fontSize="6.5" fontFamily="monospace" opacity=".8">DESCRIPTION</text>
+                <text x="162" y="35" fill="#0d7c8a" fontSize="6.5" fontFamily="monospace" opacity=".8">AMOUNT</text>
+                <text x="196" y="35" fill="#0d7c8a" fontSize="6.5" fontFamily="monospace" opacity=".8">✓</text>
+                {[
+                  { date:"01 May", desc:"Client payment", amt:"$4,200", match:true },
+                  { date:"03 May", desc:"Office supplies", amt:"-$148", match:true },
+                  { date:"05 May", desc:"Unknown debit", amt:"-$320", match:false },
+                  { date:"08 May", desc:"Software sub.", amt:"-$89", match:true },
+                  { date:"12 May", desc:"Invoice #1042", amt:"$2,800", match:true },
+                ].map((r,i) => (
+                  <g key={i}>
+                    <rect x="12" y={42+i*16} width="196" height="14" rx="1" fill={!r.match ? "rgba(239,68,68,.08)" : "transparent"}/>
+                    <text x="18" y={52+i*16} fill={r.match ? "#c8c6d8" : "#f87171"} fontSize="6.5" fontFamily="monospace">{r.date}</text>
+                    <text x="65" y={52+i*16} fill={r.match ? "#c8c6d8" : "#f87171"} fontSize="6.5" fontFamily="monospace">{r.desc}</text>
+                    <text x="162" y={52+i*16} fill={r.match ? "#c8c6d8" : "#f87171"} fontSize="6.5" fontFamily="monospace">{r.amt}</text>
+                    <text x="196" y={52+i*16} fill={r.match ? "#10b981" : "#ef4444"} fontSize="9" fontFamily="monospace">{r.match ? "✓" : "?"}</text>
+                  </g>
+                ))}
+                <line x1="12" y1="124" x2="208" y2="124" stroke="#0a2030" strokeWidth=".5"/>
+                <rect x="12" y="128" width="196" height="16" rx="3" fill="rgba(13,124,138,.06)" stroke="rgba(13,124,138,.2)" strokeWidth=".4"/>
+                <text x="18" y="139" fill="#0d7c8a" fontSize="6.5" fontFamily="monospace">AI flagged 1 anomaly · $320 unmatched · review required</text>
+                <text x="12" y="160" fill="#0d7c8a" fontSize="6" fontFamily="monospace" opacity=".5">AI SPRINT · DAY 10</text>
+              </svg>
+              <div style={{ padding: "12px 14px 14px" }}>
+                <div style={{ display:"inline-block", fontSize:10, fontWeight:700, letterSpacing:"1.2px", textTransform:"uppercase", padding:"2px 8px", borderRadius:99, marginBottom:8, background:"rgba(13,124,138,.15)", color:"#0d7c8a" }}>Basic · Week 2</div>
+                <div className="lp-hero-card-title" style={{ fontSize:".82rem", fontWeight:700, marginBottom:".2rem" }}>Bank reconciliation</div>
+                <div className="lp-hero-card-sub" style={{ fontSize:".7rem", color:"#5a587a", letterSpacing:".4px" }}>Day 10 · AI anomaly detection</div>
+              </div>
+            </div>
+
+            {/* Card 3 — Month-End Close Checklist */}
+            <div className="lp-deliverable-card c3" style={{ borderRadius:14, overflow:"hidden", borderStyle:"solid", borderWidth:"1px", display:"flex", flexDirection:"column", flex:"0 0 100%", minWidth:0 }}>
+              <svg width="100%" height="168" viewBox="0 0 220 168" aria-label="Month-end close checklist">
+                <rect className="svg-bg" width="220" height="168"/>
+                <text x="12" y="18" fill="#e8820c" fontSize="7" fontFamily="monospace" opacity=".8" letterSpacing="1">MONTH-END CLOSE · MAY 2026</text>
+                <line x1="12" y1="22" x2="208" y2="22" stroke="#2a1200" strokeWidth=".5"/>
+                {[
+                  { item:"Review all transactions", done:true },
+                  { item:"Bank reconciliation", done:true },
+                  { item:"Accruals & prepayments", done:true },
+                  { item:"Variance analysis", done:true },
+                  { item:"Management commentary", done:false },
+                  { item:"CFO sign-off", done:false },
+                ].map((r,i) => (
+                  <g key={i}>
+                    <rect x="12" y={30+i*18} width="196" height="16" rx="3" fill={r.done ? "rgba(16,185,129,.06)" : "rgba(255,255,255,.02)"} stroke={r.done ? "rgba(16,185,129,.15)" : "rgba(255,255,255,.04)"} strokeWidth=".4"/>
+                    <rect x="18" y={33+i*18} width="10" height="10" rx="2" fill={r.done ? "#10b981" : "transparent"} stroke={r.done ? "#10b981" : "#555"} strokeWidth=".8"/>
+                    {r.done && <text x="23" y={42+i*18} textAnchor="middle" fill="white" fontSize="7">✓</text>}
+                    <text x="36" y={42+i*18} fill={r.done ? "#c8c6d8" : "#888"} fontSize="7.5" fontFamily="monospace" opacity={r.done ? 1 : .7}>{r.item}</text>
+                    {r.done && <text x="198" y={42+i*18} fill="#10b981" fontSize="6" fontFamily="monospace" textAnchor="end">DONE</text>}
+                  </g>
+                ))}
+                <rect x="12" y="142" width="196" height="14" rx="3" fill="rgba(232,130,12,.08)" stroke="rgba(232,130,12,.2)" strokeWidth=".5"/>
+                <text x="18" y="152" fill="#e8820c" fontSize="6.5" fontFamily="monospace">4/6 complete · Est. close: 3hrs remaining</text>
+                <text x="12" y="162" fill="#e8820c" fontSize="6" fontFamily="monospace" opacity=".5">AI SPRINT · DAY 16</text>
+              </svg>
+              <div style={{ padding: "12px 14px 14px" }}>
+                <div style={{ display:"inline-block", fontSize:10, fontWeight:700, letterSpacing:"1.2px", textTransform:"uppercase", padding:"2px 8px", borderRadius:99, marginBottom:8, background:"rgba(232,130,12,.15)", color:"#e8820c" }}>Advanced · Week 1</div>
+                <div className="lp-hero-card-title" style={{ fontSize:".82rem", fontWeight:700, marginBottom:".2rem" }}>Month-end close checklist</div>
+                <div className="lp-hero-card-sub" style={{ fontSize:".7rem", color:"#5a587a", letterSpacing:".4px" }}>Day 16 · AI-assisted close</div>
+              </div>
+            </div>
+
+          </div>{/* end scroll */}
+          </div>{/* end maxWidth 400 */}
+        </div>{/* end maxWidth 900 */}
+        <p className="lp-swipe-hint" style={{ textAlign:"center", fontSize:".65rem", color:"#555", letterSpacing:"1.5px", textTransform:"uppercase", marginTop:".8rem" }}>
+          Sample deliverables — built by accountants in 15 minutes/day
+        </p>
+      </section>
+
+      {/* What's included */}
       <section className="lp-section" style={{ background: "#0d0d14" }}>
         <div className="lp-section-inner">
-          <div className="lp-section-label" style={{ color: THEME }}>
-            {activeTab === "2" ? "LEVEL 2 ADVANCED" : "LEVEL 1 BASIC"}
-          </div>
-          <h2 className="lp-section-h2">
-            {activeTab === "2" ? "Lead AI strategy from the front" : "Build unshakeable AI fluency"}
-          </h2>
+          <div className="lp-section-label" style={{ color: THEME }}>{themeData.sectionLabel}</div>
+          <h2 className="lp-section-h2">{themeData.sectionH2}</h2>
           <p className="lp-section-sub">
-            {activeTab === "2"
-              ? "Level 2 is for professionals ready to move beyond using AI to designing, governing, and scaling it across their organization."
-              : "Level 1 gives you everything you need to be the most AI‑capable person in any room — without writing a line of code."
-            }
+            {activeTab === "1"
+              ? "A structured, practical path to using AI in your daily accounting work — without the overwhelm."
+              : "Level 2 builds on your foundation to deliver advisory AI skills — audits, operating models, and client deliverables that command premium rates."}
           </p>
-
           <div className="lp-why-grid" ref={cardsRef}>
-            {activeTab === "1" ? (
-              <>
-                <div className={`lp-why-card lp-reveal ${revealCards ? "visible" : ""}`} style={{ transition:"opacity .65s ease 0s, transform .65s ease 0s" }}>
-                  <div className="lp-why-icon" style={{ color: THEME, background: `${THEME}1a` }}><BookOpen size={24} /></div>
-                  <h3 className="lp-card-title">AI fluency</h3>
-                  <p className="lp-card-body">Understand LLMs, the tool landscape, and AI categories — so you're never lost in an AI conversation again.</p>
-                </div>
-                <div className={`lp-why-card lp-reveal ${revealCards ? "visible" : ""}`} style={{ transition:"opacity .65s ease .12s, transform .65s ease .12s" }}>
-                  <div className="lp-why-icon" style={{ color: THEME, background: `${THEME}1a` }}><Target size={24} /></div>
-                  <h3 className="lp-card-title">Prompting mastery</h3>
-                  <p className="lp-card-body">Chain‑of‑thought, role prompting, few‑shot examples — build a reusable prompt library for your team.</p>
-                </div>
-                <div className={`lp-why-card lp-reveal ${revealCards ? "visible" : ""}`} style={{ transition:"opacity .65s ease .24s, transform .65s ease .24s" }}>
-                  <div className="lp-why-icon" style={{ color: THEME, background: `${THEME}1a` }}><Shield size={24} /></div>
-                  <h3 className="lp-card-title">Risk awareness</h3>
-                  <p className="lp-card-body">Hallucinations, data privacy, EU AI Act basics — understand the risks before they become your problem.</p>
-                </div>
-              </>
-            ) : (
-              <>
-                <div className={`lp-why-card lp-reveal ${revealCards ? "visible" : ""}`} style={{ transition:"opacity .65s ease 0s, transform .65s ease 0s" }}>
-                  <div className="lp-why-icon" style={{ color: THEME, background: `${THEME}1a` }}><BarChart2 size={24} /></div>
-                  <h3 className="lp-card-title">AI strategy</h3>
-                  <p className="lp-card-body">Prioritize AI opportunities, build the business case, and produce a board‑ready 6‑month strategy.</p>
-                </div>
-                <div className={`lp-why-card lp-reveal ${revealCards ? "visible" : ""}`} style={{ transition:"opacity .65s ease .12s, transform .65s ease .12s" }}>
-                  <div className="lp-why-icon" style={{ color: THEME, background: `${THEME}1a` }}><Shield size={24} /></div>
-                  <h3 className="lp-card-title">Governance & compliance</h3>
-                  <p className="lp-card-body">Design AI governance frameworks. Navigate EU AI Act and NIST RMF without a legal team.</p>
-                </div>
-                <div className={`lp-why-card lp-reveal ${revealCards ? "visible" : ""}`} style={{ transition:"opacity .65s ease .24s, transform .65s ease .24s" }}>
-                  <div className="lp-why-icon" style={{ color: THEME, background: `${THEME}1a` }}><Layers size={24} /></div>
-                  <h3 className="lp-card-title">Agentic AI leadership</h3>
-                  <p className="lp-card-body">Design human‑in‑the‑loop workflows and govern autonomous AI systems — the critical skill of 2026.</p>
-                </div>
-              </>
-            )}
+            {(activeTab === "1" ? [
+              { icon: "⏱", color: THEME_COLOR, bg: "rgba(13,124,138,.1)", title: "15 minutes a day", body: "Each lesson is structured: concept, walkthrough, and one practical accounting task.", delay: "0s" },
+              { icon: "🧾", color: "#2f6fa8", bg: "rgba(47,111,168,.1)", title: "Real accounting workflows", body: "Learn how AI fits into bookkeeping, reconciliation, month-end close, and reporting.", delay: ".12s" },
+              { icon: "🏆", color: L2_COLOR, bg: "rgba(232,130,12,.1)", title: "Build your prompt library", body: "Leave with 10+ reusable accounting prompts and a personal AI workflow — not just theory.", delay: ".24s" },
+            ] : [
+              { icon: "📊", color: L2_COLOR, bg: "rgba(232,130,12,.1)", title: "Strategic AI audits", body: "Use AI to identify automation opportunities and deliver structured recommendations to clients.", delay: "0s" },
+              { icon: "🏛️", color: "#7c3aed", bg: "rgba(124,58,237,.1)", title: "AI-ready operating model", body: "Build a 90-day roadmap that transforms how your practice or client's finance function uses AI.", delay: ".12s" },
+              { icon: "💼", color: "#2f6fa8", bg: "rgba(47,111,168,.1)", title: "Advisory-level deliverables", body: "Create client-ready reports, capability assessments, and AI governance frameworks.", delay: ".24s" },
+            ]).map((c, i) => (
+              <div key={i} className="lp-why-card lp-reveal visible"
+                style={{ transition: `opacity .65s ease ${c.delay}, transform .65s ease ${c.delay}` }}>
+                <div className="lp-why-icon" style={{ color: c.color, background: c.bg, fontSize: "1.4rem", width:48, height:48, display:"flex", alignItems:"center", justifyContent:"center", borderRadius:12, marginBottom:"1rem" }}>{c.icon}</div>
+                <h3 className="lp-card-title">{c.title}</h3>
+                <p className="lp-card-body">{c.body}</p>
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* What you'll build / who it's for */}
+      {/* Ledger divider 2 */}
+      <div style={{ display:"flex", alignItems:"center", padding:"0 24px 0", zIndex:1, position:"relative" }}>
+        <div style={{ flex:1, height:1, background:"rgba(13,124,138,.15)" }} />
+        <div style={{ display:"flex", gap:10, padding:"0 18px" }}>
+          {["REF: COURSE OUTCOMES", "SECTION B"].map((m,i) => (
+            <span key={i} style={{ fontFamily:"monospace", fontSize:"12px", letterSpacing:"2px", color:"rgba(13,124,138,.55)" }}>[ {m} ]</span>
+          ))}
+        </div>
+        <div style={{ flex:1, height:1, background:"rgba(13,124,138,.15)" }} />
+      </div>
+
+      {/* What you'll learn + Who it's for */}
       <section className="lp-dark-section">
         <div className="lp-section-inner">
           <div className="lp-two-col">
             <div className="lp-col-block">
-              <h3 className="lp-col-heading">What you'll build</h3>
+              <h3 className="lp-col-heading">What you'll learn</h3>
               <ul className="lp-check-list">
-                {activeTab === "1" ? (
-                  <>
-                    <li className="lp-check-item"><span className="lp-check-icon" style={{ color: THEME }}>✓</span> 10‑prompt reusable library for your team</li>
-                    <li className="lp-check-item"><span className="lp-check-icon" style={{ color: THEME }}>✓</span> Team AI use policy (1‑pager)</li>
-                    <li className="lp-check-item"><span className="lp-check-icon" style={{ color: THEME }}>✓</span> AI‑assisted weekly workflow map</li>
-                    <li className="lp-check-item"><span className="lp-check-icon" style={{ color: THEME }}>✓</span> Agentic AI use case brief</li>
-                    <li className="lp-check-item"><span className="lp-check-icon" style={{ color: THEME }}>✓</span> Personal AI Toolkit (capstone document)</li>
-                  </>
-                ) : (
-                  <>
-                    <li className="lp-check-item"><span className="lp-check-icon" style={{ color: THEME }}>✓</span> AI opportunity matrix with ROI estimates</li>
-                    <li className="lp-check-item"><span className="lp-check-icon" style={{ color: THEME }}>✓</span> AI governance charter</li>
-                    <li className="lp-check-item"><span className="lp-check-icon" style={{ color: THEME }}>✓</span> Agentic AI pilot design document</li>
-                    <li className="lp-check-item"><span className="lp-check-icon" style={{ color: THEME }}>✓</span> Change management plan</li>
-                    <li className="lp-check-item"><span className="lp-check-icon" style={{ color: THEME }}>✓</span> Board‑ready 6‑month AI strategy (capstone)</li>
-                  </>
-                )}
+                {(activeTab === "1"
+                  ? ["AI prompting for accounting tasks","Bookkeeping and reconciliation with AI","Month-end close and variance commentary","Internal controls and AI ethics in finance","Build a personal accountant prompt library"]
+                  : ["Strategic AI audit methodology","AI-ready operating model design","Advisory deliverable frameworks","Client-facing AI governance policy","90-day transformation roadmap"]
+                ).map((item,i) => (
+                  <li key={i} className="lp-check-item"><span className="lp-check-icon" style={{ color: THEME }}>✓</span> {item}</li>
+                ))}
               </ul>
             </div>
             <div className="lp-col-block">
               <h3 className="lp-col-heading">Who it's for</h3>
               <ul className="lp-check-list">
-                {activeTab === "1" ? (
-                  <>
-                    <li className="lp-check-item"><span className="lp-check-icon" style={{ color: THEME }}>✓</span> Professionals curious about AI</li>
-                    <li className="lp-check-item"><span className="lp-check-icon" style={{ color: THEME }}>✓</span> Managers wanting to lead AI conversations</li>
-                    <li className="lp-check-item"><span className="lp-check-icon" style={{ color: THEME }}>✓</span> Anyone who wants AI fluency without coding</li>
-                  </>
-                ) : (
-                  <>
-                    <li className="lp-check-item"><span className="lp-check-icon" style={{ color: THEME }}>✓</span> Level 1 graduates (or AI‑fluent professionals)</li>
-                    <li className="lp-check-item"><span className="lp-check-icon" style={{ color: THEME }}>✓</span> Directors, VPs, and C‑suite leaders</li>
-                    <li className="lp-check-item"><span className="lp-check-icon" style={{ color: THEME }}>✓</span> Strategy and transformation professionals</li>
-                  </>
-                )}
+                {(activeTab === "1"
+                  ? ["No prior AI experience needed","Relevant for all accounting software users","Ideal foundation before the Advanced track"]
+                  : ["Basic track graduates","Senior accountants & finance managers","Advisory-focused practitioners & firm owners"]
+                ).map((item,i) => (
+                  <li key={i} className="lp-check-item"><span className="lp-check-icon" style={{ color: THEME }}>✓</span> {item}</li>
+                ))}
               </ul>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Prerequisite callout for Level 2 */}
-      {activeTab === "2" && (
-        <section style={{ padding: "40px 20px", background: `${L1_COLOR}0d`, borderTop: `1px solid ${L1_COLOR}22`, borderBottom: `1px solid ${L1_COLOR}22` }}>
-          <div style={{ maxWidth: 680, margin: "0 auto", display: "flex", alignItems: "center", gap: 20, flexWrap: "wrap" }}>
-            <div style={{ width: 44, height: 44, borderRadius: "50%", background: `${L1_COLOR}22`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-              <BookOpen size={20} color={L1_COLOR} />
+      {/* Curriculum preview — Days 1–7 */}
+      <section className="lp-seven-day-section" style={{ padding:"60px 20px", background:"#111", position:"relative", zIndex:1 }}>
+        <div style={{ maxWidth: 760, margin: "0 auto" }}>
+          <div style={{ textAlign: "center", marginBottom: 32 }}>
+            <div style={{ display:"inline-flex", alignItems:"center", gap:6, fontSize:".72rem", fontWeight:700, letterSpacing:".1em", textTransform:"uppercase", color:THEME_COLOR, background:`rgba(13,124,138,.1)`, border:`1px solid rgba(13,124,138,.2)`, borderRadius:20, padding:"5px 14px", marginBottom:14 }}>
+              What You'll Learn
             </div>
-            <div style={{ flex: 1, minWidth: 240 }}>
-              <div className="lp-recommendation-text" style={{ fontWeight: 700, fontSize: "1rem", marginBottom: 4 }}>
-                New to AI? Start with Level 1 first.
+            <h2 style={{ fontSize:"clamp(1.5rem,3.5vw,2rem)", fontWeight:800, margin:"0 0 10px" }}>Your first 7 days, previewed</h2>
+            <p style={{ color:"#888", fontSize:".92rem" }}>Every lesson is 15 minutes. Every day builds your accounting AI toolkit.</p>
+          </div>
+          <div ref={sevenDayScrollRef} style={{ display:"flex", flexDirection:"row", overflow:"hidden", scrollbarWidth:"none" as any }}>
+            {(activeTab === "1" ? [
+              { day:1, title:"What Accounting Looks Like in the AI Era", cat:"Foundations", color:THEME_COLOR },
+              { day:2, title:"The Accounting Equation & Double-Entry — Refreshed", cat:"Foundations", color:THEME_COLOR },
+              { day:3, title:"Reading Financial Statements with AI Assistance", cat:"Foundations", color:THEME_COLOR },
+              { day:4, title:"The Modern Finance Tech Stack", cat:"Foundations", color:"#2f6fa8" },
+              { day:5, title:"Your First AI Accounting Prompt", cat:"Apply", color:"#2f6fa8" },
+              { day:6, title:"AI Errors in Accounting — What to Watch For", cat:"Controls", color:"#2f8c5c" },
+              { day:7, title:"Mini-Project: AI Review Checklist & Finance Stack Map", cat:"Sprint 🏆", color:L2_COLOR },
+            ] : [
+              { day:1, title:"Advanced Prompting for Finance — Chains & Templates", cat:"Advanced", color:L2_COLOR },
+              { day:2, title:"AI Audit Framework — The 5-Pillar Assessment", cat:"Advisory", color:L2_COLOR },
+              { day:3, title:"Capability Scoring — Mapping Client AI Maturity", cat:"Advisory", color:"#7c3aed" },
+              { day:4, title:"Automation Opportunity Identification", cat:"Strategy", color:"#2f6fa8" },
+              { day:5, title:"Building the 90-Day Roadmap", cat:"Strategy", color:"#2f6fa8" },
+              { day:6, title:"AI Governance & Controls for Advisory Firms", cat:"Controls", color:"#2f8c5c" },
+              { day:7, title:"Mini-Project: AI Audit Report for a Real Client", cat:"Sprint 🏆", color:L2_COLOR },
+            ]).map((d) => (
+              <div key={d.day} className="lp-day-card" style={{
+                display:"flex", alignItems:"center", gap:"1rem",
+                background:"rgba(255,255,255,.03)", border:"1px solid rgba(255,255,255,.07)",
+                borderRadius:12, padding:".85rem 1.2rem",
+                flex:"0 0 100%", minWidth:0,
+              }}>
+                <div style={{ width:34, height:34, borderRadius:"50%", border:`2px solid ${d.color}`, color:d.color, display:"flex", alignItems:"center", justifyContent:"center", fontWeight:800, fontSize:".72rem", flexShrink:0, fontFamily:"monospace" }}>{d.day}</div>
+                <div className="lp-day-title" style={{ flex:1, fontWeight:600, fontSize:".88rem" }}>{d.title}</div>
+                <div style={{ fontSize:".65rem", fontWeight:700, letterSpacing:1.5, textTransform:"uppercase", color:d.color, background:`${d.color}18`, borderRadius:100, padding:"3px 10px", whiteSpace:"nowrap" }}>{d.cat}</div>
               </div>
-              <div style={{ color: "#888", fontSize: "0.9rem" }}>
-                Level 2 assumes AI fluency. If you're still building your AI foundation, Level 1 is your on‑ramp.
-              </div>
-            </div>
-            <button
-              onClick={() => setActiveTab("1")}
-              style={{ padding: "10px 22px", borderRadius: 8, border: `1px solid ${L1_COLOR}`, color: L1_COLOR, background: "transparent", fontWeight: 700, cursor: "pointer", fontSize: "0.9rem", flexShrink: 0 }}
-            >
-              Explore Level 1 →
+            ))}
+          </div>
+          <p className="lp-swipe-hint lp-day-hint" style={{ textAlign:"center", fontSize:".65rem", color:"#555", letterSpacing:"1.5px", textTransform:"uppercase", marginTop:".5rem" }}>← swipe all 7 days →</p>
+          <div style={{ textAlign:"center", marginTop:24 }}>
+            <button onClick={() => openAuth("register")} style={{ background:"transparent", border:`1px solid ${THEME}80`, color:THEME, padding:"10px 28px", borderRadius:100, fontWeight:700, fontSize:".88rem", cursor:"pointer" }}>
+              See all 28 days — start today →
             </button>
           </div>
-        </section>
-      )}
-
-      <ContactSection theme={THEME} />
+        </div>
+      </section>
 
       {/* Testimonials */}
-      <section className="lp-testi-section" style={{ padding:"60px 20px", background:"#0d0d14", borderTop:"1px solid rgba(255,255,255,.06)" }}>
+      <section className="lp-testi-section" style={{ padding:"60px 20px", background:"#0d0d14", borderTop:"1px solid rgba(255,255,255,.06)", position:"relative", zIndex:1 }}>
         <div style={{ maxWidth:480, margin:"0 auto" }}>
           <div style={{ textAlign:"center", marginBottom:36 }}>
-            <div style={{ display:"inline-flex", alignItems:"center", gap:6, fontSize:".72rem", fontWeight:700, letterSpacing:".1em", textTransform:"uppercase", color:THEME, background:`${THEME}18`, border:`1px solid ${THEME}30`, borderRadius:20, padding:"5px 14px", marginBottom:14 }}>
+            <div style={{ display:"inline-flex", alignItems:"center", gap:6, fontSize:".72rem", fontWeight:700, letterSpacing:".1em", textTransform:"uppercase", color:THEME_COLOR, background:`rgba(13,124,138,.1)`, border:`1px solid rgba(13,124,138,.2)`, borderRadius:20, padding:"5px 14px", marginBottom:14 }}>
               Student Stories
             </div>
-            <h2 style={{ fontSize:"clamp(1.5rem,3.5vw,2rem)", fontWeight:800, color:"inherit", margin:"0 0 10px" }}>Real results from business leaders</h2>
-            <p style={{ color:"#888", fontSize:".95rem" }}>Executives and professionals who went from AI-aware to AI-confident.</p>
+            <h2 style={{ fontSize:"clamp(1.5rem,3.5vw,2rem)", fontWeight:800, color:"inherit", margin:"0 0 10px" }}>Real results from finance professionals</h2>
+            <p style={{ color:"#888", fontSize:".95rem" }}>Accountants who went from AI-curious to AI-confident.</p>
           </div>
           <div style={{ display:"flex", flexDirection:"row", overflow:"hidden", scrollbarWidth:"none" as any }}
             ref={(el) => { (testimonialsRef as any).current = el; (testiScrollRef as any).current = el; }}>
             {[
-              { text:"I walked into a board meeting two weeks after finishing Level 1 and fielded every AI question from the directors. That used to terrify me. I'd been avoiding those conversations for a year. Now I'm the one setting the agenda.", name:"Marcus L.", role:"COO, London", initials:"ML", color:L1_COLOR, course:"Level 1 · Basic", photo:"/assets/testimonials/face-j.png" },
-              { text:"The AI governance framework we built in Level 2 Week 3 became our company's actual AI policy. Legal signed off on it. I didn't expect to build something that real in a course. That alone was worth 10x the fee.", name:"James W.", role:"Strategy Director, Singapore", initials:"JW", color:L2_COLOR, course:"Level 2 · Advanced", photo: null },
-              { text:"15 minutes a day felt almost too small to matter. By Week 4 I had a full AI opportunity matrix for my department. My VP used it verbatim in the quarterly strategy review.", name:"Priya M.", role:"Finance Manager, Toronto", initials:"PM", color:L1_COLOR, course:"Level 1 · Basic", photo: null },
+              { text:"Month-end close used to take 3 days. I'd been doing it the same way for 8 years. After the AI accounting sprint I'm done in under 6 hours. My CFO thinks I hired someone. I didn't.", name:"Daniel M.", role:"Senior Accountant, Sydney", initials:"DM", color:THEME_COLOR, photo:"/assets/testimonials/face-e.png" },
+              { text:"I came in skeptical — I've been an accountant for 12 years and I've seen every productivity trend come and go. By Day 14 I had prompts that saved me 2 hours a week on reconciliations alone.", name:"Sarah K.", role:"Practice Owner, London", initials:"SK", color:"#2f6fa8", photo: null },
+              { text:"The internal controls module alone was worth the entire course. My team now has a documented AI usage policy for client work. That's table stakes in 2026.", name:"Yuki S.", role:"Audit Manager, Tokyo", initials:"YS", color:L2_COLOR, photo:"/assets/testimonials/face-f.png" },
             ].map((t, i) => (
               <div key={i} className={`lp-testi-card lp-reveal ${revealTestimonials ? "visible" : ""}`} style={{
                 background:"rgba(255,255,255,.03)", border:"1px solid rgba(255,255,255,.08)",
                 borderRadius:16, padding:"1.4rem 1.5rem",
                 display:"flex", flexDirection:"column", gap:"1rem",
                 transition:`opacity .65s ease ${i*.15}s, transform .65s ease ${i*.15}s`,
-                flex:"0 0 100%", minWidth:0,
+                flex: "0 0 100%", minWidth: 0,
               }}>
-                <div style={{ fontSize:".78rem", fontWeight:700, letterSpacing:1, textTransform:"uppercase", color:t.color, background:`${t.color}18`, border:`1px solid ${t.color}33`, borderRadius:100, padding:"3px 10px", width:"fit-content" }}>{t.course}</div>
+                <div style={{ fontSize:".78rem", fontWeight:700, letterSpacing:1, textTransform:"uppercase", color:t.color, background:`${t.color}18`, border:`1px solid ${t.color}33`, borderRadius:100, padding:"3px 10px", width:"fit-content" }}>Accounting · {activeTab === "1" ? "Basic" : "Advanced"}</div>
                 <div className="lp-testi-text" style={{ color:"#ddd", fontSize:".88rem", lineHeight:1.7, fontStyle:"italic" }}>"{t.text}"</div>
                 <div style={{ display:"flex", alignItems:"center", gap:".7rem", marginTop:"auto" }}>
                   {t.photo
@@ -1007,74 +1459,75 @@ export default function LandingPage() {
         </div>
       </section>
 
+      <ContactSection />
+
       {/* ── HUMANIZING IMAGE SECTION ── */}
       <section className="lp-human-section" style={{ padding:"60px 20px", background:"#0d0d14", position:"relative", zIndex:1 }}>
         <div style={{ maxWidth:"820px", margin:"0 auto", display:"flex", flexDirection:"row", alignItems:"center", gap:"3rem", flexWrap:"wrap" }}>
           <div style={{ flex:"0 0 260px", maxWidth:"100%" }}>
-            <img src="/assets/testimonials/face-i.png" alt="Business leader learning AI strategy"
+            <img src="/assets/testimonials/face-e.png" alt="Accountant using AI at work"
               style={{ width:"100%", borderRadius:20, objectFit:"cover", objectPosition:"center top",
                 boxShadow:"0 20px 60px rgba(0,0,0,.4), 0 0 0 1px rgba(13,124,138,.15)",
-                border:`1px solid ${L1_COLOR}33` }} />
+                border:"1px solid rgba(13,124,138,.2)" }} />
           </div>
           <div style={{ flex:1, minWidth:240 }}>
-            <div style={{ fontSize:".7rem", fontWeight:700, letterSpacing:"2.5px", textTransform:"uppercase", color:THEME, marginBottom:"1rem" }}>✦ Who this is for</div>
+            <div style={{ fontSize:".7rem", fontWeight:700, letterSpacing:"2.5px", textTransform:"uppercase", color:THEME_COLOR, marginBottom:"1rem" }}>✦ Who this is for</div>
             <h2 style={{ fontSize:"clamp(1.4rem,3vw,1.9rem)", fontWeight:800, color:"inherit", lineHeight:1.25, marginBottom:"1rem" }}>
-              You don't need to be technical.<br/>You need to lead the conversation.
+              You don't need to be a tech person.<br/>You need to be a better accountant.
             </h2>
             <p style={{ color:"var(--lp-body,#9896b0)", lineHeight:1.75, fontSize:".95rem", marginBottom:"1.25rem" }}>
-              AI Strategy Sprint is for business leaders who want to stop being passengers in AI conversations and start setting the direction. No coding. No jargon. Just the strategy, fluency, and governance skills that organizations need now.
+              AI Sprint Accounting is built for finance professionals who want AI to make their actual work faster and sharper — not replace their judgement.
             </p>
             <div style={{ display:"flex", flexDirection:"column", gap:".6rem", marginBottom:"1.5rem" }}>
               {[
-                "Perfect for managers, directors, and C-suite leaders",
-                "2 levels — build fluency first, then master strategy and governance",
-                "15 minutes a day — designed around an executive's schedule",
+                "Perfect if you work in accounting, bookkeeping, or finance",
+                "Built around real workflows — reconciliation, close, reporting",
+                "15 minutes a day — less than your morning commute",
               ].map((item, i) => (
                 <div key={i} style={{ display:"flex", gap:".65rem", alignItems:"flex-start" }}>
-                  <span style={{ color:THEME, fontWeight:800, flexShrink:0, marginTop:2 }}>✓</span>
+                  <span style={{ color:THEME_COLOR, fontWeight:800, flexShrink:0, marginTop:2 }}>✓</span>
                   <span className="lp-human-bullet" style={{ color:"var(--lp-body,#c8c6e0)", fontSize:".9rem", lineHeight:1.6 }}>{item}</span>
                 </div>
               ))}
             </div>
-            <button onClick={() => openAuth(activeTab, "register")}
-              style={{ background:THEME, color:"white", border:"none", padding:".75rem 1.8rem",
+            <button onClick={() => openAuth("register")}
+              style={{ background:THEME_COLOR, color:"white", border:"none", padding:".75rem 1.8rem",
                 borderRadius:100, fontWeight:700, fontSize:".9rem", cursor:"pointer",
-                boxShadow:`0 8px 24px ${THEME}44` }}>
-              {activeTab === "2" ? "Start Level 2 Journey →" : "Start Level 1 Journey →"}
+                boxShadow:`0 8px 24px rgba(13,124,138,.3)` }}>
+              {themeData.cta}
             </button>
           </div>
         </div>
       </section>
 
       {/* Final CTA divider */}
-      <div className="lp-join-banner" style={{ display:"flex", alignItems:"center", padding:"40px 24px 0" }}>
-        <div style={{ flex:1, height:1, background:`${THEME}40`}}/>
+      <div className="lp-join-banner" style={{ display:"flex", alignItems:"center", padding:"40px 24px 0", zIndex:1, position:"relative" }}>
+        <div style={{ flex:1, height:1, background:`rgba(13,124,138,.35)` }}/>
         <div style={{ display:"flex", gap:10, padding:"0 18px" }}>
-          {["START TODAY", `BEGIN LEVEL 0${activeTab}`].map((m,i) => (
-            <span key={i} style={{ fontFamily:"monospace", fontSize:"12px", letterSpacing:"2px", color:THEME, opacity:.7 }}>[ {m} ]</span>
+          {["START TODAY", activeTab === "1" ? "START BASIC TRACK" : "START ADVANCED TRACK"].map((m,i) => (
+            <span key={i} style={{ fontFamily:"monospace", fontSize:"12px", letterSpacing:"2px", color:THEME_COLOR, opacity:.7 }}>[ {m} ]</span>
           ))}
         </div>
-        <div style={{ flex:1, height:1, background:`${THEME}40`}}/>
+        <div style={{ flex:1, height:1, background:`rgba(13,124,138,.35)` }}/>
       </div>
 
-      {/* CTA */}
-      <section className="lp-cta-section" style={{ background: THEME, paddingBottom:"60px" }}>
+      {/* Final CTA */}
+      <section id="lp-cta" className="lp-cta-section" style={{ background: THEME, paddingBottom: "60px" }}>
         <div className="lp-section-inner" style={{ textAlign: "center" }}>
           <h2 className="lp-cta-h2">
-            {activeTab === "2" ? "Ready to lead AI strategy?" : "Ready to build AI fluency?"}
+            {activeTab === "1" ? "Ready to become an AI-ready accountant?" : "Ready to deliver advisory-level AI work?"}
           </h2>
           <p className="lp-cta-sub" style={{ color:"rgba(255,255,255,.9)", fontWeight:600, fontSize:"1.05rem" }}>
-            {activeTab === "2"
-              ? "Join 187 executives already building board-ready AI strategy — 15 minutes a day."
-              : "Join 412 business leaders already building real AI fluency — 15 minutes a day."
-            }
+            {activeTab === "1"
+              ? "Join 423 accounting professionals building smarter workflows with AI — 15 minutes a day, 28 days, no fluff."
+              : "Join 187 finance professionals building advisory AI skills that clients pay a premium for."}
           </p>
-          <button className="lp-cta-btn" style={{ background: "#ffffff", color: THEME, fontWeight: "bold" }}
-            onClick={() => openAuth(activeTab, "register")}>
-            {activeTab === "2" ? "Start Level 2 Journey →" : "Start Level 1 Journey →"}
+          <button className="lp-cta-btn" style={{ background:"#ffffff", color:THEME, fontWeight:"bold" }} onClick={() => openAuth("register")}>
+            {themeData.cta}
           </button>
         </div>
       </section>
+
     </div>
   );
 }
