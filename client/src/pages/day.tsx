@@ -35,7 +35,7 @@ import { useRegion, isToolBlocked, getAlternatives } from "@/hooks/useRegion";
 import PromptLab from "@/components/PromptLab";
 
 // ── AI Sprint · Day Tracking ──────────────────────────────────────────────────
-const TRACKING_URL = "https://script.google.com/macros/s/AKfycbzFZZJk_VcQHlNRSOjMvgfc4MrD2AATiZa8GXOou5OOpZes_Mql6gaYw3fIVS4A-lzc/exec";
+const TRACKING_URL = "https://script.google.com/macros/s/AKfycbz9h5e7GBuM54OWLTw9QJnyOW_sSTqMqzMVY63aqxlsZVdnJVS9phi-qXeocG6veADv/exec";
 
 async function trackDayOpen(user: any, dayNum: string | number, level: string, course: string) {
   try {
