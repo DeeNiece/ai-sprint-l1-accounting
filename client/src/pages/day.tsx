@@ -1,6 +1,13 @@
 // ── AI Sprint · Accounting ───────────────────────────────────────────────────
 // File: day.tsx  |  Repo: accounting
 // Last updated: May 2026
+//
+// CERTIFICATE FEATURE:
+//   - trackDayComplete() fires POST action:"complete" to AppScript on mark complete
+//   - fetchCompletedDays() calls doGet to check completed days in Sheets
+//   - generateCertificate() renders Canvas PNG — teal (L1 Basic) or orange (L2 Advanced)
+//   - Certificate card in sidebar: locked until all 28 days of the current level complete
+//   - DayCopyButton: copies social caption for Facebook/LinkedIn manual paste
 
 import { useEffect, useState } from "react";
 import { Link, useRoute } from "wouter";
@@ -56,6 +63,35 @@ async function trackDayOpen(user: any, dayNum: string | number, level: string, c
   }
 }
 
+// ── Track lesson marked as complete ──────────────────────────────────────────
+async function trackDayComplete(user: any, dayNum: string | number, level: string, course: string) {
+  try {
+    await fetch(TRACKING_URL, {
+      method: "POST",
+      headers: { "Content-Type": "text/plain" },
+      body: JSON.stringify({
+        email:       user?.email       || "unknown",
+        displayName: user?.displayName || "",
+        course:      course,
+        day:         String(dayNum),
+        action:      "complete",
+        level:       level,
+      }),
+    });
+  } catch { /* silent fail */ }
+}
+
+// ── Check completed days via AppScript doGet ──────────────────────────────────
+async function fetchCompletedDays(email: string, course: string): Promise<string[]> {
+  try {
+    const url = `${TRACKING_URL}?email=${encodeURIComponent(email)}&course=${encodeURIComponent(course)}`;
+    const res  = await fetch(url);
+    const data = await res.json();
+    return data.success ? (data.completedDays as string[]) : [];
+  } catch {
+    return [];
+  }
+}
 
 // Floating Celebration Component (same as before)
 function FloatingCelebration({
@@ -185,6 +221,35 @@ function getWhatYouLearned(day: {
   return bullets.slice(0, 3);
 }
 
+// ── Copy-caption button for share panel ──────────────────────────────────────
+function DayCopyButton({ caption }: { caption: string }) {
+  const [copied, setCopied] = useState(false);
+  return (
+    <button
+      onClick={() => {
+        navigator.clipboard.writeText(caption).then(() => {
+          setCopied(true);
+          setTimeout(() => setCopied(false), 2000);
+        });
+      }}
+      style={{
+        position: "absolute", top: "50%", right: "8px",
+        transform: "translateY(-50%)",
+        padding: "4px 10px",
+        background: copied ? "rgba(13,124,138,0.2)" : "rgba(255,255,255,0.07)",
+        border: `1px solid ${copied ? "#0d7c8a" : "rgba(255,255,255,0.15)"}`,
+        borderRadius: "5px",
+        color: copied ? "#0d7c8a" : "var(--text-muted)",
+        fontSize: "0.72rem", fontWeight: 700,
+        cursor: "pointer", whiteSpace: "nowrap",
+        transition: "all 0.2s",
+      }}
+    >
+      {copied ? "Copied! ✓" : "Copy"}
+    </button>
+  );
+}
+
 export default function DayPage({ params: propParams }: DayPageProps) {
   const { user } = useAuth();
   const { t } = useLanguage();
@@ -255,11 +320,25 @@ export default function DayPage({ params: propParams }: DayPageProps) {
   const done = !!progressMap.get(dayNum);
   const completedCount = progressData.filter((p) => p.completed).length;
 
+  // ── Fetch completed days from AppScript for certificate gate ──────────────
+  useEffect(() => {
+    if (user?.email) {
+      const courseName = level === 1 ? "Accounting L1" : "Accounting L2";
+      fetchCompletedDays(user.email, courseName).then(setGsCompletedDays);
+    }
+  }, [user?.email, completedCount, level]);
+
   const toggleMutation = useMutation({
     mutationFn: ({ completed }: { completed: boolean }) =>
       apiRequest("POST", `/api/progress/${dayNum}`, { completed }),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ["/api/progress"] });
+
+      // 🏆 Fire complete tracking to AppScript
+      if (variables.completed && user) {
+        const courseName = level === 1 ? "Accounting L1" : "Accounting L2";
+        trackDayComplete(user, dayNum, String(level), courseName);
+      }
 
       if (variables.completed && (window as any).confetti) {
         const newCount = completedCount + 1;
@@ -335,6 +414,111 @@ export default function DayPage({ params: propParams }: DayPageProps) {
       }
     },
   });
+
+  // 🏆 CERTIFICATE GENERATOR ─────────────────────────────────────────────────
+  // Theme adapts: teal for L1 Basic, orange for L2 Advanced
+  const generateCertificate = async () => {
+    setCertGenerating(true);
+    const isL1     = level === 1;
+    const accent   = isL1 ? "#0d7c8a" : "#e8820c";
+    const accentLt = isL1 ? "#14b8a6" : "#f59e0b";
+    const bgFrom   = isL1 ? "#0a1628"  : "#1a0e00";
+    const bgMid    = isL1 ? "#0d1f3c"  : "#2a1800";
+    const bgTo     = isL1 ? "#071220"  : "#120a00";
+    const trackLbl = isL1 ? "Basic Track" : "Advanced Track";
+    const filename = isL1
+      ? `AISprint-Accounting-Basic-Certificate-${(user?.displayName || "Student").replace(/\s+/g, "-")}.png`
+      : `AISprint-Accounting-Advanced-Certificate-${(user?.displayName || "Student").replace(/\s+/g, "-")}.png`;
+
+    try {
+      const canvas  = document.createElement("canvas");
+      canvas.width  = 1400; canvas.height = 990;
+      const ctx     = canvas.getContext("2d")!;
+
+      const bgGrad = ctx.createLinearGradient(0, 0, 1400, 990);
+      bgGrad.addColorStop(0, bgFrom); bgGrad.addColorStop(0.5, bgMid); bgGrad.addColorStop(1, bgTo);
+      ctx.fillStyle = bgGrad; ctx.fillRect(0, 0, 1400, 990);
+
+      const g1 = ctx.createRadialGradient(200, 200, 0, 200, 200, 350);
+      g1.addColorStop(0, `${accent}33`); g1.addColorStop(1, "transparent");
+      ctx.fillStyle = g1; ctx.fillRect(0, 0, 1400, 990);
+      const g2 = ctx.createRadialGradient(1200, 800, 0, 1200, 800, 300);
+      g2.addColorStop(0, `${accent}22`); g2.addColorStop(1, "transparent");
+      ctx.fillStyle = g2; ctx.fillRect(0, 0, 1400, 990);
+
+      ctx.strokeStyle = accent; ctx.lineWidth = 3; ctx.strokeRect(28, 28, 1344, 934);
+      ctx.strokeStyle = `${accent}59`; ctx.lineWidth = 1; ctx.strokeRect(44, 44, 1312, 902);
+      [[56,56,1,1],[1344,56,-1,1],[56,934,1,-1],[1344,934,-1,-1]].forEach(([cx,cy,dx,dy]: number[]) => {
+        ctx.strokeStyle = accent; ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.moveTo(cx, cy+dy*28); ctx.lineTo(cx,cy); ctx.lineTo(cx+dx*28,cy); ctx.stroke();
+      });
+
+      await new Promise<void>((resolve) => {
+        const img = new Image(); img.onload = () => {
+          const maxH=80,maxW=400,ratio=Math.min(maxW/img.naturalWidth,maxH/img.naturalHeight);
+          ctx.drawImage(img,(1400-img.naturalWidth*ratio)/2,52,img.naturalWidth*ratio,img.naturalHeight*ratio); resolve();
+        }; img.onerror=()=>resolve(); img.src="/assets/AISprint.app Logo_small_certificate.jpg";
+      });
+
+      ctx.textAlign="center"; ctx.fillStyle=accent; ctx.font="bold 13px \'Georgia\', serif";
+      ctx.fillText("C E R T I F I C A T E   O F   C O M P L E T I O N", 700, 165);
+      ctx.strokeStyle=accent; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(480,178); ctx.lineTo(920,178); ctx.stroke();
+
+      ctx.fillStyle="rgba(255,255,255,0.55)"; ctx.font="italic 22px \'Georgia\', serif";
+      ctx.fillText("This certifies that", 700, 240);
+
+      const studentName = user?.displayName || user?.email || "Student";
+      ctx.fillStyle="#ffffff"; ctx.font="bold 64px \'Georgia\', serif";
+      ctx.fillText(studentName, 700, 330);
+      const nw=ctx.measureText(studentName).width;
+      ctx.strokeStyle=`${accent}99`; ctx.lineWidth=1.5;
+      ctx.beginPath(); ctx.moveTo(700-nw/2,348); ctx.lineTo(700+nw/2,348); ctx.stroke();
+
+      ctx.fillStyle="rgba(255,255,255,0.55)"; ctx.font="italic 22px \'Georgia\', serif";
+      ctx.fillText("has successfully completed", 700, 400);
+
+      ctx.fillStyle=accentLt; ctx.font="bold 42px \'Georgia\', serif";
+      ctx.fillText(`AI Accounting — ${trackLbl}`, 700, 468);
+
+      ctx.fillStyle="rgba(255,255,255,0.4)"; ctx.font="16px \'Georgia\', serif";
+      ctx.fillText("28-Day Accounting with AI Sprint · AISprint.app", 700, 506);
+
+      ctx.strokeStyle=`${accent}4d`; ctx.lineWidth=1;
+      ctx.beginPath(); ctx.moveTo(250,548); ctx.lineTo(1150,548); ctx.stroke();
+
+      ctx.fillStyle="rgba(255,255,255,0.65)"; ctx.font="italic 18px \'Georgia\', serif";
+      const congrats = isL1
+        ? "In recognition of dedication to mastering AI-powered accounting fundamentals."
+        : "In recognition of mastery over advanced AI accounting workflows and professional systems.";
+      ctx.fillText(congrats, 700, 592);
+
+      const dateStr=new Date().toLocaleDateString("en-US",{year:"numeric",month:"long",day:"numeric"});
+      ctx.fillStyle="rgba(255,255,255,0.35)"; ctx.font="12px \'Georgia\', serif";
+      ctx.fillText("DATE OF COMPLETION", 380, 680);
+      ctx.fillStyle="#ffffff"; ctx.font="bold 20px \'Georgia\', serif";
+      ctx.fillText(dateStr, 380, 706);
+
+      await new Promise<void>((resolve) => {
+        const seal=new Image(); seal.onload=()=>{
+          const b=100,r=Math.min(b/seal.naturalWidth,b/seal.naturalHeight);
+          ctx.drawImage(seal,700-seal.naturalWidth*r/2,672-seal.naturalHeight*r/2,seal.naturalWidth*r,seal.naturalHeight*r); resolve();
+        }; seal.onerror=()=>resolve(); seal.src="/assets/AISprint Logo Only_no Background_Certificate.png";
+      });
+
+      ctx.fillStyle="rgba(255,255,255,0.35)"; ctx.font="12px \'Georgia\', serif";
+      ctx.fillText("ISSUED BY", 1020, 680);
+      ctx.fillStyle="#ffffff"; ctx.font="bold 20px \'Georgia\', serif";
+      ctx.fillText("AISprint.app", 1020, 706);
+      ctx.fillStyle="rgba(255,255,255,0.4)"; ctx.font="13px \'Georgia\', serif";
+      ctx.fillText("AI Education Platform", 1020, 726);
+
+      ctx.fillStyle=`${accent}99`; ctx.font="12px \'Georgia\', serif";
+      ctx.fillText("www.aisprint.app  ·  Empowering the next generation of AI practitioners", 700, 890);
+
+      const link=document.createElement("a");
+      link.download=filename; link.href=canvas.toDataURL("image/png"); link.click();
+    } finally { setCertGenerating(false); }
+  };
 
   const scrollToCompletion = () => {
     document
@@ -656,6 +840,111 @@ export default function DayPage({ params: propParams }: DayPageProps) {
                   )}
                 </button>
                 {done && <p className="complete-note">{t("day.completionNote")}</p>}
+              </div>
+
+              {/* 🏆 CERTIFICATE CARD — theme adapts to current level */}
+              <div
+                className="sidebar-card"
+                style={{
+                  borderTop: `4px solid ${allDaysComplete ? (level === 1 ? "#14b8a6" : "#f59e0b") : "rgba(255,255,255,0.1)"}`,
+                  opacity: allDaysComplete ? 1 : 0.85,
+                  transition: "all 0.3s ease",
+                }}
+              >
+                <h3 className="sidebar-heading" style={{ color: allDaysComplete ? (level === 1 ? "#14b8a6" : "#f59e0b") : "var(--text-muted)", display: "flex", alignItems: "center", gap: "8px" }}>
+                  {allDaysComplete ? <Award size={16} /> : <Lock size={16} />}
+                  Your Certificate
+                </h3>
+
+                {/* Sample preview */}
+                <div style={{ position: "relative", marginBottom: "14px", borderRadius: "6px", overflow: "hidden", border: `1px solid ${level === 1 ? "rgba(13,124,138,0.25)" : "rgba(232,130,12,0.25)"}` }}>
+                  <img
+                    src="/assets/sample-certificate.png"
+                    alt="Sample AISprint Accounting certificate"
+                    style={{ width: "100%", display: "block", filter: allDaysComplete ? "none" : "blur(2px) brightness(0.6)", transition: "filter 0.4s ease" }}
+                  />
+                  {!allDaysComplete && (
+                    <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "6px" }}>
+                      <Lock size={22} color={level === 1 ? "#14b8a6" : "#f59e0b"} />
+                      <span style={{ fontSize: "0.75rem", color: level === 1 ? "#14b8a6" : "#f59e0b", fontWeight: 700, letterSpacing: "0.5px" }}>
+                        {gsCompletedDays.length}/{TOTAL_DAYS_CERT} LESSONS COMPLETE
+                      </span>
+                    </div>
+                  )}
+                </div>
+
+                {allDaysComplete ? (
+                  <>
+                    <p style={{ fontSize: "0.82rem", color: "var(--text-muted)", marginBottom: "12px", lineHeight: 1.5 }}>
+                      🎉 All 28 lessons complete! Download your personalized certificate and share your achievement.
+                    </p>
+
+                    <button
+                      onClick={generateCertificate}
+                      disabled={certGenerating}
+                      style={{ width: "100%", padding: "10px 14px", background: level === 1 ? "linear-gradient(135deg,#0d7c8a,#14b8a6)" : "linear-gradient(135deg,#e8820c,#f59e0b)", color: "white", border: "none", borderRadius: "8px", cursor: certGenerating ? "wait" : "pointer", fontWeight: 700, fontSize: "0.88rem", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", letterSpacing: "0.3px", marginBottom: "14px" }}
+                    >
+                      <Download size={15} />
+                      {certGenerating ? "Generating..." : "Download Certificate"}
+                    </button>
+
+                    {/* Share divider */}
+                    <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "10px" }}>
+                      <div style={{ flex: 1, height: "1px", background: "var(--border)" }} />
+                      <span style={{ fontSize: "0.72rem", color: "var(--text-muted)", fontWeight: 600, letterSpacing: "0.5px" }}>SHARE YOUR WIN</span>
+                      <div style={{ flex: 1, height: "1px", background: "var(--border)" }} />
+                    </div>
+
+                    {/* Caption + copy */}
+                    <div style={{ position: "relative", marginBottom: "10px" }}>
+                      <p style={{ fontSize: "0.75rem", color: "var(--text-muted)", lineHeight: 1.5, fontStyle: "italic", margin: 0, padding: "8px 80px 8px 10px", background: "rgba(255,255,255,0.04)", borderRadius: "6px", border: "1px solid rgba(255,255,255,0.08)" }}>
+                        {level === 1
+                          ? ""🎓 I just completed the Accounting Basic track on AISprint.app — 28 days of AI-powered accounting fundamentals. Ready for Advanced! #AIAccounting #AISprint""
+                          : ""🎓 I just completed the Accounting Advanced track on AISprint.app — 28 days of mastering AI workflows for professional accounting. #AIAccounting #AISprint""}
+                      </p>
+                      <DayCopyButton caption={level === 1 ? "🎓 I just completed the Accounting Basic track on AISprint.app — 28 days of AI-powered accounting fundamentals. Ready for Advanced! #AIAccounting #AISprint" : "🎓 I just completed the Accounting Advanced track on AISprint.app — 28 days of mastering AI workflows for professional accounting. #AIAccounting #AISprint"} />
+                    </div>
+
+                    {/* FB/LinkedIn notice */}
+                    <div style={{ display: "flex", alignItems: "flex-start", gap: "7px", background: "rgba(255,193,7,0.08)", border: "1px solid rgba(255,193,7,0.25)", borderRadius: "6px", padding: "7px 9px", marginBottom: "10px" }}>
+                      <span style={{ fontSize: "0.85rem", flexShrink: 0 }}>📋</span>
+                      <p style={{ fontSize: "0.72rem", color: "var(--text-muted)", margin: 0, lineHeight: 1.5 }}>
+                        <strong style={{ color: "rgba(255,193,7,0.9)" }}>Facebook &amp; LinkedIn:</strong> Copy caption above first, then paste into the post dialog that opens.
+                      </p>
+                    </div>
+
+                    {/* Social buttons */}
+                    {(() => {
+                      const caption = level === 1 ? "🎓 I just completed the Accounting Basic track on AISprint.app — 28 days of AI-powered accounting fundamentals. Ready for Advanced! #AIAccounting #AISprint" : "🎓 I just completed the Accounting Advanced track on AISprint.app — 28 days of mastering AI workflows for professional accounting. #AIAccounting #AISprint";
+                      return (
+                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px" }}>
+                          <a href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent("https://aisprint.app")}`} target="_blank" rel="noopener noreferrer" style={{ display:"flex",alignItems:"center",justifyContent:"center",gap:"6px",padding:"8px 10px",background:"#1877F2",color:"white",borderRadius:"6px",fontSize:"0.78rem",fontWeight:700,textDecoration:"none" }}>
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="white"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>Facebook
+                          </a>
+                          <a href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent("https://aisprint.app")}`} target="_blank" rel="noopener noreferrer" style={{ display:"flex",alignItems:"center",justifyContent:"center",gap:"6px",padding:"8px 10px",background:"#0A66C2",color:"white",borderRadius:"6px",fontSize:"0.78rem",fontWeight:700,textDecoration:"none" }}>
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="white"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>LinkedIn
+                          </a>
+                          <a href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(caption)}&url=${encodeURIComponent("https://aisprint.app")}`} target="_blank" rel="noopener noreferrer" style={{ display:"flex",alignItems:"center",justifyContent:"center",gap:"6px",padding:"8px 10px",background:"#000",color:"white",borderRadius:"6px",fontSize:"0.78rem",fontWeight:700,textDecoration:"none" }}>
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="white"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>X / Twitter
+                          </a>
+                          <a href={`https://www.threads.net/intent/post?text=${encodeURIComponent(caption + " https://aisprint.app")}`} target="_blank" rel="noopener noreferrer" style={{ display:"flex",alignItems:"center",justifyContent:"center",gap:"6px",padding:"8px 10px",background:"#000",color:"white",borderRadius:"6px",fontSize:"0.78rem",fontWeight:700,textDecoration:"none" }}>
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 7.5c-1.333-3-3.667-4.5-7-4.5-5 0-8 3.5-8 8.5 0 3.038 1.667 5.5 5 7 1 .5 2.333.5 4 0"/><path d="M12 12c2 0 3.5.667 4 2 .333 1-.167 2.5-2 3-1 .5-2 .5-3 0"/><path d="M12 12V7"/></svg>Threads
+                          </a>
+                        </div>
+                      );
+                    })()}
+                    <p style={{ fontSize: "0.72rem", color: "var(--text-muted)", marginTop: "10px", lineHeight: 1.4 }}>
+                      💡 Download your certificate first, then attach the image when posting.
+                    </p>
+                  </>
+                ) : (
+                  <p style={{ fontSize: "0.82rem", color: "var(--text-muted)", lineHeight: 1.5 }}>
+                    Complete all 28 lessons to unlock your certificate.{" "}
+                    <span style={{ color: level === 1 ? "#0d7c8a" : "#e8820c", fontWeight: 600 }}>
+                      {gsCompletedDays.length}/{TOTAL_DAYS_CERT} done.
+                    </span>
+                  </p>
+                )}
               </div>
 
               {weekOverview && (

@@ -108,6 +108,35 @@ function getGreeting(name: string): string {
   return `Good evening, ${first} 👋`;
 }
 
+// ── Copy-caption button for share panel ──────────────────────────────────────
+function HomeCopyButton({ text, accent }: { text: string; accent: string }) {
+  const [copied, setCopied] = useState(false);
+  return (
+    <button
+      onClick={() => {
+        navigator.clipboard.writeText(text).then(() => {
+          setCopied(true);
+          setTimeout(() => setCopied(false), 2000);
+        });
+      }}
+      style={{
+        position: "absolute", top: "50%", right: "8px",
+        transform: "translateY(-50%)",
+        padding: "4px 10px",
+        background: copied ? `${accent}33` : "rgba(255,255,255,0.07)",
+        border: `1px solid ${copied ? accent : "rgba(255,255,255,0.15)"}`,
+        borderRadius: "5px",
+        color: copied ? accent : "var(--text-muted)",
+        fontSize: "0.72rem", fontWeight: 700,
+        cursor: "pointer", whiteSpace: "nowrap",
+        transition: "all 0.2s",
+      }}
+    >
+      {copied ? "Copied! ✓" : "Copy"}
+    </button>
+  );
+}
+
 export default function HomePage() {
   const { t } = useLanguage();
   const { user } = useAuth();
@@ -646,6 +675,65 @@ export default function HomePage() {
         <p className="tagline-strip" style={{ color: THEME }}>
           Master Accounting. Leverage AI. Stay Ahead.
         </p>
+
+        {/* 🏆 CERTIFICATE BANNER — only when all 28 days complete */}
+        {courseComplete && (
+          <div style={{ marginTop:"20px", background:`linear-gradient(135deg,${THEME}26,${THEME}1a)`, border:`1px solid ${THEME}66`, borderRadius:"14px", padding:"20px 24px", textAlign:"center" }}>
+            <div style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:"8px", marginBottom:"6px" }}>
+              <Award size={20} color={THEME} />
+              <span style={{ fontSize:"1rem", fontWeight:700, color:THEME }}>
+                {isL1 ? "Basic Track" : "Advanced Track"} Complete — Your Certificate is Ready!
+              </span>
+            </div>
+            <p style={{ fontSize:"0.82rem", color:"var(--text-muted)", marginBottom:"16px", lineHeight:1.5 }}>
+              You've completed all 28 lessons. Download your certificate and share your achievement.
+            </p>
+            <div style={{ display:"flex", gap:"10px", justifyContent:"center", flexWrap:"wrap" }}>
+              <button onClick={generateCertificate} disabled={certGenerating} style={{ display:"flex", alignItems:"center", gap:"8px", padding:"10px 20px", background:`linear-gradient(135deg,${THEME},${isL1?"#14b8a6":"#f59e0b"})`, color:"white", border:"none", borderRadius:"8px", fontWeight:700, fontSize:"0.88rem", cursor:certGenerating?"wait":"pointer" }}>
+                <Download size={15} />{certGenerating?"Generating...":"Download Certificate"}
+              </button>
+              <button onClick={() => setShowSharePanel(!showSharePanel)} style={{ display:"flex", alignItems:"center", gap:"8px", padding:"10px 20px", background:showSharePanel?`${THEME}33`:"transparent", color:THEME, border:`1px solid ${THEME}80`, borderRadius:"8px", fontWeight:700, fontSize:"0.88rem", cursor:"pointer" }}>
+                <Share2 size={15} />Share Your Win
+              </button>
+            </div>
+
+            {showSharePanel && (
+              <div style={{ marginTop:"16px", padding:"16px", background:"rgba(0,0,0,0.2)", borderRadius:"10px", border:`1px solid ${THEME}33` }}>
+                <div style={{ position:"relative", marginBottom:"14px" }}>
+                  <p style={{ fontSize:"0.78rem", color:"var(--text-muted)", fontStyle:"italic", lineHeight:1.6, margin:0, padding:"10px 90px 10px 12px", background:"rgba(255,255,255,0.04)", borderRadius:"6px", border:"1px solid rgba(255,255,255,0.08)" }}>
+                    "{SOCIAL_CAPTION}"
+                  </p>
+                  <HomeCopyButton text={SOCIAL_CAPTION} accent={THEME} />
+                </div>
+
+                <div style={{ display:"flex", alignItems:"flex-start", gap:"8px", background:"rgba(255,193,7,0.08)", border:"1px solid rgba(255,193,7,0.25)", borderRadius:"7px", padding:"8px 10px", marginBottom:"10px" }}>
+                  <span style={{ fontSize:"0.9rem", flexShrink:0, marginTop:"1px" }}>📋</span>
+                  <p style={{ fontSize:"0.74rem", color:"var(--text-muted)", margin:0, lineHeight:1.5 }}>
+                    <strong style={{ color:"rgba(255,193,7,0.9)" }}>Facebook &amp; LinkedIn:</strong> Copy your caption above first, then click the button — paste it into the post dialog that opens.
+                  </p>
+                </div>
+
+                <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:"8px", maxWidth:"380px", margin:"0 auto" }}>
+                  <a href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(SHARE_URL_CERT)}`} target="_blank" rel="noopener noreferrer" style={{ display:"flex",alignItems:"center",justifyContent:"center",gap:"6px",padding:"9px 12px",background:"#1877F2",color:"white",borderRadius:"7px",fontSize:"0.8rem",fontWeight:700,textDecoration:"none" }}>
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="white"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>Facebook
+                  </a>
+                  <a href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(SHARE_URL_CERT)}`} target="_blank" rel="noopener noreferrer" style={{ display:"flex",alignItems:"center",justifyContent:"center",gap:"6px",padding:"9px 12px",background:"#0A66C2",color:"white",borderRadius:"7px",fontSize:"0.8rem",fontWeight:700,textDecoration:"none" }}>
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="white"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>LinkedIn
+                  </a>
+                  <a href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(SOCIAL_CAPTION)}&url=${encodeURIComponent(SHARE_URL_CERT)}`} target="_blank" rel="noopener noreferrer" style={{ display:"flex",alignItems:"center",justifyContent:"center",gap:"6px",padding:"9px 12px",background:"#000",color:"white",borderRadius:"7px",fontSize:"0.8rem",fontWeight:700,textDecoration:"none" }}>
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="white"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>X / Twitter
+                  </a>
+                  <a href={`https://www.threads.net/intent/post?text=${encodeURIComponent(SOCIAL_CAPTION + " " + SHARE_URL_CERT)}`} target="_blank" rel="noopener noreferrer" style={{ display:"flex",alignItems:"center",justifyContent:"center",gap:"6px",padding:"9px 12px",background:"#000",color:"white",borderRadius:"7px",fontSize:"0.8rem",fontWeight:700,textDecoration:"none" }}>
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 7.5c-1.333-3-3.667-4.5-7-4.5-5 0-8 3.5-8 8.5 0 3.038 1.667 5.5 5 7 1 .5 2.333.5 4 0"/><path d="M12 12c2 0 3.5.667 4 2 .333 1-.167 2.5-2 3-1 .5-2 .5-3 0"/><path d="M12 12V7"/></svg>Threads
+                  </a>
+                </div>
+                <p style={{ fontSize:"0.72rem", color:"var(--text-muted)", marginTop:"10px", lineHeight:1.4 }}>
+                  💡 Download your certificate first, then attach the image when posting for better engagement.
+                </p>
+              </div>
+            )}
+          </div>
+        )}
       </section>
 
       {nextLesson && hasCurrentLevel && (
