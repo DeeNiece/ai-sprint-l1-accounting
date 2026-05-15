@@ -1,3 +1,7 @@
+// ── AI Sprint · Accounting ───────────────────────────────────────────────────
+// File: routes.ts  |  Repo: accounting
+// Last updated: May 2026
+
 import type { Express, Request, Response, NextFunction } from "express";
 import type { Server } from "http";
 import { createServer } from "http";
@@ -21,10 +25,9 @@ const stripe = stripeKey ? new Stripe(stripeKey, { apiVersion: "2023-10-16" }) :
 const APP_URL = process.env.APP_URL || "https://ai-sprint-l1-accounting-production.up.railway.app";
 
 // ── Pricing (USD) – updated to match pricing page ──────────────────────────
+// Single $59 price grants both tracks via "accounting-bundle"
 const PRICES: Record<string, { amount: number; label: string }> = {
-  "accounting-basic":    { amount: 2500,  label: "Accounting in the AI Era — Basic" },
-  "accounting-advanced": { amount: 4000,  label: "Accounting in the AI Era — Advanced" },
-  "accounting-bundle":   { amount: 5500,  label: "Accounting in the AI Era — Basic + Advanced Bundle" },
+  "accounting-bundle": { amount: 5900, label: "Accounting in the AI Era — Complete Course (Basic + Advanced)" },
 };
 
 // No hardcoded PAYMONGO_PRICES – now using live rate dynamically

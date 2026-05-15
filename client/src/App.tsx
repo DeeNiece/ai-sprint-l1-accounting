@@ -1,6 +1,8 @@
 // ── AI Sprint · Accounting ───────────────────────────────────────────────────
 // File: App.tsx  |  Repo: accounting
 // Last updated: May 2026
+//
+// PRICING UPDATE: Single $59 price — hasAccess() replaces hasBasic/hasAdvanced/hasAnyLevel
 
 import { useEffect } from "react";
 import { Router, Switch, Route, Redirect } from "wouter";
@@ -27,26 +29,16 @@ import PasswordPage from "@/pages/password-page";
 import AdminPage from "@/pages/admin";
 import ServicesPage from "@/pages/services";
 
-function hasBasic(user: any) {
+// Single $59 price grants both tracks via "accounting-bundle"
+function hasAccess(user: any) {
   const levels = user?.licensedLevels || [];
-  return levels.includes("accounting-basic") || levels.includes("accounting-bundle");
+  return levels.includes("accounting-bundle") || levels.includes("accounting-basic") || levels.includes("accounting-advanced");
 }
 
-function hasAdvanced(user: any) {
-  const levels = user?.licensedLevels || [];
-  return levels.includes("accounting-advanced") || levels.includes("accounting-bundle");
-}
-
-function hasAnyLevel(user: any) {
-  return hasBasic(user) || hasAdvanced(user);
-}
-
-function ProtectedRoute({ children, requiresLevel }: { children: React.ReactNode; requiresLevel?: "basic" | "advanced" | "any" }) {
+function ProtectedRoute({ children, requiresLevel }: { children: React.ReactNode; requiresLevel?: "any" | undefined }) {
   const { user } = useAuth();
   if (!user) return <Redirect to="/auth" />;
-  if (requiresLevel === "basic"    && !hasBasic(user))    return <Redirect to="/pricing" />;
-  if (requiresLevel === "advanced" && !hasAdvanced(user)) return <Redirect to="/pricing" />;
-  if (requiresLevel === "any"      && !hasAnyLevel(user)) return <Redirect to="/pricing" />;
+  if (requiresLevel === "any" && !hasAccess(user)) return <Redirect to="/pricing" />;
   return <>{children}</>;
 }
 
@@ -70,7 +62,7 @@ function AppRoutes() {
           <Route path="/faq" component={FAQPage} />
           <Route path="/pricing" component={Pricing} />
           <Route path="/">
-            {!user ? <LandingPage /> : hasAnyLevel(user) ? <HomePage /> : <Redirect to="/pricing" />}
+            {!user ? <LandingPage /> : hasAccess(user) ? <HomePage /> : <Redirect to="/pricing" />}
           </Route>
           <Route path="/systems"><ProtectedRoute requiresLevel="any"><SystemsPage /></ProtectedRoute></Route>
           <Route path="/portfolio"><ProtectedRoute requiresLevel="any"><PortfolioPage /></ProtectedRoute></Route>

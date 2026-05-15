@@ -1,14 +1,19 @@
+// ── AI Sprint · Accounting ───────────────────────────────────────────────────
+// File: pricing.tsx  |  Repo: accounting
+// Last updated: May 2026
+//
+// PRICING UPDATE: Single $59 price grants both tracks (56 days total)
+// USD_PRICES/PLANS removed — COURSE_PRICE_USD=59, COURSE_ORIG_USD=75
+
 import { useState, useEffect } from "react";
 import { useAuth } from "@/components/auth-provider";
 import Nav from "@/components/nav";
 import { CheckCircle2, Zap, Lock, Star, BookOpen, CreditCard, Wallet, Mail, Send, AlertCircle, UserCircle, RefreshCw } from "lucide-react";
 
 // ── USD base prices (cents for Stripe, display only here) ────────────────────
-const USD_PRICES: Record<string, number> = {
-  "accounting-basic":    25,
-  "accounting-advanced": 40,
-  "accounting-bundle":   55,
-};
+// Single $59 price grants both tracks
+const COURSE_PRICE_USD = 59;
+const COURSE_ORIG_USD  = 75;
 
 // ── PayMongo now uses live rate – no hardcoded PHP amounts ───────────────────
 
@@ -52,48 +57,7 @@ function useUsdToPhp() {
   return { rate, loading, error, lastUpdated, refetch: fetchRate };
 }
 
-const PLANS = [
-  {
-    id: "accounting-basic",
-    level: "accounting-basic",
-    name: "Basic",
-    subtitle: "28-Day Challenge",
-    usd: 25,
-    color: "#0d7c8a",
-    colorLight: "#0d7c8a22",
-    icon: <BookOpen size={22} />,
-    features: [
-      "28 days of accounting foundations",
-      "AI prompting for accountants",
-      "Bookkeeping & reconciliation workflows",
-      "Month-end close with AI",
-      "AI Coach on every lesson",
-      "Progress tracking & toolkit",
-    ],
-  },
-  {
-    id: "accounting-advanced",
-    level: "accounting-advanced",
-    name: "Advanced",
-    subtitle: "28-Day Challenge",
-    usd: 40,
-    color: "#7a5fc0",
-    colorLight: "#7a5fc022",
-    icon: <Zap size={22} />,
-    features: [
-      "28 days advanced accounting track",
-      "Fraud detection & anomaly analysis",
-      "Financial reporting & disclosures",
-      "FP&A, forecasting & scenario analysis",
-      "AI governance & controls framework",
-      "Capstone: AI-Ready Accounting Blueprint",
-    ],
-    recommended: true,
-  },
-];
 
-const BUNDLE_USD     = 55;
-const BUNDLE_ORIG_USD = 65;
 
 // ── Contact Support Section (unchanged) ──────────────────────────────────────
 function ContactSection() {
@@ -277,10 +241,7 @@ export default function PricingPage() {
     }
   }
 
-  const ownsBasic    = licensed.includes("accounting-basic");
-  const ownsAdvanced = licensed.includes("accounting-advanced");
-  const ownsBundle   = licensed.includes("accounting-bundle");
-  const ownsAll      = (ownsBasic || ownsBundle) && (ownsAdvanced || ownsBundle);
+  const ownsAll = licensed.some(l => ["accounting-bundle", "accounting-basic", "accounting-advanced"].includes(l));
 
   return (
     <div className="page-wrap">
@@ -303,148 +264,78 @@ export default function PricingPage() {
             />
           </div>
 
-          {licensed.length > 0 && (
-            <div style={{ background: "#1a7a4a22", color: "#1a7a4a", padding: "10px", borderRadius: "8px", display: "inline-block", marginTop: "10px" }}>
-              <CheckCircle2 size={16} style={{ display: "inline", verticalAlign: "text-bottom", marginRight: "5px" }} />
-              You already own: {[
-                ownsBasic  || ownsBundle ? "Basic"    : null,
-                ownsAdvanced || ownsBundle ? "Advanced" : null,
-              ].filter(Boolean).join(", ")}
+          {ownsAll && (
+            <div style={{ background: "rgba(34,197,94,0.08)", color: "#22c55e", padding: "10px 16px", borderRadius: "8px", display: "inline-flex", alignItems: "center", gap: 8, marginTop: "10px", border: "1px solid rgba(34,197,94,0.2)" }}>
+              <CheckCircle2 size={16} /> You already own the full course — both tracks unlocked
+            </div>
+          )}
             </div>
           )}
         </div>
 
-        {/* ── Bundle card ── */}
-        <div className="bundle-card">
-          <div className="bundle-badge"><Star size={14} /> Best Value</div>
-          <div className="bundle-content">
-            <div className="bundle-left">
-              <div className="bundle-title">Basic + Advanced Bundle</div>
-              <div className="bundle-desc">Complete 56-day accounting transformation — both tracks included</div>
-              <ul className="bundle-perks">
-                <li><CheckCircle2 size={13} /> All 56 lessons across both tracks</li>
-                <li><CheckCircle2 size={13} /> Foundations through advisory skills</li>
-                <li><CheckCircle2 size={13} /> Lifetime access · no renewals</li>
-              </ul>
+        {/* ── Single course card ── */}
+        <div className="bundle-card" style={{ maxWidth: 680, margin: "0 auto" }}>
+          <div className="bundle-badge" style={{ background: "linear-gradient(135deg,#0d7c8a,#e8820c)" }}>
+            ⚡ Both Tracks · Best Value
+          </div>
+          <div style={{ textAlign: "center", padding: "12px 0 24px" }}>
+            <div style={{ fontSize: "1.1rem", fontWeight: 700, color: "white", marginBottom: 6 }}>
+              Complete Accounting with AI Course
             </div>
-            <div className="bundle-right">
-              <div className="bundle-price">
-                <span className="bundle-amount">${BUNDLE_USD}</span>
-                <span className="bundle-original">${BUNDLE_ORIG_USD}</span>
+            <div style={{ fontSize: "0.9rem", color: "#888", marginBottom: 24 }}>
+              56 days · 2 tracks · Basic → Advanced
+            </div>
+            <div style={{ display: "flex", justifyContent: "center", gap: 10, flexWrap: "wrap", marginBottom: 28 }}>
+              <span style={{ padding: "6px 16px", borderRadius: 20, background: "rgba(13,124,138,0.15)", border: "1px solid rgba(13,124,138,0.4)", color: "#14b8a6", fontSize: "0.82rem", fontWeight: 700 }}>Basic Track</span>
+              <span style={{ padding: "6px 16px", borderRadius: 20, background: "rgba(232,130,12,0.15)", border: "1px solid rgba(232,130,12,0.4)", color: "#f59e0b", fontSize: "0.82rem", fontWeight: 700 }}>Advanced Track</span>
+            </div>
+            <div style={{ marginBottom: 4 }}>
+              <span style={{ fontSize: "3.5rem", fontWeight: 900, color: "white", lineHeight: 1 }}>${COURSE_PRICE_USD}</span>
+              <span style={{ fontSize: "1.1rem", color: "#555", textDecoration: "line-through", marginLeft: 12 }}>${COURSE_ORIG_USD}</span>
+            </div>
+            <div style={{ fontSize: "0.82rem", color: "#aaa", marginBottom: 4 }}>
+              ≈ {livePhp(COURSE_PRICE_USD)} <span style={{ color: "#666", fontSize: "0.72rem" }}>(live rate)</span>
+            </div>
+            <div style={{ fontSize: "0.8rem", color: "#0d7c8a", fontWeight: 700, marginBottom: 28 }}>
+              Save ${COURSE_ORIG_USD - COURSE_PRICE_USD} · {Math.round((1 - COURSE_PRICE_USD / COURSE_ORIG_USD) * 100)}% off · one-time · no renewals
+            </div>
+            <ul style={{ listStyle: "none", padding: 0, margin: "0 0 28px", textAlign: "left", display: "inline-block" }}>
+              {[
+                { color: "#14b8a6", text: "Basic Track — 28 days: AI-powered accounting fundamentals & workflows" },
+                { color: "#f59e0b", text: "Advanced Track — 28 days: professional automation & client-ready systems" },
+                { color: "white",   text: "2 completion certificates — one per track" },
+                { color: "white",   text: "Practical AI tools applied to real accounting scenarios" },
+                { color: "white",   text: "Lifetime access · no renewals · no hidden fees" },
+              ].map((item, i) => (
+                <li key={i} style={{ display: "flex", alignItems: "flex-start", gap: 10, marginBottom: 10, fontSize: "0.88rem", color: "#ccc" }}>
+                  <CheckCircle2 size={15} style={{ color: item.color, flexShrink: 0, marginTop: 2 }} />
+                  {item.text}
+                </li>
+              ))}
+            </ul>
+            {ownsAll ? (
+              <div className="plan-owned-btn" style={{ justifyContent: "center" }}>
+                <CheckCircle2 size={16} /> You own the full course
               </div>
-              <div style={{ fontSize: "0.82rem", color: "#aaa", marginTop: 4, marginBottom: 4 }}>
-                ≈ {livePhp(BUNDLE_USD)} <span style={{ color: "#666", fontSize: "0.72rem" }}>(live rate)</span>
-              </div>
-              <div className="bundle-save">
-                Save ${BUNDLE_ORIG_USD - BUNDLE_USD}{" "}
-                <span className="bundle-pct">· {Math.round((1 - BUNDLE_USD / BUNDLE_ORIG_USD) * 100)}% off</span>
-              </div>
-
-              {ownsAll ? (
-                <div className="plan-owned-btn" style={{ marginTop: 15 }}><CheckCircle2 size={16} /> Owned</div>
-              ) : (
-                <div style={{ display: "flex", flexDirection: "column", gap: 10, marginTop: 15, width: "100%" }}>
-                  <button
-                    className="bundle-buy-btn"
-                    onClick={() => handlePurchase("accounting-bundle", "stripe")}
-                    disabled={!!loading}
-                    style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 8 }}
-                  >
-                    <CreditCard size={16} />
-                    {loading === "stripe-accounting-bundle" ? "Redirecting…" : `Pay with Card · $${BUNDLE_USD} USD`}
-                  </button>
-                  <button
-                    className="bundle-buy-btn"
-                    onClick={() => handlePurchase("accounting-bundle", "paymongo")}
-                    disabled={!!loading}
-                    style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 8, background: "#3b82f6", color: "white" }}
-                  >
-                    <Wallet size={16} />
-                    {loading === "paymongo-accounting-bundle"
-                      ? "Redirecting…"
-                      : `GCash / PayMaya · ${rate ? formatPhp(Math.round(BUNDLE_USD * rate)) : "..."}`}
-                  </button>
-                  <div style={{ fontSize: "0.72rem", color: "#555", textAlign: "center" }}>
-                    Live rate: 1 USD = {rate ? `₱${rate.toFixed(2)}` : "..."}
-                  </div>
+            ) : (
+              <div style={{ display: "flex", flexDirection: "column", gap: 12, maxWidth: 400, margin: "0 auto" }}>
+                <button className="bundle-buy-btn" onClick={() => handlePurchase("accounting-bundle", "stripe")} disabled={!!loading} style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 8, fontSize: "1rem", padding: "14px 20px" }}>
+                  <CreditCard size={17} />
+                  {loading === "stripe-accounting-bundle" ? "Redirecting…" : `Pay with Card · $${COURSE_PRICE_USD} USD`}
+                </button>
+                <button className="bundle-buy-btn" onClick={() => handlePurchase("accounting-bundle", "paymongo")} disabled={!!loading} style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 8, background: "#3b82f6", color: "white", fontSize: "1rem", padding: "14px 20px" }}>
+                  <Wallet size={17} />
+                  {loading === "paymongo-accounting-bundle" ? "Redirecting…" : `GCash / PayMaya · ${rate ? formatPhp(Math.round(COURSE_PRICE_USD * rate)) : "..."}`}
+                </button>
+                <div style={{ fontSize: "0.72rem", color: "#555", textAlign: "center" }}>
+                  Live rate: 1 USD = {rate ? `₱${rate.toFixed(2)}` : "..."}
                 </div>
-              )}
-            </div>
+              </div>
+            )}
           </div>
         </div>
 
-        {/* ── Individual plan cards ── */}
-        <div className="pricing-grid">
-          {PLANS.map((plan) => {
-            const isOwned = licensed.includes(plan.level) || ownsBundle;
-
-            return (
-              <div
-                key={plan.id}
-                className={`plan-card${plan.recommended ? " recommended" : ""}`}
-                style={{ borderColor: plan.recommended ? plan.color : undefined }}
-              >
-                {plan.recommended && (
-                  <div className="plan-recommended-badge" style={{ background: plan.color }}>
-                    Most Popular
-                  </div>
-                )}
-                <div className="plan-icon" style={{ background: plan.colorLight, color: plan.color }}>
-                  {plan.icon}
-                </div>
-                <div className="plan-name" style={{ color: plan.color }}>{plan.name}</div>
-                <div className="plan-subtitle">{plan.subtitle}</div>
-                <div className="plan-price">${plan.usd}</div>
-                <div style={{ fontSize: "0.8rem", color: "#888", marginBottom: 2 }}>
-                  ≈ {livePhp(plan.usd)}{" "}
-                  <span style={{ fontSize: "0.7rem", color: "#555" }}>(live rate)</span>
-                </div>
-                <div className="plan-price-note">one-time · no refunds</div>
-                <ul className="plan-features" style={{ marginBottom: 25 }}>
-                  {plan.features.map((f, i) => (
-                    <li key={i}>
-                      <CheckCircle2 size={13} style={{ color: plan.color }} />
-                      {f}
-                    </li>
-                  ))}
-                </ul>
-                <div style={{ marginTop: "auto" }}>
-                  {isOwned ? (
-                    <div className="plan-owned-btn"><CheckCircle2 size={16} /> Owned</div>
-                  ) : (
-                    <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                      <button
-                        className="plan-buy-btn"
-                        style={{ background: plan.color, display: "flex", justifyContent: "center", alignItems: "center", gap: 6 }}
-                        onClick={() => handlePurchase(plan.id, "stripe")}
-                        disabled={!!loading}
-                      >
-                        <CreditCard size={14} />
-                        {loading === `stripe-${plan.id}` ? "Redirecting…" : `Card · $${plan.usd} USD`}
-                      </button>
-                      <button
-                        className="plan-buy-btn"
-                        style={{ background: "transparent", border: `1px solid ${plan.color}`, color: plan.color, display: "flex", justifyContent: "center", alignItems: "center", gap: 6 }}
-                        onClick={() => handlePurchase(plan.id, "paymongo")}
-                        disabled={!!loading}
-                      >
-                        <Wallet size={14} />
-                        {loading === `paymongo-${plan.id}`
-                          ? "Redirecting…"
-                          : `GCash / PayMaya · ${rate ? formatPhp(Math.round(plan.usd * rate)) : "..."}`}
-                      </button>
-                      <div style={{ fontSize: "0.7rem", color: "#555", textAlign: "center" }}>
-                        Live rate: 1 USD = {rate ? `₱${rate.toFixed(2)}` : "..."}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-
-        {error && <div className="pricing-error">{error}</div>}
+                {error && <div className="pricing-error">{error}</div>}
 
         <div className="pricing-footer">
           <Lock size={14} /> Secure payments via Stripe & Paymongo · No refunds · Email used at purchase is the only authorized account

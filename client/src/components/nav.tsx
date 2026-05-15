@@ -1,3 +1,7 @@
+// ── AI Sprint · Accounting ───────────────────────────────────────────────────
+// File: nav.tsx  |  Repo: accounting
+// Last updated: May 2026
+
 import { Link, useLocation } from "wouter";
 import logoImg from "@assets/ai-sprint-logo.jpg";
 import { useTheme } from "@/components/theme-provider";

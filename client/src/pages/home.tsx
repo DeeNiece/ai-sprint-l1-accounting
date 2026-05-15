@@ -177,12 +177,12 @@ export default function HomePage() {
   const matchFilter = activeLevel === "1" ? matchesFilterL1 : matchesFilterL2;
 
   const licensed = user?.licensedLevels || [];
-  const hasBasic =
-    licensed.includes("accounting-basic") || licensed.includes("accounting-bundle");
-  const hasAdvanced =
-    licensed.includes("accounting-advanced") || licensed.includes("accounting-bundle");
-  const hasAny = hasBasic || hasAdvanced;
-  const hasCurrentLevel = activeLevel === "1" ? hasBasic : hasAdvanced;
+  // Single $59 price unlocks both tracks via "accounting-bundle"
+  const hasAccess      = licensed.includes("accounting-bundle") || licensed.includes("accounting-basic") || licensed.includes("accounting-advanced");
+  const hasBasic       = hasAccess;
+  const hasAdvanced    = hasAccess;
+  const hasAny         = hasAccess;
+  const hasCurrentLevel = hasAccess;
 
   useEffect(() => {
     if (user && !hasAny) window.location.hash = "/pricing";
