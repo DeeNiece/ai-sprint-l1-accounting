@@ -221,6 +221,10 @@ function getWhatYouLearned(day: {
   return bullets.slice(0, 3);
 }
 
+// ── Certificate captions — module-level to prevent inline JSX parse issues ────
+const ACC_CERT_CAP_L1 = "🎓 I just completed the Accounting Basic track on AISprint.app — 28 days of AI-powered accounting fundamentals. Ready for Advanced! #AIAccounting #AISprint";
+const ACC_CERT_CAP_L2 = "🎓 I just completed the Accounting Advanced track on AISprint.app — 28 days of mastering AI workflows for professional accounting. #AIAccounting #AISprint";
+
 // ── Copy-caption button for share panel ──────────────────────────────────────
 function DayCopyButton({ caption }: { caption: string }) {
   const [copied, setCopied] = useState(false);
@@ -904,10 +908,10 @@ export default function DayPage({ params: propParams }: DayPageProps) {
                     <div style={{ position: "relative", marginBottom: "10px" }}>
                       <p style={{ fontSize: "0.75rem", color: "var(--text-muted)", lineHeight: 1.5, fontStyle: "italic", margin: 0, padding: "8px 80px 8px 10px", background: "rgba(255,255,255,0.04)", borderRadius: "6px", border: "1px solid rgba(255,255,255,0.08)" }}>
                         {level === 1
-                          ? "🎓 I just completed the Accounting Basic track on AISprint.app — 28 days of AI-powered accounting fundamentals. Ready for Advanced! #AIAccounting #AISprint"
-                          : "🎓 I just completed the Accounting Advanced track on AISprint.app — 28 days of mastering AI workflows for professional accounting. #AIAccounting #AISprint"}
+                          ? ACC_CERT_CAP_L1
+                          : ACC_CERT_CAP_L2}
                       </p>
-                      <DayCopyButton caption={level === 1 ? "🎓 I just completed the Accounting Basic track on AISprint.app — 28 days of AI-powered accounting fundamentals. Ready for Advanced! #AIAccounting #AISprint" : "🎓 I just completed the Accounting Advanced track on AISprint.app — 28 days of mastering AI workflows for professional accounting. #AIAccounting #AISprint"} />
+                      <DayCopyButton caption={level === 1 ? ACC_CERT_CAP_L1 : ACC_CERT_CAP_L2} />
                     </div>
 
                     {/* FB/LinkedIn notice */}
@@ -920,7 +924,7 @@ export default function DayPage({ params: propParams }: DayPageProps) {
 
                     {/* Social buttons */}
                     {(() => {
-                      const caption = level === 1 ? "🎓 I just completed the Accounting Basic track on AISprint.app — 28 days of AI-powered accounting fundamentals. Ready for Advanced! #AIAccounting #AISprint" : "🎓 I just completed the Accounting Advanced track on AISprint.app — 28 days of mastering AI workflows for professional accounting. #AIAccounting #AISprint";
+                      const caption = level === 1 ? ACC_CERT_CAP_L1 : ACC_CERT_CAP_L2;
                       return (
                         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px" }}>
                           <a href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent("https://aisprint.app")}`} target="_blank" rel="noopener noreferrer" style={{ display:"flex",alignItems:"center",justifyContent:"center",gap:"6px",padding:"8px 10px",background:"#1877F2",color:"white",borderRadius:"6px",fontSize:"0.78rem",fontWeight:700,textDecoration:"none" }}>
