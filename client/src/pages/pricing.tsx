@@ -269,9 +269,6 @@ export default function PricingPage() {
               <CheckCircle2 size={16} /> You already own the full course — both tracks unlocked
             </div>
           )}
-            </div>
-          )}
-        </div>
 
         {/* ── Single course card ── */}
         <div className="bundle-card" style={{ maxWidth: 680, margin: "0 auto" }}>
@@ -335,7 +332,7 @@ export default function PricingPage() {
           </div>
         </div>
 
-                {error && <div className="pricing-error">{error}</div>}
+        {error && <div className="pricing-error">{error}</div>}
 
         <div className="pricing-footer">
           <Lock size={14} /> Secure payments via Stripe & Paymongo · No refunds · Email used at purchase is the only authorized account
