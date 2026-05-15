@@ -320,6 +320,69 @@ export default function HomePage() {
     return completed.length > 0 ? Math.max(...completed) : null;
   }, [progressData, levelPrefix]);
 
+  // 🏆 CERTIFICATE STATE — declared before return null to satisfy React hook rules
+  const TOTAL_DAYS_CERT = 28;
+  const courseComplete = completedCount === TOTAL_DAYS_CERT;
+  const [certGenerating,  setCertGenerating]  = useState(false);
+  const [showSharePanel,  setShowSharePanel]  = useState(false);
+  const isL1         = activeLevel === "1";
+  const SOCIAL_CAPTION = isL1
+    ? "🎓 I just completed the Accounting Basic track on AISprint.app — 28 days of AI-powered accounting fundamentals. Ready for Advanced! #AIAccounting #AISprint"
+    : "🎓 I just completed the Accounting Advanced track on AISprint.app — 28 days of mastering AI workflows for professional accounting. #AIAccounting #AISprint";
+  const SHARE_URL_CERT = "https://aisprint.app";
+
+  const generateCertificate = async () => {
+    setCertGenerating(true);
+    const accent   = isL1 ? "#0d7c8a" : "#e8820c";
+    const accentLt = isL1 ? "#14b8a6" : "#f59e0b";
+    const bgFrom   = isL1 ? "#0a1628"  : "#1a0e00";
+    const bgMid    = isL1 ? "#0d1f3c"  : "#2a1800";
+    const bgTo     = isL1 ? "#071220"  : "#120a00";
+    const trackLbl = isL1 ? "Basic Track" : "Advanced Track";
+    const studentName = user?.displayName || user?.email || "Student";
+    try {
+      const canvas = document.createElement("canvas");
+      canvas.width = 1400; canvas.height = 990;
+      const ctx = canvas.getContext("2d")!;
+      const bgGrad = ctx.createLinearGradient(0,0,1400,990);
+      bgGrad.addColorStop(0,bgFrom); bgGrad.addColorStop(0.5,bgMid); bgGrad.addColorStop(1,bgTo);
+      ctx.fillStyle=bgGrad; ctx.fillRect(0,0,1400,990);
+      const g1=ctx.createRadialGradient(200,200,0,200,200,350); g1.addColorStop(0,`${accent}33`); g1.addColorStop(1,"transparent"); ctx.fillStyle=g1; ctx.fillRect(0,0,1400,990);
+      const g2=ctx.createRadialGradient(1200,800,0,1200,800,300); g2.addColorStop(0,`${accent}22`); g2.addColorStop(1,"transparent"); ctx.fillStyle=g2; ctx.fillRect(0,0,1400,990);
+      ctx.strokeStyle=accent; ctx.lineWidth=3; ctx.strokeRect(28,28,1344,934);
+      ctx.strokeStyle=`${accent}59`; ctx.lineWidth=1; ctx.strokeRect(44,44,1312,902);
+      [[56,56,1,1],[1344,56,-1,1],[56,934,1,-1],[1344,934,-1,-1]].forEach(([cx,cy,dx,dy]: number[]) => {
+        ctx.strokeStyle=accent; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(cx,cy+dy*28); ctx.lineTo(cx,cy); ctx.lineTo(cx+dx*28,cy); ctx.stroke();
+      });
+      await new Promise<void>((resolve) => { const img=new Image(); img.onload=()=>{ const maxH=80,maxW=400,ratio=Math.min(maxW/img.naturalWidth,maxH/img.naturalHeight); ctx.drawImage(img,(1400-img.naturalWidth*ratio)/2,52,img.naturalWidth*ratio,img.naturalHeight*ratio); resolve(); }; img.onerror=()=>resolve(); img.src="/assets/AISprint.app Logo_small_certificate.jpg"; });
+      ctx.textAlign="center"; ctx.fillStyle=accent; ctx.font="bold 13px \'Georgia\', serif";
+      ctx.fillText("C E R T I F I C A T E   O F   C O M P L E T I O N",700,165);
+      ctx.strokeStyle=accent; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(480,178); ctx.lineTo(920,178); ctx.stroke();
+      ctx.fillStyle="rgba(255,255,255,0.55)"; ctx.font="italic 22px \'Georgia\', serif"; ctx.fillText("This certifies that",700,240);
+      ctx.fillStyle="#ffffff"; ctx.font="bold 64px \'Georgia\', serif"; ctx.fillText(studentName,700,330);
+      const nw=ctx.measureText(studentName).width; ctx.strokeStyle=`${accent}99`; ctx.lineWidth=1.5; ctx.beginPath(); ctx.moveTo(700-nw/2,348); ctx.lineTo(700+nw/2,348); ctx.stroke();
+      ctx.fillStyle="rgba(255,255,255,0.55)"; ctx.font="italic 22px \'Georgia\', serif"; ctx.fillText("has successfully completed",700,400);
+      ctx.fillStyle=accentLt; ctx.font="bold 42px \'Georgia\', serif"; ctx.fillText(`AI Accounting — ${trackLbl}`,700,468);
+      ctx.fillStyle="rgba(255,255,255,0.4)"; ctx.font="16px \'Georgia\', serif"; ctx.fillText("28-Day Accounting with AI Sprint · AISprint.app",700,506);
+      ctx.strokeStyle=`${accent}4d`; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(250,548); ctx.lineTo(1150,548); ctx.stroke();
+      ctx.fillStyle="rgba(255,255,255,0.65)"; ctx.font="italic 18px \'Georgia\', serif";
+      ctx.fillText(isL1 ? "In recognition of dedication to mastering AI-powered accounting fundamentals." : "In recognition of mastery over advanced AI accounting workflows and professional systems.",700,592);
+      const dateStr=new Date().toLocaleDateString("en-US",{year:"numeric",month:"long",day:"numeric"});
+      ctx.fillStyle="rgba(255,255,255,0.35)"; ctx.font="12px \'Georgia\', serif"; ctx.fillText("DATE OF COMPLETION",380,680);
+      ctx.fillStyle="#ffffff"; ctx.font="bold 20px \'Georgia\', serif"; ctx.fillText(dateStr,380,706);
+      await new Promise<void>((resolve) => { const seal=new Image(); seal.onload=()=>{ const b=100,r=Math.min(b/seal.naturalWidth,b/seal.naturalHeight); ctx.drawImage(seal,700-seal.naturalWidth*r/2,672-seal.naturalHeight*r/2,seal.naturalWidth*r,seal.naturalHeight*r); resolve(); }; seal.onerror=()=>resolve(); seal.src="/assets/AISprint Logo Only_no Background_Certificate.png"; });
+      ctx.fillStyle="rgba(255,255,255,0.35)"; ctx.font="12px \'Georgia\', serif"; ctx.fillText("ISSUED BY",1020,680);
+      ctx.fillStyle="#ffffff"; ctx.font="bold 20px \'Georgia\', serif"; ctx.fillText("AISprint.app",1020,706);
+      ctx.fillStyle="rgba(255,255,255,0.4)"; ctx.font="13px \'Georgia\', serif"; ctx.fillText("AI Education Platform",1020,726);
+      ctx.fillStyle=`${accent}99`; ctx.font="12px \'Georgia\', serif";
+      ctx.fillText("www.aisprint.app  ·  Empowering the next generation of AI practitioners",700,890);
+      const link=document.createElement("a");
+      link.download=`AISprint-Accounting-${trackLbl.replace(" ","-")}-Certificate-${studentName.replace(/\s+/g,"-")}.png`;
+      link.href=canvas.toDataURL("image/png"); link.click();
+    } finally { setCertGenerating(false); }
+  };
+
+  // ── License guard AFTER all hooks ────────────────────────────────────────
   if (user && !hasAny) return null;
 
   const filterButtons =

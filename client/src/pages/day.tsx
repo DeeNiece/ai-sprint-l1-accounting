@@ -297,6 +297,11 @@ export default function DayPage({ params: propParams }: DayPageProps) {
   } | null>(null);
   const [dismissReminder, setDismissReminder] = useState(false);
 
+  // 🏆 CERTIFICATE STATE — declared before any early return (React hook rules)
+  const [gsCompletedDays, setGsCompletedDays] = useState<string[]>([]);
+  const [certGenerating, setCertGenerating] = useState(false);
+  const TOTAL_DAYS_CERT = 28;
+  const allDaysComplete = gsCompletedDays.length >= TOTAL_DAYS_CERT;
 
   // ── Track day open ────────────────────────────────────────────────────────
   useEffect(() => {
