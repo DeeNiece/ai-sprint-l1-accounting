@@ -34,6 +34,9 @@ import {
   AlertTriangle,
   BellRing,
   X,
+  Award,
+  Lock,
+  Download,
 } from "lucide-react";
 import DayChat from "@/components/day-chat";
 import { useAuth } from "@/components/auth-provider";
