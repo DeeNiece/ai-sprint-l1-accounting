@@ -57,9 +57,7 @@ function useUsdToPhp() {
   return { rate, loading, error, lastUpdated, refetch: fetchRate };
 }
 
-
-
-// ── Contact Support Section (unchanged) ──────────────────────────────────────
+// ── Contact Support Section ──────────────────────────────────────────────────
 function ContactSection() {
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -149,7 +147,7 @@ function ContactSection() {
   );
 }
 
-// ── Live rate badge (unchanged) ──────────────────────────────────────────────
+// ── Live rate badge ───────────────────────────────────────────────────────────
 function RateBadge({ rate, loading, error, lastUpdated, refetch }: {
   rate: number | null;
   loading: boolean;
@@ -270,65 +268,66 @@ export default function PricingPage() {
             </div>
           )}
 
-        {/* ── Single course card ── */}
-        <div className="bundle-card" style={{ maxWidth: 680, margin: "0 auto" }}>
-          <div className="bundle-badge" style={{ background: "linear-gradient(135deg,#0d7c8a,#e8820c)" }}>
-            ⚡ Both Tracks · Best Value
-          </div>
-          <div style={{ textAlign: "center", padding: "12px 0 24px" }}>
-            <div style={{ fontSize: "1.1rem", fontWeight: 700, color: "white", marginBottom: 6 }}>
-              Complete Accounting with AI Course
+          {/* ── Single course card ── */}
+          <div className="bundle-card" style={{ maxWidth: 680, margin: "0 auto", marginTop: 40 }}>
+            <div className="bundle-badge" style={{ background: "linear-gradient(135deg,#0d7c8a,#e8820c)" }}>
+              ⚡ Both Tracks · Best Value
             </div>
-            <div style={{ fontSize: "0.9rem", color: "#888", marginBottom: 24 }}>
-              56 days · 2 tracks · Basic → Advanced
-            </div>
-            <div style={{ display: "flex", justifyContent: "center", gap: 10, flexWrap: "wrap", marginBottom: 28 }}>
-              <span style={{ padding: "6px 16px", borderRadius: 20, background: "rgba(13,124,138,0.15)", border: "1px solid rgba(13,124,138,0.4)", color: "#14b8a6", fontSize: "0.82rem", fontWeight: 700 }}>Basic Track</span>
-              <span style={{ padding: "6px 16px", borderRadius: 20, background: "rgba(232,130,12,0.15)", border: "1px solid rgba(232,130,12,0.4)", color: "#f59e0b", fontSize: "0.82rem", fontWeight: 700 }}>Advanced Track</span>
-            </div>
-            <div style={{ marginBottom: 4 }}>
-              <span style={{ fontSize: "3.5rem", fontWeight: 900, color: "white", lineHeight: 1 }}>${COURSE_PRICE_USD}</span>
-              <span style={{ fontSize: "1.1rem", color: "#555", textDecoration: "line-through", marginLeft: 12 }}>${COURSE_ORIG_USD}</span>
-            </div>
-            <div style={{ fontSize: "0.82rem", color: "#aaa", marginBottom: 4 }}>
-              ≈ {livePhp(COURSE_PRICE_USD)} <span style={{ color: "#666", fontSize: "0.72rem" }}>(live rate)</span>
-            </div>
-            <div style={{ fontSize: "0.8rem", color: "#0d7c8a", fontWeight: 700, marginBottom: 28 }}>
-              Save ${COURSE_ORIG_USD - COURSE_PRICE_USD} · {Math.round((1 - COURSE_PRICE_USD / COURSE_ORIG_USD) * 100)}% off · one-time · no renewals
-            </div>
-            <ul style={{ listStyle: "none", padding: 0, margin: "0 0 28px", textAlign: "left", display: "inline-block" }}>
-              {[
-                { color: "#14b8a6", text: "Basic Track — 28 days: AI-powered accounting fundamentals & workflows" },
-                { color: "#f59e0b", text: "Advanced Track — 28 days: professional automation & client-ready systems" },
-                { color: "white",   text: "2 completion certificates — one per track" },
-                { color: "white",   text: "Practical AI tools applied to real accounting scenarios" },
-                { color: "white",   text: "Lifetime access · no renewals · no hidden fees" },
-              ].map((item, i) => (
-                <li key={i} style={{ display: "flex", alignItems: "flex-start", gap: 10, marginBottom: 10, fontSize: "0.88rem", color: "#ccc" }}>
-                  <CheckCircle2 size={15} style={{ color: item.color, flexShrink: 0, marginTop: 2 }} />
-                  {item.text}
-                </li>
-              ))}
-            </ul>
-            {ownsAll ? (
-              <div className="plan-owned-btn" style={{ justifyContent: "center" }}>
-                <CheckCircle2 size={16} /> You own the full course
+            <div style={{ textAlign: "center", padding: "12px 0 24px" }}>
+              <div style={{ fontSize: "1.1rem", fontWeight: 700, color: "white", marginBottom: 6 }}>
+                Complete Accounting with AI Course
               </div>
-            ) : (
-              <div style={{ display: "flex", flexDirection: "column", gap: 12, maxWidth: 400, margin: "0 auto" }}>
-                <button className="bundle-buy-btn" onClick={() => handlePurchase("accounting-bundle", "stripe")} disabled={!!loading} style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 8, fontSize: "1rem", padding: "14px 20px" }}>
-                  <CreditCard size={17} />
-                  {loading === "stripe-accounting-bundle" ? "Redirecting…" : `Pay with Card · $${COURSE_PRICE_USD} USD`}
-                </button>
-                <button className="bundle-buy-btn" onClick={() => handlePurchase("accounting-bundle", "paymongo")} disabled={!!loading} style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 8, background: "#3b82f6", color: "white", fontSize: "1rem", padding: "14px 20px" }}>
-                  <Wallet size={17} />
-                  {loading === "paymongo-accounting-bundle" ? "Redirecting…" : `GCash / PayMaya · ${rate ? formatPhp(Math.round(COURSE_PRICE_USD * rate)) : "..."}`}
-                </button>
-                <div style={{ fontSize: "0.72rem", color: "#555", textAlign: "center" }}>
-                  Live rate: 1 USD = {rate ? `₱${rate.toFixed(2)}` : "..."}
+              <div style={{ fontSize: "0.9rem", color: "#888", marginBottom: 24 }}>
+                56 days · 2 tracks · Basic → Advanced
+              </div>
+              <div style={{ display: "flex", justifyContent: "center", gap: 10, flexWrap: "wrap", marginBottom: 28 }}>
+                <span style={{ padding: "6px 16px", borderRadius: 20, background: "rgba(13,124,138,0.15)", border: "1px solid rgba(13,124,138,0.4)", color: "#14b8a6", fontSize: "0.82rem", fontWeight: 700 }}>Basic Track</span>
+                <span style={{ padding: "6px 16px", borderRadius: 20, background: "rgba(232,130,12,0.15)", border: "1px solid rgba(232,130,12,0.4)", color: "#f59e0b", fontSize: "0.82rem", fontWeight: 700 }}>Advanced Track</span>
+              </div>
+              <div style={{ marginBottom: 4 }}>
+                <span style={{ fontSize: "3.5rem", fontWeight: 900, color: "white", lineHeight: 1 }}>${COURSE_PRICE_USD}</span>
+                <span style={{ fontSize: "1.1rem", color: "#555", textDecoration: "line-through", marginLeft: 12 }}>${COURSE_ORIG_USD}</span>
+              </div>
+              <div style={{ fontSize: "0.82rem", color: "#aaa", marginBottom: 4 }}>
+                ≈ {livePhp(COURSE_PRICE_USD)} <span style={{ color: "#666", fontSize: "0.72rem" }}>(live rate)</span>
+              </div>
+              <div style={{ fontSize: "0.8rem", color: "#0d7c8a", fontWeight: 700, marginBottom: 28 }}>
+                Save ${COURSE_ORIG_USD - COURSE_PRICE_USD} · {Math.round((1 - COURSE_PRICE_USD / COURSE_ORIG_USD) * 100)}% off · one-time · no renewals
+              </div>
+              <ul style={{ listStyle: "none", padding: 0, margin: "0 0 28px", textAlign: "left", display: "inline-block" }}>
+                {[
+                  { color: "#14b8a6", text: "Basic Track — 28 days: AI-powered accounting fundamentals & workflows" },
+                  { color: "#f59e0b", text: "Advanced Track — 28 days: professional automation & client-ready systems" },
+                  { color: "white",   text: "2 completion certificates — one per track" },
+                  { color: "white",   text: "Practical AI tools applied to real accounting scenarios" },
+                  { color: "white",   text: "Lifetime access · no renewals · no hidden fees" },
+                ].map((item, i) => (
+                  <li key={i} style={{ display: "flex", alignItems: "flex-start", gap: 10, marginBottom: 10, fontSize: "0.88rem", color: "#ccc" }}>
+                    <CheckCircle2 size={15} style={{ color: item.color, flexShrink: 0, marginTop: 2 }} />
+                    {item.text}
+                  </li>
+                ))}
+              </ul>
+              {ownsAll ? (
+                <div className="plan-owned-btn" style={{ justifyContent: "center" }}>
+                  <CheckCircle2 size={16} /> You own the full course
                 </div>
-              </div>
-            )}
+              ) : (
+                <div style={{ display: "flex", flexDirection: "column", gap: 12, maxWidth: 400, margin: "0 auto" }}>
+                  <button className="bundle-buy-btn" onClick={() => handlePurchase("accounting-bundle", "stripe")} disabled={!!loading} style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 8, fontSize: "1rem", padding: "14px 20px" }}>
+                    <CreditCard size={17} />
+                    {loading === "stripe-accounting-bundle" ? "Redirecting…" : `Pay with Card · $${COURSE_PRICE_USD} USD`}
+                  </button>
+                  <button className="bundle-buy-btn" onClick={() => handlePurchase("accounting-bundle", "paymongo")} disabled={!!loading} style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 8, background: "#3b82f6", color: "white", fontSize: "1rem", padding: "14px 20px" }}>
+                    <Wallet size={17} />
+                    {loading === "paymongo-accounting-bundle" ? "Redirecting…" : `GCash / PayMaya · ${rate ? formatPhp(Math.round(COURSE_PRICE_USD * rate)) : "..."}`}
+                  </button>
+                  <div style={{ fontSize: "0.72rem", color: "#555", textAlign: "center" }}>
+                    Live rate: 1 USD = {rate ? `₱${rate.toFixed(2)}` : "..."}
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
