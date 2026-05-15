@@ -221,7 +221,7 @@ function getWhatYouLearned(day: {
   return bullets.slice(0, 3);
 }
 
-// ── Certificate captions — module-level to prevent inline JSX parse issues ────
+// ── Certificate captions — module-level constants (prevent Illegal constructor) ──
 const ACC_CERT_CAP_L1 = "🎓 I just completed the Accounting Basic track on AISprint.app — 28 days of AI-powered accounting fundamentals. Ready for Advanced! #AIAccounting #AISprint";
 const ACC_CERT_CAP_L2 = "🎓 I just completed the Accounting Advanced track on AISprint.app — 28 days of mastering AI workflows for professional accounting. #AIAccounting #AISprint";
 
