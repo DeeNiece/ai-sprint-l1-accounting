@@ -1151,9 +1151,23 @@ export default function HomePage() {
         </div>
       </footer>
 
-      <div className={`scroll-indicator ${showArrow ? "visible" : "hidden"}`} onClick={scrollToLessons} title="Scroll to lessons" role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); scrollToLessons(); } }} style={{ position: "fixed", bottom: "2rem", left: "50%", transform: "translateX(-50%)", background: cardBg, border: `1px solid ${THEME}`, borderRadius: "50%", padding: "8px", cursor: "pointer", display: "flex", alignItems: "center", gap: "4px", color: THEME, fontSize: "0.8rem" }}>
+      <div
+        className={`scroll-indicator ${showArrow ? "visible" : "hidden"}`}
+        onClick={scrollToLessons}
+        title="Scroll to lessons"
+        role="button"
+        tabIndex={0}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            scrollToLessons();
+          }
+        }}
+        style={{ borderColor: THEME, color: THEME }}
+      >
         <span>Explore Journey</span>
         <ChevronDown size={20} />
+      </div>
       </div>
     </div>
   );
