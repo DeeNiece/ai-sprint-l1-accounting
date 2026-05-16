@@ -7,6 +7,7 @@
 // Data imported from curriculum (portfolioTargets, weekOverviews, etc.)
 
 import { useState } from "react";
+import { useAuth } from "@/components/auth-provider";
 import Nav from "@/components/nav";
 import { useTheme } from "@/components/theme-provider";
 import { useLanguage } from "@/i18n";
@@ -20,15 +21,13 @@ import {
 } from "@/data/curriculum";
 import { CheckCircle2, Target } from "lucide-react";
 
-// ── Helper to count completed days for a specific level ─────────────────────
+// ── Helper to count completed days ──────────────────────────────────────────
+// Accounting uses plain integer day numbers (1-28), not L#-# format
 function getCompletedCountForLevel(
   progressData: DayProgress[],
-  level: "1" | "2"
+  _level: "1" | "2"
 ): number {
-  const prefix = `L${level}-`;
-  return progressData.filter(
-    (p) => String(p.dayNumber).startsWith(prefix) && p.completed
-  ).length;
+  return progressData.filter((p) => p.completed).length;
 }
 
 // ── Week colours (shared for both levels) ───────────────────────────────────
@@ -50,11 +49,20 @@ const LEVEL_CONFIG = {
   },
 };
 
+function hasAccess(user: any) {
+  const levels = user?.licensedLevels || [];
+  return levels.includes("bundle") || levels.includes("accounting-bundle") ||
+         levels.includes("1") || levels.includes("2");
+}
+
 export default function PortfolioPage() {
+  const { user } = useAuth();
   const { t } = useLanguage();
   const { theme } = useTheme();
   const isDark = theme === "dark";
   const [activeLevel, setActiveLevel] = useState<"1" | "2">("1");
+
+  if (user && !hasAccess(user)) return null;
 
   const levelCfg = LEVEL_CONFIG[activeLevel];
   const THEME_COLOR = levelCfg.color;
