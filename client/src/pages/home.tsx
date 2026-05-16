@@ -612,7 +612,33 @@ export default function HomePage() {
           color: ${THEME} !important;
           background: ${THEME}1a !important;
         }
-        .scroll-indicator { border-color: ${THEME} !important; color: ${THEME} !important; }
+        .scroll-indicator {
+          border-color: \${THEME} !important;
+          color: \${THEME} !important;
+          position: fixed !important;
+          bottom: 2rem !important;
+          left: 50% !important;
+          transform: translateX(-50%) !important;
+          display: flex !important;
+          align-items: center !important;
+          gap: 6px !important;
+          padding: 10px 20px !important;
+          border-radius: 100px !important;
+          border-width: 1.5px !important;
+          border-style: solid !important;
+          background: var(--bg-surface, rgba(10,10,12,0.85)) !important;
+          backdrop-filter: blur(8px) !important;
+          cursor: pointer !important;
+          font-size: 0.82rem !important;
+          font-weight: 700 !important;
+          letter-spacing: 0.04em !important;
+          text-transform: uppercase !important;
+          white-space: nowrap !important;
+          z-index: 100 !important;
+          transition: opacity 0.3s !important;
+        }
+        .scroll-indicator.hidden { opacity: 0 !important; pointer-events: none !important; }
+        .scroll-indicator.visible { opacity: 1 !important; }
         .tagline-strip { color: ${THEME} !important; }
 
         @keyframes lpPulse {
@@ -745,7 +771,33 @@ export default function HomePage() {
       <style>{`
         :root { --color-primary: ${THEME}; }
         .resume-cta { background: ${THEME} !important; box-shadow: 0 4px 20px ${THEME}55 !important; }
-        .scroll-indicator { border-color: ${THEME} !important; color: ${THEME} !important; }
+        .scroll-indicator {
+          border-color: \${THEME} !important;
+          color: \${THEME} !important;
+          position: fixed !important;
+          bottom: 2rem !important;
+          left: 50% !important;
+          transform: translateX(-50%) !important;
+          display: flex !important;
+          align-items: center !important;
+          gap: 6px !important;
+          padding: 10px 20px !important;
+          border-radius: 100px !important;
+          border-width: 1.5px !important;
+          border-style: solid !important;
+          background: var(--bg-surface, rgba(10,10,12,0.85)) !important;
+          backdrop-filter: blur(8px) !important;
+          cursor: pointer !important;
+          font-size: 0.82rem !important;
+          font-weight: 700 !important;
+          letter-spacing: 0.04em !important;
+          text-transform: uppercase !important;
+          white-space: nowrap !important;
+          z-index: 100 !important;
+          transition: opacity 0.3s !important;
+        }
+        .scroll-indicator.hidden { opacity: 0 !important; pointer-events: none !important; }
+        .scroll-indicator.visible { opacity: 1 !important; }
         .tagline-strip { color: ${THEME} !important; }
         .next-recommended { border-color: ${THEME} !important; box-shadow: 0 0 0 1px ${THEME} !important; }
         .filter-btn.active { border-color: ${THEME} !important; color: ${THEME} !important; background: ${THEME}1a !important; }
