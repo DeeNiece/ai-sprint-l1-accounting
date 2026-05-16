@@ -1,7 +1,7 @@
 // =============================================================================
 // AI Sprint — Accounting Course Curriculum
 // Mastering Accounting with AI Integrations — Basic & Advanced
-// Updated: April 2026
+// Updated: May 2026
 // =============================================================================
 
 // ── Level 1 categories
@@ -57,6 +57,26 @@ export interface PortfolioTarget {
   week: number;
   level: 1 | 2;
   desc: string;
+}
+
+export interface SystemsSummaryItem {
+  week: number;
+  title: string;
+  systems: string[];
+}
+
+export interface MetricItem {
+  metric: string;
+  why: string;
+}
+
+export interface ServiceTier {
+  tier: number;
+  name: string;
+  description: string;
+  price: string;
+  level: 1 | 2 | "both";
+  examples: string[];
 }
 
 // ─────────────────────────────────────────────
@@ -169,7 +189,7 @@ export const weekOverviewsL2: WeekOverview[] = [
   },
 ];
 
-// Backwards-compat default exports
+// Backwards-compat default
 export const weekOverviews = weekOverviewsL1;
 
 // ─────────────────────────────────────────────
@@ -545,14 +565,14 @@ export const curriculum = curriculumL1;
 // SYSTEMS SUMMARY
 // ─────────────────────────────────────────────
 
-export const systemsSummaryL1 = [
+export const systemsSummaryL1: SystemsSummaryItem[] = [
   { week:1, title:"Foundations & AI Context", systems:["AI review checklist — 5 rules for evaluating AI accounting output","Finance tech stack map — tools, AI features, and manual gaps","Financial statements plain-English summary framework","Double-entry verification habit with AI as practice partner","First prompt: AI as accounting explainer and tutor"] },
   { week:2, title:"Bookkeeping Workflow SOPs", systems:["Transaction categorisation review checklist (5 rules)","Invoice data extraction field checklist","Reconciliation prompt library (3 core rules)","Bookkeeping error spotter prompt list (5 prompts)","Data cleaning SOP (5-step, plain English)"] },
   { week:3, title:"Month-End & Controls", systems:["Month-end close checklist with AI and human review steps","AP process map with control classifications (A/B/C)","AR email template library (3 chaser tones)","Expense policy + AI compliance check prompt","Personal AI ethics and usage policy (5 rules)"] },
   { week:4, title:"Reporting & Communication", systems:["Tax research prompt framework (process + sources + flags)","Variance commentary prompt specification","Client communication template set (update, explanation, summary)","KPI calculation and narrative prompt set (5 KPIs)","Personal accountant prompt library (10+ prompts, 6 categories)"] },
 ];
 
-export const systemsSummaryL2 = [
+export const systemsSummaryL2: SystemsSummaryItem[] = [
   { week:1, title:"AI Close Design & Workflow Architecture", systems:["Finance function AI readiness assessment (one-page)","AI use case priority matrix (2x2, 8+ use cases)","Close Process Blueprint (step, time, AI action, human review)","Advanced prompt library (5 structured prompts, 5 categories)","Human-in-the-loop process design with escalation path"] },
   { week:2, title:"Anomaly Detection & Reporting", systems:["Exception-based reconciliation workflow (matching rules + KPIs)","Anomaly detection rule library (8+ rules, 5 categories)","Fraud risk screening checklist (4 areas × 3 prompts)","Variance analysis prompt template (actuals + budget + narrative)","Month-end review workflow (pre-close + analysis + sign-off)"] },
   { week:3, title:"Governance & Policy Design", systems:["AI audit readiness checklist (15+ items, 5 categories)","AI evidence pack template (input → prompt → output → sign-off)","Policy-to-IF-THEN rules framework (3 policies translated)","Tax research protocol (multi-step prompt + source verification)","AI governance model (roles, approval matrix, escalation, incident response)"] },
@@ -565,15 +585,24 @@ export const systemsSummary = systemsSummaryL1;
 // METRICS TO TRACK
 // ─────────────────────────────────────────────
 
-export const metricsToTrack = [
+export const metricsToTrackL1: MetricItem[] = [
   { metric:"Prompt Quality", why:"Track how often your first AI prompt gives usable output without heavy editing. Improving this is the fastest way to save time on recurring accounting tasks." },
   { metric:"Review Time per Task", why:"Measure how long it takes to review and correct AI output vs doing it manually. This is your personal productivity case for AI adoption." },
   { metric:"Errors Caught", why:"Track how many AI suggestions you correct or reject per session. A high rate signals your prompts or data need work." },
   { metric:"Prompt Library Size", why:"Count the reusable prompts you have built. Each one represents a recurring task you have systematised. Aim for 10 by Day 28." },
 ];
 
+export const metricsToTrackL2: MetricItem[] = [
+  { metric:"AI Output Acceptance Rate", why:"Percentage of AI suggestions accepted without modification. Tracks prompt quality and task suitability." },
+  { metric:"Process Time Reduction", why:"Compare manual process time vs AI-assisted time for the same month-end or reconciliation tasks." },
+  { metric:"Governance Adherence", why:"Number of AI-assisted tasks where the full evidence pack was completed and reviewed." },
+  { metric:"Client Adoption", why:"For advisory services: number of clients who accept AI-assisted reports or recommendations." },
+];
+
+export const metricsToTrack = metricsToTrackL1;
+
 // ─────────────────────────────────────────────
-// STARTER TOOLKIT (combined)
+// STARTER TOOLKIT
 // ─────────────────────────────────────────────
 
 export const starterToolkit: ToolkitItem[] = [
@@ -592,10 +621,10 @@ export const starterToolkit: ToolkitItem[] = [
 ];
 
 // ─────────────────────────────────────────────
-// PORTFOLIO TARGETS
+// PORTFOLIO TARGETS (split by level)
 // ─────────────────────────────────────────────
 
-export const portfolioTargets: PortfolioTarget[] = [
+export const portfolioTargetsAll: PortfolioTarget[] = [
   { title:"AI Review Checklist", week:1, level:1, desc:"5 personal rules for evaluating AI accounting output — your first professional AI governance document." },
   { title:"Finance Tech Stack Map", week:1, level:1, desc:"A visual map of your accounting tool stack with AI features marked." },
   { title:"Bookkeeping Error Spotter Prompts", week:2, level:1, desc:"5 reusable AI prompts for catching common bookkeeping errors." },
@@ -613,18 +642,13 @@ export const portfolioTargets: PortfolioTarget[] = [
   { title:"AI-Ready Accounting Operating Model", week:4, level:2, desc:"28-day capstone: an 8-section strategic document covering vision, use cases, governance, workflows, and 90-day roadmap." },
 ];
 
+export const portfolioTargetsL1 = portfolioTargetsAll.filter(p => p.level === 1);
+export const portfolioTargetsL2 = portfolioTargetsAll.filter(p => p.level === 2);
+export const portfolioTargets = portfolioTargetsL1; // Backward compatibility
+
 // ─────────────────────────────────────────────
 // SERVICE LADDER
 // ─────────────────────────────────────────────
-
-export interface ServiceTier {
-  tier: number;
-  name: string;
-  description: string;
-  price: string;
-  level: 1 | 2 | "both";
-  examples: string[];
-}
 
 export const serviceLadder: ServiceTier[] = [
 

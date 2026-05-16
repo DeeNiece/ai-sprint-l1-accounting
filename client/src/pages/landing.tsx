@@ -1,6 +1,12 @@
 // ── AI Sprint · Mastering Accounting with AI ────────────────────────────────────────────────
 // File: landing.tsx | Repo: ai-accounting
-// Last updated: May 2025
+// Last updated: May 2026
+//
+// Dark/Light mode fully supported:
+// - AuthModal and ContactSection adapt backgrounds, text, inputs, borders.
+// - Main page uses isDark and CSS variables via lp-light class.
+// =============================================================================================
+
 import { useState, useEffect, useRef } from "react";
 import logoImg from "@/ai-sprint-logo.png";
 import { useAuth } from "@/components/auth-provider";
@@ -48,7 +54,8 @@ const LEVEL_THEMES = {
   },
 };
 
-function AuthModal({ onClose, defaultMode = "register" }: { onClose: () => void; defaultMode?: "login" | "register" }) {
+// ── Auth Modal with Dark/Light Mode Support ─────────────────────────────────
+function AuthModal({ onClose, defaultMode = "register", isDark }: { onClose: () => void; defaultMode?: "login" | "register"; isDark: boolean }) {
   const { login, register } = useAuth();
   const { t } = useLanguage();
 
@@ -60,6 +67,16 @@ function AuthModal({ onClose, defaultMode = "register" }: { onClose: () => void;
   const [error, setError] = useState<string | null>(null);
   const [purchaseUrl, setPurchaseUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  // Theme-aware styles
+  const modalBg = isDark ? "#1e293b" : "#ffffff";
+  const textColor = isDark ? "#f1f5f9" : "#0f172a";
+  const textMuted = isDark ? "#94a3b8" : "#475569";
+  const inputBg = isDark ? "rgba(0,0,0,0.3)" : "#f1f5f9";
+  const inputBorder = isDark ? "1px solid rgba(255,255,255,0.1)" : "1px solid #cbd5e1";
+  const inputTextColor = isDark ? "white" : "#0f172a";
+  const borderColor = isDark ? "rgba(255,255,255,0.1)" : "#e2e8f0";
+  const overlayBg = isDark ? "rgba(0,0,0,0.8)" : "rgba(0,0,0,0.5)";
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -96,37 +113,37 @@ function AuthModal({ onClose, defaultMode = "register" }: { onClose: () => void;
   }
 
   return (
-    <div className="lp-modal-overlay" onMouseDown={handleOverlayClick}>
-      <div className="lp-modal-card">
-        <button className="lp-modal-close" onClick={onClose} aria-label="Close">
+    <div className="lp-modal-overlay" onMouseDown={handleOverlayClick} style={{ background: overlayBg }}>
+      <div className="lp-modal-card" style={{
+        background: modalBg,
+        border: `1px solid ${borderColor}`,
+        borderRadius: "16px",
+        maxWidth: "480px",
+        width: "90%",
+        margin: "auto",
+        padding: "1.5rem",
+        position: "relative",
+        boxShadow: "0 20px 35px rgba(0,0,0,0.2)",
+      }}>
+        <button className="lp-modal-close" onClick={onClose} aria-label="Close" style={{
+          position: "absolute", top: "12px", right: "12px",
+          background: "none", border: "none", cursor: "pointer", color: textMuted
+        }}>
           <X size={18} />
         </button>
 
-        <div
-          className="auth-logo"
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            gap: "0.5rem",
-            marginBottom: "1.25rem",
-          }}
-        >
-          <img src={logoImg} alt="AI Sprint" className="auth-logo-img" />
-          <div className="auth-tagline" style={{ color: "#ddd" }}>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "0.5rem", marginBottom: "1.25rem" }}>
+          <img src={logoImg} alt="AI Sprint" className="auth-logo-img" style={{ maxWidth: "120px" }} />
+          <div className="auth-tagline" style={{ color: textMuted }}>
             Master Accounting. Leverage AI. Stay Ahead.
           </div>
         </div>
 
-        {/* 
-          All text inside the modal now has explicit inline styles 
-          – no CSS classes can override these.
-        */}
-        <h1 className="auth-heading" style={{ color: "white", fontSize: "1.75rem", fontWeight: 800, marginBottom: "0.5rem", textAlign: "center" }}>
+        <h1 className="auth-heading" style={{ color: textColor, fontSize: "1.75rem", fontWeight: 800, marginBottom: "0.5rem", textAlign: "center" }}>
           {mode === "login" ? "Welcome Back to Accounting in the AI Era" : t("auth.createAccount")}
         </h1>
 
-        <p className="auth-subtext" style={{ color: "#ccc", marginBottom: "1.5rem", fontSize: "0.95rem", textAlign: "center" }}>
+        <p className="auth-subtext" style={{ color: textMuted, marginBottom: "1.5rem", fontSize: "0.95rem", textAlign: "center" }}>
           {mode === "login" ? t("auth.loginSubtext") : t("auth.signupSubtext")}
         </p>
 
@@ -145,7 +162,7 @@ function AuthModal({ onClose, defaultMode = "register" }: { onClose: () => void;
         <form onSubmit={handleSubmit} className="auth-form" style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
           {mode === "register" && (
             <div className="auth-field">
-              <label htmlFor="modal-name" style={{ color: "white", display: "flex", alignItems: "center", gap: "6px", fontSize: "0.85rem", fontWeight: 600, marginBottom: "6px" }}>
+              <label htmlFor="modal-name" style={{ color: textColor, display: "flex", alignItems: "center", gap: "6px", fontSize: "0.85rem", fontWeight: 600, marginBottom: "6px" }}>
                 <UserCircle size={14} /> {t("auth.nameLabel")}
               </label>
               <input
@@ -159,9 +176,9 @@ function AuthModal({ onClose, defaultMode = "register" }: { onClose: () => void;
                   width: "100%",
                   padding: "12px",
                   borderRadius: "8px",
-                  background: "rgba(0,0,0,0.3)",
-                  border: "1px solid rgba(255,255,255,0.1)",
-                  color: "white",
+                  background: inputBg,
+                  border: inputBorder,
+                  color: inputTextColor,
                   outline: "none",
                 }}
               />
@@ -169,7 +186,7 @@ function AuthModal({ onClose, defaultMode = "register" }: { onClose: () => void;
           )}
 
           <div className="auth-field">
-            <label htmlFor="modal-email" style={{ color: "white", display: "flex", alignItems: "center", gap: "6px", fontSize: "0.85rem", fontWeight: 600, marginBottom: "6px" }}>
+            <label htmlFor="modal-email" style={{ color: textColor, display: "flex", alignItems: "center", gap: "6px", fontSize: "0.85rem", fontWeight: 600, marginBottom: "6px" }}>
               <Mail size={14} /> {t("auth.emailLabel")}
             </label>
             <input
@@ -185,16 +202,16 @@ function AuthModal({ onClose, defaultMode = "register" }: { onClose: () => void;
                 width: "100%",
                 padding: "12px",
                 borderRadius: "8px",
-                background: "rgba(0,0,0,0.3)",
-                border: "1px solid rgba(255,255,255,0.1)",
-                color: "white",
+                background: inputBg,
+                border: inputBorder,
+                color: inputTextColor,
                 outline: "none",
               }}
             />
           </div>
 
           <div className="auth-field">
-            <label htmlFor="modal-password" style={{ color: "white", display: "flex", alignItems: "center", gap: "6px", fontSize: "0.85rem", fontWeight: 600, marginBottom: "6px" }}>
+            <label htmlFor="modal-password" style={{ color: textColor, display: "flex", alignItems: "center", gap: "6px", fontSize: "0.85rem", fontWeight: 600, marginBottom: "6px" }}>
               <Lock size={14} /> {t("auth.passwordLabel")}
             </label>
             <div className="auth-pw-wrap" style={{ position: "relative" }}>
@@ -214,9 +231,9 @@ function AuthModal({ onClose, defaultMode = "register" }: { onClose: () => void;
                   width: "100%",
                   padding: "12px",
                   borderRadius: "8px",
-                  background: "rgba(0,0,0,0.3)",
-                  border: "1px solid rgba(255,255,255,0.1)",
-                  color: "white",
+                  background: inputBg,
+                  border: inputBorder,
+                  color: inputTextColor,
                   outline: "none",
                 }}
               />
@@ -232,7 +249,7 @@ function AuthModal({ onClose, defaultMode = "register" }: { onClose: () => void;
                   transform: "translateY(-50%)",
                   background: "none",
                   border: "none",
-                  color: "#aaa",
+                  color: textMuted,
                   cursor: "pointer",
                 }}
               >
@@ -273,18 +290,18 @@ function AuthModal({ onClose, defaultMode = "register" }: { onClose: () => void;
 
           <div style={{ marginTop: "20px", textAlign: "center" }}>
             <div style={{ position: "relative", margin: "20px 0" }}>
-              <hr style={{ border: "none", borderTop: "1px solid #444" }} />
+              <hr style={{ border: "none", borderTop: `1px solid ${borderColor}` }} />
               <span
                 style={{
                   position: "absolute",
                   top: "-10px",
                   left: "50%",
                   transform: "translateX(-50%)",
-                  background: "rgba(22, 23, 30, 0.8)",
+                  background: modalBg,
                   backdropFilter: "blur(10px)",
                   padding: "0 10px",
                   fontSize: "0.75rem",
-                  color: "#ccc",
+                  color: textMuted,
                   fontWeight: 600,
                 }}
               >
@@ -318,7 +335,7 @@ function AuthModal({ onClose, defaultMode = "register" }: { onClose: () => void;
           </div>
         </form>
 
-        <div className="auth-switch" style={{ marginTop: "1.5rem", textAlign: "center", fontSize: "0.85rem", color: "#ccc" }}>
+        <div className="auth-switch" style={{ marginTop: "1.5rem", textAlign: "center", fontSize: "0.85rem", color: textMuted }}>
           {mode === "login" ? (
             <>
               <p>
@@ -336,11 +353,11 @@ function AuthModal({ onClose, defaultMode = "register" }: { onClose: () => void;
                 </button>
               </p>
 
-              <p style={{ marginTop: "0.75rem", fontSize: "0.85rem", color: "#aaa" }}>
+              <p style={{ marginTop: "0.75rem", fontSize: "0.85rem", color: textMuted }}>
                 Having trouble logging in?{" "}
                 <a
                   href="mailto:support@aisprint.app"
-                  style={{ textDecoration: "underline", textUnderlineOffset: "2px", color: "#ccc" }}
+                  style={{ textDecoration: "underline", textUnderlineOffset: "2px", color: themeColor }}
                 >
                   Contact Support
                 </a>
@@ -368,11 +385,18 @@ function AuthModal({ onClose, defaultMode = "register" }: { onClose: () => void;
   );
 }
 
-// ── Contact Support Section (unchanged, but labels made lighter) ──
-function ContactSection() {
+// ── Contact Support Section with Dark/Light Mode ────────────────────────────
+function ContactSection({ isDark }: { isDark: boolean }) {
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const labelColor = isDark ? "#ddd" : "#333";
+  const inputTextColor = isDark ? "white" : "#111";
+  const inputBg = isDark ? "rgba(0,0,0,0.3)" : "rgba(0,0,0,0.05)";
+  const inputBorder = isDark ? "1px solid rgba(255,255,255,0.1)" : "1px solid rgba(0,0,0,0.15)";
+  const formBg = isDark ? "rgba(255,255,255,0.03)" : "#ffffff";
+  const formBorder = isDark ? "1px solid rgba(255,255,255,0.08)" : "1px solid #e2e8f0";
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -488,8 +512,8 @@ function ContactSection() {
           <form
             onSubmit={handleSubmit}
             style={{
-              background: "rgba(255,255,255,0.03)",
-              border: "1px solid rgba(255,255,255,0.08)",
+              background: formBg,
+              border: formBorder,
               borderRadius: 16,
               padding: "36px 32px",
               display: "flex",
@@ -524,7 +548,7 @@ function ContactSection() {
               <label
                 htmlFor="contact-name"
                 className="lp-form-label"
-                style={{ fontSize: "0.8rem", fontWeight: 600, color: "#ddd", display: "flex", alignItems: "center", gap: 6 }}
+                style={{ fontSize: "0.8rem", fontWeight: 600, color: labelColor, display: "flex", alignItems: "center", gap: 6 }}
               >
                 <UserCircle size={13} /> Your Name
               </label>
@@ -537,9 +561,9 @@ function ContactSection() {
                 style={{
                   padding: "11px 14px",
                   borderRadius: 8,
-                  border: "1px solid rgba(255,255,255,0.1)",
-                  background: "rgba(0,0,0,0.3)",
-                  color: "white",
+                  border: inputBorder,
+                  background: inputBg,
+                  color: inputTextColor,
                   fontSize: "0.95rem",
                   outline: "none",
                   width: "100%",
@@ -552,7 +576,7 @@ function ContactSection() {
               <label
                 htmlFor="contact-email"
                 className="lp-form-label"
-                style={{ fontSize: "0.8rem", fontWeight: 600, color: "#ddd", display: "flex", alignItems: "center", gap: 6 }}
+                style={{ fontSize: "0.8rem", fontWeight: 600, color: labelColor, display: "flex", alignItems: "center", gap: 6 }}
               >
                 <Mail size={13} /> Your Email
               </label>
@@ -565,9 +589,9 @@ function ContactSection() {
                 style={{
                   padding: "11px 14px",
                   borderRadius: 8,
-                  border: "1px solid rgba(255,255,255,0.1)",
-                  background: "rgba(0,0,0,0.3)",
-                  color: "white",
+                  border: inputBorder,
+                  background: inputBg,
+                  color: inputTextColor,
                   fontSize: "0.95rem",
                   outline: "none",
                   width: "100%",
@@ -580,7 +604,7 @@ function ContactSection() {
               <label
                 htmlFor="contact-message"
                 className="lp-form-label"
-                style={{ fontSize: "0.8rem", fontWeight: 600, color: "#ddd" }}
+                style={{ fontSize: "0.8rem", fontWeight: 600, color: labelColor }}
               >
                 Message
               </label>
@@ -593,9 +617,9 @@ function ContactSection() {
                 style={{
                   padding: "11px 14px",
                   borderRadius: 8,
-                  border: "1px solid rgba(255,255,255,0.1)",
-                  background: "rgba(0,0,0,0.3)",
-                  color: "white",
+                  border: inputBorder,
+                  background: inputBg,
+                  color: inputTextColor,
                   fontSize: "0.95rem",
                   outline: "none",
                   width: "100%",
@@ -645,20 +669,19 @@ export default function LandingPage() {
   const themeData = LEVEL_THEMES[activeTab];
   const THEME = themeData.color;
 
-  // ── Cursor glow ──────────────────────────────────────────────
   const cursorRef = useRef<HTMLDivElement>(null);
 
-  // ── H1 scramble — re-fires on tab change ─────────────────────
+  // Scrambled H1
   const [scrambledH1, setScrambledH1] = useState(LEVEL_THEMES["1"].heroHeadline);
 
-  // ── Animated stat counters ────────────────────────────────────
+  // Animated stat counters
   const [s28, setS28] = useState(0);
   const [s15, setS15] = useState(0);
   const [sEnrolled, setSEnrolled] = useState(0);
   const statsRef = useRef<HTMLDivElement>(null);
   const statsFired = useRef(false);
 
-  // ── Ticker ────────────────────────────────────────────────────
+  // Ticker messages
   const TICKS: Record<"1"|"2", string[]> = {
     "1": [
       "📊 Sarah completed her month-end close checklist · Day 16",
@@ -680,13 +703,11 @@ export default function LandingPage() {
   const [tickerIdx, setTickerIdx] = useState(0);
   const [tickerVisible, setTickerVisible] = useState(true);
 
-  // ── Scroll reveal ─────────────────────────────────────────────
   const [revealCards, setRevealCards] = useState(false);
   const cardsRef = useRef<HTMLDivElement>(null);
   const [revealTestimonials, setRevealTestimonials] = useState(false);
   const testimonialsRef = useRef<HTMLDivElement>(null);
 
-  // Auto-scroll refs
   const deliverablesScrollRef = useRef<HTMLDivElement>(null);
   const sevenDayScrollRef = useRef<HTMLDivElement>(null);
   const testiScrollRef = useRef<HTMLDivElement>(null);
@@ -708,7 +729,7 @@ export default function LandingPage() {
     return () => window.removeEventListener("mousemove", move);
   }, []);
 
-  // H1 scramble — re-fires on tab change
+  // H1 scramble
   useEffect(() => {
     const target = LEVEL_THEMES[activeTab].heroHeadline;
     let frame = 0;
@@ -749,7 +770,7 @@ export default function LandingPage() {
     return () => obs.disconnect();
   }, []);
 
-  // Ticker — resets on tab change
+  // Ticker rotation
   useEffect(() => {
     setTickerIdx(0);
     const iv = setInterval(() => {
@@ -759,7 +780,7 @@ export default function LandingPage() {
     return () => clearInterval(iv);
   }, [activeTab]);
 
-  // Scroll reveal — fires once, stays visible across tab changes
+  // Scroll reveal
   useEffect(() => {
     const el = cardsRef.current;
     if (!el) return;
@@ -770,7 +791,6 @@ export default function LandingPage() {
     return () => obs.disconnect();
   }, [activeTab]);
 
-  // Testimonials reveal
   useEffect(() => {
     const el = testimonialsRef.current;
     if (!el) return;
@@ -781,7 +801,7 @@ export default function LandingPage() {
     return () => obs.disconnect();
   }, []);
 
-  // ── AUTO-SCROLL: one card at a time, smooth, works on mobile ──
+  // Auto-scroll for carousels
   useEffect(() => {
     function makeCardScroller(getEl: () => HTMLDivElement | null, intervalMs: number) {
       let timer: ReturnType<typeof setInterval> | null = null;
@@ -828,13 +848,13 @@ export default function LandingPage() {
       minHeight: "100vh",
     } as any}>
 
-      {/* Cursor glow — teal */}
+      {/* Cursor glow */}
       <div ref={cursorRef} style={{
         position: "fixed", inset: 0, pointerEvents: "none", zIndex: 0,
         background: "radial-gradient(600px at var(--cx,50%) var(--cy,50%), rgba(13,124,138,.07), transparent 70%)",
       }} />
 
-      {/* Ledger grid background — teal lines like accounting paper */}
+      {/* Ledger grid background */}
       <div style={{
         position: "fixed", inset: 0, pointerEvents: "none", zIndex: 0,
         backgroundImage: `linear-gradient(rgba(13,124,138,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(13,124,138,.03) 1px,transparent 1px)`,
@@ -1002,55 +1022,51 @@ export default function LandingPage() {
         }
       `}</style>
 
-      {showAuth && <AuthModal onClose={() => setShowAuth(false)} defaultMode={authMode} />}
+      {showAuth && <AuthModal onClose={() => setShowAuth(false)} defaultMode={authMode} isDark={isDark} />}
 
       {/* Nav */}
       <nav
-  className="lp-nav"
-  style={{
-    position: "sticky",
-    top: 0,
-    zIndex: 1000,
-    backdropFilter: "blur(12px)",
-    WebkitBackdropFilter: "blur(12px)",
-  }}
->
-  <div className="lp-nav-logo">
-    <a
-      href="https://aisprint.app"
-      style={{ display: "flex", alignItems: "center", textDecoration: "none" }}
-    >
-      <img src={logoImg} alt="AI Sprint" className="lp-nav-logo-img" />
-    </a>
-  </div>
+        className="lp-nav"
+        style={{
+          position: "sticky",
+          top: 0,
+          zIndex: 1000,
+          backdropFilter: "blur(12px)",
+          WebkitBackdropFilter: "blur(12px)",
+        }}
+      >
+        <div className="lp-nav-logo">
+          <a href="https://aisprint.app" style={{ display: "flex", alignItems: "center", textDecoration: "none" }}>
+            <img src={logoImg} alt="AI Sprint" className="lp-nav-logo-img" />
+          </a>
+        </div>
 
-  <div className="lp-nav-actions">
-    <button
-      className={`lp-theme-toggle${isDark ? "" : " light"}`}
-      onClick={() => setIsDark((d) => !d)}
-      aria-label="Toggle dark/light mode"
-      title={isDark ? "Switch to light mode" : "Switch to dark mode"}
-    >
-      <div className="lp-theme-toggle-thumb" />
-    </button>
+        <div className="lp-nav-actions">
+          <button
+            className={`lp-theme-toggle${isDark ? "" : " light"}`}
+            onClick={() => setIsDark((d) => !d)}
+            aria-label="Toggle dark/light mode"
+            title={isDark ? "Switch to light mode" : "Switch to dark mode"}
+          >
+            <div className="lp-theme-toggle-thumb" />
+          </button>
 
-    <button className="lp-btn-ghost" onClick={() => openAuth(activeTab, "login")}>
-      Log In
-    </button>
+          <button className="lp-btn-ghost" onClick={() => openAuth("login")}>
+            Log In
+          </button>
 
-    <button
-      className="lp-btn-primary"
-      style={{ background: THEME }}
-      onClick={() => openAuth(activeTab, "register")}
-    >
-      {activeTab === "2" ? "Start Level 2 Journey →" : "Start Level 1 Journey →"}
-    </button>
-  </div>
-</nav>
+          <button
+            className="lp-btn-primary"
+            style={{ background: THEME }}
+            onClick={() => openAuth("register")}
+          >
+            {activeTab === "2" ? "Start Level 2 Journey →" : "Start Level 1 Journey →"}
+          </button>
+        </div>
+      </nav>
 
-      {/* Hero */}
+      {/* Hero section – unchanged except for some inline colour fixes, already uses isDark */}
       <section className="lp-hero" style={{ position: "relative", zIndex: 1, paddingBottom: "2rem" }}>
-
         {/* Badge video */}
         <div style={{ marginBottom: "2rem", display: "flex", justifyContent: "center", padding: "0 20px" }}>
           <video autoPlay loop muted playsInline style={{
@@ -1107,7 +1123,7 @@ export default function LandingPage() {
         <p className="lp-hero-tagline" style={{ color: THEME }}>{themeData.tagline}</p>
         <p className="lp-hero-sub">{themeData.heroSub}</p>
 
-        {/* Level tab buttons — same as Architecture */}
+        {/* Level tab buttons */}
         <div style={{ display: "flex", gap: "12px", justifyContent: "center", margin: "1.5rem 0 1rem", flexWrap: "wrap" }}>
           {(["1", "2"] as const).map((lvl) => {
             const color = LEVEL_THEMES[lvl].color;
@@ -1133,7 +1149,7 @@ export default function LandingPage() {
             {themeData.cta}
           </button>
           {activeTab === "2" && (
-            <button className="lp-hero-outline" onClick={() => setActiveTab("1")}>
+            <button className="lp-hero-outline" onClick={() => setActiveTab("1")} style={{ color: isDark ? "white" : "#333", borderColor: isDark ? "rgba(255,255,255,0.3)" : "rgba(0,0,0,0.2)" }}>
               Start with Basic first
             </button>
           )}
@@ -1176,123 +1192,120 @@ export default function LandingPage() {
         <div style={{ flex:1, height:1, background:`${THEME}25` }} />
       </div>
 
-      {/* Hero visual cards — accounting/finance aesthetic */}
+      {/* Hero visual cards (unchanged) */}
       <section style={{ padding:"0 1.5rem 3.5rem", background:"transparent", position:"relative", zIndex:1 }}>
         <div style={{ maxWidth:900, margin:"0 auto", display:"flex", flexDirection:"column", alignItems:"center" }}>
           <div style={{ maxWidth:400, width:"100%" }}>
-          <div ref={deliverablesScrollRef} data-autoscroll="1" style={{ display:"flex", flexDirection:"row", overflow:"hidden", scrollbarWidth:"none" as any }}>
+            <div ref={deliverablesScrollRef} data-autoscroll="1" style={{ display:"flex", flexDirection:"row", overflow:"hidden", scrollbarWidth:"none" as any }}>
+              {/* Card 1 – Prompt Library */}
+              <div className="lp-deliverable-card c1" style={{ borderRadius:14, overflow:"hidden", borderStyle:"solid", borderWidth:"1px", display:"flex", flexDirection:"column", flex:"0 0 100%", minWidth:0 }}>
+                <svg width="100%" height="168" viewBox="0 0 220 168" aria-label="Accountant prompt library deliverable">
+                  <rect className="svg-bg" width="220" height="168"/>
+                  <text x="12" y="18" fill="#0d7c8a" fontSize="7" fontFamily="monospace" opacity=".8" letterSpacing="1">ACCOUNTANT PROMPT LIBRARY · v1.0</text>
+                  <line x1="12" y1="22" x2="208" y2="22" stroke="#0a2030" strokeWidth=".5"/>
+                  {[
+                    { y:36, label:"01 · Transaction categorisation", cat:"BOOKKEEP" },
+                    { y:54, label:"02 · Bank reconciliation review", cat:"RECONCILE" },
+                    { y:72, label:"03 · Month-end close checklist", cat:"CLOSE" },
+                    { y:90, label:"04 · Variance commentary draft", cat:"REPORT" },
+                    { y:108, label:"05 · Client communication email", cat:"COMMS" },
+                    { y:126, label:"06 · Expense policy checker", cat:"CONTROLS" },
+                  ].map((r,i) => (
+                    <g key={i}>
+                      <rect x="12" y={r.y-11} width="196" height="14" rx="2" fill={i%2===0 ? "rgba(13,124,138,.06)" : "transparent"}/>
+                      <text x="18" y={r.y} fill="#c8c6d8" fontSize="7.5" fontFamily="monospace">{r.label}</text>
+                      <rect x="158" y={r.y-10} width="46" height="12" rx="2" fill="rgba(13,124,138,.15)"/>
+                      <text x="181" y={r.y} fill="#0d7c8a" fontSize="6" fontFamily="monospace" textAnchor="middle">{r.cat}</text>
+                    </g>
+                  ))}
+                  <text x="12" y="155" fill="#0d7c8a" fontSize="6" fontFamily="monospace" opacity=".5">AI SPRINT · DAY 26</text>
+                  <circle cx="206" cy="151" r="4" fill="none" stroke="#0d7c8a" strokeWidth=".6" opacity=".5">
+                    <animate attributeName="opacity" values=".5;1;.5" dur="2s" repeatCount="indefinite"/>
+                  </circle>
+                </svg>
+                <div style={{ padding: "12px 14px 14px" }}>
+                  <div style={{ display:"inline-block", fontSize:10, fontWeight:700, letterSpacing:"1.2px", textTransform:"uppercase", padding:"2px 8px", borderRadius:99, marginBottom:8, background:"rgba(13,124,138,.15)", color:"#0d7c8a" }}>Basic · Week 4</div>
+                  <div className="lp-hero-card-title" style={{ fontSize:".82rem", fontWeight:700, marginBottom:".2rem" }}>Accountant prompt library</div>
+                  <div className="lp-hero-card-sub" style={{ fontSize:".7rem", color:"#5a587a", letterSpacing:".4px" }}>Day 26 · Your reusable system</div>
+                </div>
+              </div>
 
-            {/* Card 1 — Prompt Library */}
-            <div className="lp-deliverable-card c1" style={{ borderRadius:14, overflow:"hidden", borderStyle:"solid", borderWidth:"1px", display:"flex", flexDirection:"column", flex:"0 0 100%", minWidth:0 }}>
-              <svg width="100%" height="168" viewBox="0 0 220 168" aria-label="Accountant prompt library deliverable">
-                <rect className="svg-bg" width="220" height="168"/>
-                <text x="12" y="18" fill="#0d7c8a" fontSize="7" fontFamily="monospace" opacity=".8" letterSpacing="1">ACCOUNTANT PROMPT LIBRARY · v1.0</text>
-                <line x1="12" y1="22" x2="208" y2="22" stroke="#0a2030" strokeWidth=".5"/>
-                {[
-                  { y:36, label:"01 · Transaction categorisation", cat:"BOOKKEEP" },
-                  { y:54, label:"02 · Bank reconciliation review", cat:"RECONCILE" },
-                  { y:72, label:"03 · Month-end close checklist", cat:"CLOSE" },
-                  { y:90, label:"04 · Variance commentary draft", cat:"REPORT" },
-                  { y:108, label:"05 · Client communication email", cat:"COMMS" },
-                  { y:126, label:"06 · Expense policy checker", cat:"CONTROLS" },
-                ].map((r,i) => (
-                  <g key={i}>
-                    <rect x="12" y={r.y-11} width="196" height="14" rx="2" fill={i%2===0 ? "rgba(13,124,138,.06)" : "transparent"}/>
-                    <text x="18" y={r.y} fill="#c8c6d8" fontSize="7.5" fontFamily="monospace">{r.label}</text>
-                    <rect x="158" y={r.y-10} width="46" height="12" rx="2" fill="rgba(13,124,138,.15)"/>
-                    <text x="181" y={r.y} fill="#0d7c8a" fontSize="6" fontFamily="monospace" textAnchor="middle">{r.cat}</text>
-                  </g>
-                ))}
-                <text x="12" y="155" fill="#0d7c8a" fontSize="6" fontFamily="monospace" opacity=".5">AI SPRINT · DAY 26</text>
-                <circle cx="206" cy="151" r="4" fill="none" stroke="#0d7c8a" strokeWidth=".6" opacity=".5">
-                  <animate attributeName="opacity" values=".5;1;.5" dur="2s" repeatCount="indefinite"/>
-                </circle>
-              </svg>
-              <div style={{ padding: "12px 14px 14px" }}>
-                <div style={{ display:"inline-block", fontSize:10, fontWeight:700, letterSpacing:"1.2px", textTransform:"uppercase", padding:"2px 8px", borderRadius:99, marginBottom:8, background:"rgba(13,124,138,.15)", color:"#0d7c8a" }}>Basic · Week 4</div>
-                <div className="lp-hero-card-title" style={{ fontSize:".82rem", fontWeight:700, marginBottom:".2rem" }}>Accountant prompt library</div>
-                <div className="lp-hero-card-sub" style={{ fontSize:".7rem", color:"#5a587a", letterSpacing:".4px" }}>Day 26 · Your reusable system</div>
+              {/* Card 2 – Bank Reconciliation */}
+              <div className="lp-deliverable-card c2" style={{ borderRadius:14, overflow:"hidden", borderStyle:"solid", borderWidth:"1px", display:"flex", flexDirection:"column", flex:"0 0 100%", minWidth:0 }}>
+                <svg width="100%" height="168" viewBox="0 0 220 168" aria-label="Bank reconciliation workflow">
+                  <rect className="svg-bg" width="220" height="168"/>
+                  <text x="110" y="16" textAnchor="middle" fill="#0d7c8a" fontSize="7" fontFamily="monospace" opacity=".7" letterSpacing="1">BANK RECONCILIATION · WORKFLOW</text>
+                  <line x1="12" y1="20" x2="208" y2="20" stroke="#0a2030" strokeWidth=".5"/>
+                  <rect x="12" y="26" width="196" height="12" rx="2" fill="rgba(13,124,138,.12)"/>
+                  <text x="18" y="35" fill="#0d7c8a" fontSize="6.5" fontFamily="monospace" opacity=".8">DATE</text>
+                  <text x="65" y="35" fill="#0d7c8a" fontSize="6.5" fontFamily="monospace" opacity=".8">DESCRIPTION</text>
+                  <text x="162" y="35" fill="#0d7c8a" fontSize="6.5" fontFamily="monospace" opacity=".8">AMOUNT</text>
+                  <text x="196" y="35" fill="#0d7c8a" fontSize="6.5" fontFamily="monospace" opacity=".8">✓</text>
+                  {[
+                    { date:"01 May", desc:"Client payment", amt:"$4,200", match:true },
+                    { date:"03 May", desc:"Office supplies", amt:"-$148", match:true },
+                    { date:"05 May", desc:"Unknown debit", amt:"-$320", match:false },
+                    { date:"08 May", desc:"Software sub.", amt:"-$89", match:true },
+                    { date:"12 May", desc:"Invoice #1042", amt:"$2,800", match:true },
+                  ].map((r,i) => (
+                    <g key={i}>
+                      <rect x="12" y={42+i*16} width="196" height="14" rx="1" fill={!r.match ? "rgba(239,68,68,.08)" : "transparent"}/>
+                      <text x="18" y={52+i*16} fill={r.match ? "#c8c6d8" : "#f87171"} fontSize="6.5" fontFamily="monospace">{r.date}</text>
+                      <text x="65" y={52+i*16} fill={r.match ? "#c8c6d8" : "#f87171"} fontSize="6.5" fontFamily="monospace">{r.desc}</text>
+                      <text x="162" y={52+i*16} fill={r.match ? "#c8c6d8" : "#f87171"} fontSize="6.5" fontFamily="monospace">{r.amt}</text>
+                      <text x="196" y={52+i*16} fill={r.match ? "#10b981" : "#ef4444"} fontSize="9" fontFamily="monospace">{r.match ? "✓" : "?"}</text>
+                    </g>
+                  ))}
+                  <line x1="12" y1="124" x2="208" y2="124" stroke="#0a2030" strokeWidth=".5"/>
+                  <rect x="12" y="128" width="196" height="16" rx="3" fill="rgba(13,124,138,.06)" stroke="rgba(13,124,138,.2)" strokeWidth=".4"/>
+                  <text x="18" y="139" fill="#0d7c8a" fontSize="6.5" fontFamily="monospace">AI flagged 1 anomaly · $320 unmatched · review required</text>
+                  <text x="12" y="160" fill="#0d7c8a" fontSize="6" fontFamily="monospace" opacity=".5">AI SPRINT · DAY 10</text>
+                </svg>
+                <div style={{ padding: "12px 14px 14px" }}>
+                  <div style={{ display:"inline-block", fontSize:10, fontWeight:700, letterSpacing:"1.2px", textTransform:"uppercase", padding:"2px 8px", borderRadius:99, marginBottom:8, background:"rgba(13,124,138,.15)", color:"#0d7c8a" }}>Basic · Week 2</div>
+                  <div className="lp-hero-card-title" style={{ fontSize:".82rem", fontWeight:700, marginBottom:".2rem" }}>Bank reconciliation</div>
+                  <div className="lp-hero-card-sub" style={{ fontSize:".7rem", color:"#5a587a", letterSpacing:".4px" }}>Day 10 · AI anomaly detection</div>
+                </div>
+              </div>
+
+              {/* Card 3 – Month-End Close Checklist */}
+              <div className="lp-deliverable-card c3" style={{ borderRadius:14, overflow:"hidden", borderStyle:"solid", borderWidth:"1px", display:"flex", flexDirection:"column", flex:"0 0 100%", minWidth:0 }}>
+                <svg width="100%" height="168" viewBox="0 0 220 168" aria-label="Month-end close checklist">
+                  <rect className="svg-bg" width="220" height="168"/>
+                  <text x="12" y="18" fill="#e8820c" fontSize="7" fontFamily="monospace" opacity=".8" letterSpacing="1">MONTH-END CLOSE · MAY 2026</text>
+                  <line x1="12" y1="22" x2="208" y2="22" stroke="#2a1200" strokeWidth=".5"/>
+                  {[
+                    { item:"Review all transactions", done:true },
+                    { item:"Bank reconciliation", done:true },
+                    { item:"Accruals & prepayments", done:true },
+                    { item:"Variance analysis", done:true },
+                    { item:"Management commentary", done:false },
+                    { item:"CFO sign-off", done:false },
+                  ].map((r,i) => (
+                    <g key={i}>
+                      <rect x="12" y={30+i*18} width="196" height="16" rx="3" fill={r.done ? "rgba(16,185,129,.06)" : "rgba(255,255,255,.02)"} stroke={r.done ? "rgba(16,185,129,.15)" : "rgba(255,255,255,.04)"} strokeWidth=".4"/>
+                      <rect x="18" y={33+i*18} width="10" height="10" rx="2" fill={r.done ? "#10b981" : "transparent"} stroke={r.done ? "#10b981" : "#555"} strokeWidth=".8"/>
+                      {r.done && <text x="23" y={42+i*18} textAnchor="middle" fill="white" fontSize="7">✓</text>}
+                      <text x="36" y={42+i*18} fill={r.done ? "#c8c6d8" : "#888"} fontSize="7.5" fontFamily="monospace" opacity={r.done ? 1 : .7}>{r.item}</text>
+                      {r.done && <text x="198" y={42+i*18} fill="#10b981" fontSize="6" fontFamily="monospace" textAnchor="end">DONE</text>}
+                    </g>
+                  ))}
+                  <rect x="12" y="142" width="196" height="14" rx="3" fill="rgba(232,130,12,.08)" stroke="rgba(232,130,12,.2)" strokeWidth=".5"/>
+                  <text x="18" y="152" fill="#e8820c" fontSize="6.5" fontFamily="monospace">4/6 complete · Est. close: 3hrs remaining</text>
+                  <text x="12" y="162" fill="#e8820c" fontSize="6" fontFamily="monospace" opacity=".5">AI SPRINT · DAY 16</text>
+                </svg>
+                <div style={{ padding: "12px 14px 14px" }}>
+                  <div style={{ display:"inline-block", fontSize:10, fontWeight:700, letterSpacing:"1.2px", textTransform:"uppercase", padding:"2px 8px", borderRadius:99, marginBottom:8, background:"rgba(232,130,12,.15)", color:"#e8820c" }}>Advanced · Week 1</div>
+                  <div className="lp-hero-card-title" style={{ fontSize:".82rem", fontWeight:700, marginBottom:".2rem" }}>Month-end close checklist</div>
+                  <div className="lp-hero-card-sub" style={{ fontSize:".7rem", color:"#5a587a", letterSpacing:".4px" }}>Day 16 · AI-assisted close</div>
+                </div>
               </div>
             </div>
-
-            {/* Card 2 — Bank Reconciliation */}
-            <div className="lp-deliverable-card c2" style={{ borderRadius:14, overflow:"hidden", borderStyle:"solid", borderWidth:"1px", display:"flex", flexDirection:"column", flex:"0 0 100%", minWidth:0 }}>
-              <svg width="100%" height="168" viewBox="0 0 220 168" aria-label="Bank reconciliation workflow">
-                <rect className="svg-bg" width="220" height="168"/>
-                <text x="110" y="16" textAnchor="middle" fill="#0d7c8a" fontSize="7" fontFamily="monospace" opacity=".7" letterSpacing="1">BANK RECONCILIATION · WORKFLOW</text>
-                <line x1="12" y1="20" x2="208" y2="20" stroke="#0a2030" strokeWidth=".5"/>
-                {/* Ledger rows */}
-                <rect x="12" y="26" width="196" height="12" rx="2" fill="rgba(13,124,138,.12)"/>
-                <text x="18" y="35" fill="#0d7c8a" fontSize="6.5" fontFamily="monospace" opacity=".8">DATE</text>
-                <text x="65" y="35" fill="#0d7c8a" fontSize="6.5" fontFamily="monospace" opacity=".8">DESCRIPTION</text>
-                <text x="162" y="35" fill="#0d7c8a" fontSize="6.5" fontFamily="monospace" opacity=".8">AMOUNT</text>
-                <text x="196" y="35" fill="#0d7c8a" fontSize="6.5" fontFamily="monospace" opacity=".8">✓</text>
-                {[
-                  { date:"01 May", desc:"Client payment", amt:"$4,200", match:true },
-                  { date:"03 May", desc:"Office supplies", amt:"-$148", match:true },
-                  { date:"05 May", desc:"Unknown debit", amt:"-$320", match:false },
-                  { date:"08 May", desc:"Software sub.", amt:"-$89", match:true },
-                  { date:"12 May", desc:"Invoice #1042", amt:"$2,800", match:true },
-                ].map((r,i) => (
-                  <g key={i}>
-                    <rect x="12" y={42+i*16} width="196" height="14" rx="1" fill={!r.match ? "rgba(239,68,68,.08)" : "transparent"}/>
-                    <text x="18" y={52+i*16} fill={r.match ? "#c8c6d8" : "#f87171"} fontSize="6.5" fontFamily="monospace">{r.date}</text>
-                    <text x="65" y={52+i*16} fill={r.match ? "#c8c6d8" : "#f87171"} fontSize="6.5" fontFamily="monospace">{r.desc}</text>
-                    <text x="162" y={52+i*16} fill={r.match ? "#c8c6d8" : "#f87171"} fontSize="6.5" fontFamily="monospace">{r.amt}</text>
-                    <text x="196" y={52+i*16} fill={r.match ? "#10b981" : "#ef4444"} fontSize="9" fontFamily="monospace">{r.match ? "✓" : "?"}</text>
-                  </g>
-                ))}
-                <line x1="12" y1="124" x2="208" y2="124" stroke="#0a2030" strokeWidth=".5"/>
-                <rect x="12" y="128" width="196" height="16" rx="3" fill="rgba(13,124,138,.06)" stroke="rgba(13,124,138,.2)" strokeWidth=".4"/>
-                <text x="18" y="139" fill="#0d7c8a" fontSize="6.5" fontFamily="monospace">AI flagged 1 anomaly · $320 unmatched · review required</text>
-                <text x="12" y="160" fill="#0d7c8a" fontSize="6" fontFamily="monospace" opacity=".5">AI SPRINT · DAY 10</text>
-              </svg>
-              <div style={{ padding: "12px 14px 14px" }}>
-                <div style={{ display:"inline-block", fontSize:10, fontWeight:700, letterSpacing:"1.2px", textTransform:"uppercase", padding:"2px 8px", borderRadius:99, marginBottom:8, background:"rgba(13,124,138,.15)", color:"#0d7c8a" }}>Basic · Week 2</div>
-                <div className="lp-hero-card-title" style={{ fontSize:".82rem", fontWeight:700, marginBottom:".2rem" }}>Bank reconciliation</div>
-                <div className="lp-hero-card-sub" style={{ fontSize:".7rem", color:"#5a587a", letterSpacing:".4px" }}>Day 10 · AI anomaly detection</div>
-              </div>
-            </div>
-
-            {/* Card 3 — Month-End Close Checklist */}
-            <div className="lp-deliverable-card c3" style={{ borderRadius:14, overflow:"hidden", borderStyle:"solid", borderWidth:"1px", display:"flex", flexDirection:"column", flex:"0 0 100%", minWidth:0 }}>
-              <svg width="100%" height="168" viewBox="0 0 220 168" aria-label="Month-end close checklist">
-                <rect className="svg-bg" width="220" height="168"/>
-                <text x="12" y="18" fill="#e8820c" fontSize="7" fontFamily="monospace" opacity=".8" letterSpacing="1">MONTH-END CLOSE · MAY 2026</text>
-                <line x1="12" y1="22" x2="208" y2="22" stroke="#2a1200" strokeWidth=".5"/>
-                {[
-                  { item:"Review all transactions", done:true },
-                  { item:"Bank reconciliation", done:true },
-                  { item:"Accruals & prepayments", done:true },
-                  { item:"Variance analysis", done:true },
-                  { item:"Management commentary", done:false },
-                  { item:"CFO sign-off", done:false },
-                ].map((r,i) => (
-                  <g key={i}>
-                    <rect x="12" y={30+i*18} width="196" height="16" rx="3" fill={r.done ? "rgba(16,185,129,.06)" : "rgba(255,255,255,.02)"} stroke={r.done ? "rgba(16,185,129,.15)" : "rgba(255,255,255,.04)"} strokeWidth=".4"/>
-                    <rect x="18" y={33+i*18} width="10" height="10" rx="2" fill={r.done ? "#10b981" : "transparent"} stroke={r.done ? "#10b981" : "#555"} strokeWidth=".8"/>
-                    {r.done && <text x="23" y={42+i*18} textAnchor="middle" fill="white" fontSize="7">✓</text>}
-                    <text x="36" y={42+i*18} fill={r.done ? "#c8c6d8" : "#888"} fontSize="7.5" fontFamily="monospace" opacity={r.done ? 1 : .7}>{r.item}</text>
-                    {r.done && <text x="198" y={42+i*18} fill="#10b981" fontSize="6" fontFamily="monospace" textAnchor="end">DONE</text>}
-                  </g>
-                ))}
-                <rect x="12" y="142" width="196" height="14" rx="3" fill="rgba(232,130,12,.08)" stroke="rgba(232,130,12,.2)" strokeWidth=".5"/>
-                <text x="18" y="152" fill="#e8820c" fontSize="6.5" fontFamily="monospace">4/6 complete · Est. close: 3hrs remaining</text>
-                <text x="12" y="162" fill="#e8820c" fontSize="6" fontFamily="monospace" opacity=".5">AI SPRINT · DAY 16</text>
-              </svg>
-              <div style={{ padding: "12px 14px 14px" }}>
-                <div style={{ display:"inline-block", fontSize:10, fontWeight:700, letterSpacing:"1.2px", textTransform:"uppercase", padding:"2px 8px", borderRadius:99, marginBottom:8, background:"rgba(232,130,12,.15)", color:"#e8820c" }}>Advanced · Week 1</div>
-                <div className="lp-hero-card-title" style={{ fontSize:".82rem", fontWeight:700, marginBottom:".2rem" }}>Month-end close checklist</div>
-                <div className="lp-hero-card-sub" style={{ fontSize:".7rem", color:"#5a587a", letterSpacing:".4px" }}>Day 16 · AI-assisted close</div>
-              </div>
-            </div>
-
-          </div>{/* end scroll */}
-          </div>{/* end maxWidth 400 */}
-        </div>{/* end maxWidth 900 */}
-        <p className="lp-swipe-hint" style={{ textAlign:"center", fontSize:".65rem", color:"#555", letterSpacing:"1.5px", textTransform:"uppercase", marginTop:".8rem" }}>
-          Sample deliverables — built by accountants in 15 minutes/day
-        </p>
+          </div>
+          <p className="lp-swipe-hint" style={{ textAlign:"center", fontSize:".65rem", color:"#555", letterSpacing:"1.5px", textTransform:"uppercase", marginTop:".8rem" }}>
+            Sample deliverables — built by accountants in 15 minutes/day
+          </p>
+        </div>
       </section>
 
       {/* What's included */}
@@ -1459,9 +1472,9 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <ContactSection />
+      <ContactSection isDark={isDark} />
 
-      {/* ── HUMANIZING IMAGE SECTION ── */}
+      {/* Humanising section */}
       <section className="lp-human-section" style={{ padding:"60px 20px", background:"#0d0d14", position:"relative", zIndex:1 }}>
         <div style={{ maxWidth:"820px", margin:"0 auto", display:"flex", flexDirection:"row", alignItems:"center", gap:"3rem", flexWrap:"wrap" }}>
           <div style={{ flex:"0 0 260px", maxWidth:"100%" }}>
