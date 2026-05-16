@@ -7,25 +7,48 @@
 // Displays systems summaries, metrics, and portfolio targets per level.
 
 import { useState } from "react";
+import { useAuth } from "@/components/auth-provider";
 import Nav from "@/components/nav";
 import { useTheme } from "@/components/theme-provider";
 import {
   systemsSummaryL1,
   systemsSummaryL2,
-  metricsToTrack,
-  portfolioTargets,
+  metricsToTrackL1,
+  metricsToTrackL2,
+  portfolioTargetsL1,
+  portfolioTargetsL2,
 } from "@/data/curriculum";
 import { Layers, BarChart2, CheckCircle2, Settings } from "lucide-react";
 
 const L1_COLOR = "#0d7c8a";
 const L2_COLOR = "#e8820c";
 
+function hasAccess(user: any) {
+  const levels = user?.licensedLevels || [];
+  return levels.includes("bundle") || levels.includes("accounting-bundle") ||
+         levels.includes("1") || levels.includes("2");
+}
+
 export default function SystemsPage() {
+  const { user } = useAuth();
   const { theme } = useTheme();
   const isDark = theme === "dark";
   const [activeLevel, setActiveLevel] = useState<"1" | "2">("1");
 
-  const systemsSummary = activeLevel === "1" ? systemsSummaryL1 : systemsSummaryL2;
+  if (user && !hasAccess(user)) return null;
+
+  const systemsSummary   = activeLevel === "1" ? systemsSummaryL1  : systemsSummaryL2;
+  const metricsToTrack   = activeLevel === "1" ? metricsToTrackL1  : metricsToTrackL2;
+  const portfolioTargets = activeLevel === "1" ? portfolioTargetsL1 : portfolioTargetsL2;
+
+  const PAGE_H1       = activeLevel === "1" ? "Foundational Systems"       : "Advanced Workflows";
+  const PAGE_DESC     = activeLevel === "1"
+    ? "The essential AI-powered workflows and SOPs mastered in the Basic track."
+    : "The complex multi-step automations, client-facing SOPs, and advanced AI integrations built in the Advanced track.";
+  const METRICS_LABEL = activeLevel === "1" ? "Key Performance Indicators" : "Efficiency Metrics";
+  const METRICS_DESC  = activeLevel === "1"
+    ? null
+    : "KPIs that measure the optimization of your advanced AI accounting services.";
   const THEME = activeLevel === "1" ? L1_COLOR : L2_COLOR;
   const THEME_ALPHA = activeLevel === "1" ? "rgba(13,124,138,0.06)" : "rgba(232,130,12,0.06)";
   const THEME_BORDER = activeLevel === "1" ? "rgba(13,124,138,0.15)" : "rgba(232,130,12,0.15)";
@@ -61,10 +84,10 @@ export default function SystemsPage() {
             Level {activeLevel} {activeLevel === "1" ? "Basic" : "Advanced"}
           </span>
           <h1 className="inner-page-title" style={{ fontSize: "2.5rem", marginTop: "1rem", color: textPrimary }}>
-            Foundational Systems
+            {PAGE_H1}
           </h1>
           <p className="inner-page-desc" style={{ maxWidth: "600px", margin: "1rem auto 0", color: textMuted }}>
-            The essential AI-powered workflows and standard operating procedures (SOPs) mastered in the {activeLevel === "1" ? "Basic" : "Advanced"} track.
+            {PAGE_DESC}
           </p>
 
           {/* Level switcher */}
@@ -170,8 +193,11 @@ export default function SystemsPage() {
                 marginBottom: "0.5rem",
               }}
             >
-              <BarChart2 size={20} /> Key Performance Indicators
+              <BarChart2 size={20} /> {METRICS_LABEL}
             </h2>
+            {METRICS_DESC && (
+              <p style={{ color: textMuted, fontSize: "0.9rem", marginBottom: "0.5rem" }}>{METRICS_DESC}</p>
+            )}
             <div
               className="metrics-grid"
               style={{
@@ -234,7 +260,7 @@ export default function SystemsPage() {
             }}
           >
             {portfolioTargets
-              .filter((p) => p.level === parseInt(activeLevel))
+              
               .map((p, i) => (
                 <div
                   key={i}
