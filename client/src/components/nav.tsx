@@ -4,7 +4,7 @@
 //
 // Navigation bar with:
 //   - Dark/light mode support (useTheme)
-//   - Level switcher (Basic / Advanced)
+//   - Level switcher (Basic / Advanced) – switches localStorage and navigates to "/"
 //   - User menu with rank, progress, and plan info
 //   - Mobile drawer menu
 //   - Live activity ticker
