@@ -5,7 +5,7 @@
 // Dark/Light mode fully supported:
 // - AuthModal and ContactSection adapt backgrounds, text, inputs, borders.
 // - Main page uses isDark and CSS variables via lp-light class.
-// =============================================================================================
+// - Fixed AuthModal login/register to prevent blank screens and handle errors gracefully.
 
 import { useState, useEffect, useRef } from "react";
 import logoImg from "@/ai-sprint-logo.png";
@@ -54,7 +54,7 @@ const LEVEL_THEMES = {
   },
 };
 
-// ── Auth Modal with Dark/Light Mode Support ─────────────────────────────────
+// ── Auth Modal with Dark/Light Mode Support (Fixed) ─────────────────────────
 function AuthModal({ onClose, defaultMode = "register", isDark }: { onClose: () => void; defaultMode?: "login" | "register"; isDark: boolean }) {
   const { login, register } = useAuth();
   const { t } = useLanguage();
@@ -81,31 +81,40 @@ function AuthModal({ onClose, defaultMode = "register", isDark }: { onClose: () 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
+    setPurchaseUrl(null);
     setLoading(true);
 
-    let err: string | null = null;
+    try {
+      let result = null;
+      if (mode === "login") {
+        result = await login(email, password);
+      } else {
+        if (!displayName.trim()) {
+          setError(t("auth.nameRequired"));
+          setLoading(false);
+          return;
+        }
+        result = await register(email, password, displayName);
+      }
 
-    if (mode === "login") {
-      const res = await login(email, password);
-      if (res) {
-        err = res.message || String(res);
-        if ("purchaseUrl" in res && res.purchaseUrl) setPurchaseUrl(res.purchaseUrl);
-      } else { onClose(); return; }
-    } else {
-      if (!displayName.trim()) {
-        setError(t("auth.nameRequired"));
+      // Success: result is null or false? In many implementations, success returns null/undefined.
+      // If result contains an error property, treat as error.
+      if (result && typeof result === "object" && "message" in result) {
+        setError(result.message || String(result));
+        if ("purchaseUrl" in result && result.purchaseUrl) {
+          setPurchaseUrl(result.purchaseUrl);
+        }
         setLoading(false);
         return;
       }
-      const res = await register(email, password, displayName);
-      if (res) {
-        err = res.message || String(res);
-        if ("purchaseUrl" in res && res.purchaseUrl) setPurchaseUrl(res.purchaseUrl);
-      } else { onClose(); return; }
-    }
 
-    if (err) setError(err);
-    setLoading(false);
+      // No error -> success, close modal
+      onClose();
+    } catch (err: any) {
+      console.error("Auth error:", err);
+      setError(err.message || "An unexpected error occurred. Please try again.");
+      setLoading(false);
+    }
   }
 
   function handleOverlayClick(e: React.MouseEvent<HTMLDivElement>) {
@@ -357,7 +366,7 @@ function AuthModal({ onClose, defaultMode = "register", isDark }: { onClose: () 
                 Having trouble logging in?{" "}
                 <a
                   href="mailto:support@aisprint.app"
-                  style={{ textDecoration: "underline", textUnderlineOffset: "2px", color: themeColor }}
+                  style={{ textDecoration: "underline", textUnderlineOffset: "2px", color: THEME_COLOR }}
                 >
                   Contact Support
                 </a>
