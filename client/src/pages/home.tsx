@@ -38,6 +38,13 @@ import {
   Award,
   Download,
   Share2,
+  X,
+  AlertCircle,
+  UserCircle,
+  Mail,
+  Eye,
+  EyeOff,
+  ArrowRight,
 } from "lucide-react";
 import type { DayProgress } from "@shared/schema";
 import { useLanguage } from "@/i18n";
@@ -615,8 +622,6 @@ export default function HomePage() {
         .scroll-indicator { border-color: ${THEME} !important; color: ${THEME} !important; }
         .tagline-strip { color: ${THEME} !important; }
 
-
-
         .week-section { overflow: visible !important; }
         .main-content { overflow: visible !important; }
 
@@ -1176,7 +1181,6 @@ export default function HomePage() {
       >
         <span>Explore Journey</span>
         <ChevronDown size={20} />
-      </div>
       </div>
     </div>
   );
