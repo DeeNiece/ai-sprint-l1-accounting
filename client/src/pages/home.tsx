@@ -1120,32 +1120,32 @@ export default function HomePage() {
         </div>
       </section>
 
-      <footer className="footer footer-rich" style={{ background: cardBg, borderTop: `1px solid ${cardBorder}`, padding: "2rem 1rem" }}>
-        <div className="footer-inner" style={{ maxWidth: "1200px", margin: "0 auto", display: "flex", flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: "2rem" }}>
+      <footer className="footer footer-rich">
+        <div className="footer-inner">
           <div className="footer-brand">
-            <div className="footer-brand-row" style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-              <img src={aiSprintLogo} alt="AI Sprint logo" className="footer-logo-img" style={{ height: "40px" }} />
+            <div className="footer-brand-row">
+              <img src={aiSprintLogo} alt="AI Sprint logo" className="footer-logo-img" />
               <div className="footer-brand-text">
-                <p className="footer-title" style={{ fontWeight: 700, color: textPrimary }}>{t("home.footerTitle")}</p>
-                <p className="footer-sub" style={{ color: textMuted }}>{t("home.footerDesc")}</p>
+                <p className="footer-title">{t("home.footerTitle")}</p>
+                <p className="footer-sub">{t("home.footerDesc")}</p>
               </div>
             </div>
           </div>
-          <div className="footer-columns" style={{ display: "flex", gap: "3rem", flexWrap: "wrap", textAlign: "left" }}>
+          <div className="footer-columns">
             <div className="footer-column">
-              <p className="footer-group-title" style={{ fontWeight: 700, color: textPrimary, textAlign: "left", marginBottom: "0.5rem" }}>Support</p>
-              <div className="footer-links" style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-                <Link href="/faq" className="footer-link" style={{ color: textMuted, textDecoration: "none" }}>Help & FAQ</Link>
-                <Link href="/pricing" className="footer-link" style={{ color: textMuted, textDecoration: "none" }}>Pricing</Link>
+              <p className="footer-group-title">Support</p>
+              <div className="footer-links">
+                <Link href="/faq" className="footer-link">Help &amp; FAQ</Link>
+                <Link href="/pricing" className="footer-link">Pricing</Link>
               </div>
             </div>
             <div className="footer-column">
-              <p className="footer-group-title" style={{ fontWeight: 700, color: textPrimary, textAlign: "left", marginBottom: "0.5rem" }}>Legal</p>
-              <div className="footer-links" style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-                <Link href="/privacy" className="footer-link" style={{ color: textMuted, textDecoration: "none" }}>Privacy Policy</Link>
-                <Link href="/terms" className="footer-link" style={{ color: textMuted, textDecoration: "none" }}>Terms of Service</Link>
-                <Link href="/cookies" className="footer-link" style={{ color: textMuted, textDecoration: "none" }}>Cookie Settings</Link>
-                <Link href="/accessibility" className="footer-link" style={{ color: textMuted, textDecoration: "none" }}>Accessibility</Link>
+              <p className="footer-group-title">Legal</p>
+              <div className="footer-links">
+                <Link href="/privacy" className="footer-link">Privacy Policy</Link>
+                <Link href="/terms" className="footer-link">Terms of Service</Link>
+                <Link href="/cookies" className="footer-link">Cookie Settings</Link>
+                <Link href="/accessibility" className="footer-link">Accessibility</Link>
               </div>
             </div>
           </div>
