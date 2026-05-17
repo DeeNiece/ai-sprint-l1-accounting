@@ -3,6 +3,7 @@
 // Last updated: May 2026
 //
 // PRICING UPDATE: Single $59 price — hasAccess() replaces hasBasic/hasAdvanced/hasAnyLevel
+// Added routes for Privacy, Terms, Cookies, Accessibility
 
 import { useEffect } from "react";
 import { Router, Switch, Route, Redirect } from "wouter";
@@ -13,7 +14,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { ThemeProvider } from "@/components/theme-provider";
 import { AuthProvider, useAuth } from "@/components/auth-provider";
 import { LanguageProvider } from "@/i18n";
-import { ScrollToTop } from "@/components/ScrollToTop"; // ✨ ADDED - Import the scroll component
+import { ScrollToTop } from "@/components/ScrollToTop";
 
 import AuthPage from "@/pages/auth";
 import HomePage from "@/pages/home";
@@ -28,6 +29,49 @@ import Pricing from "@/pages/pricing";
 import PasswordPage from "@/pages/password-page";
 import AdminPage from "@/pages/admin";
 import ServicesPage from "@/pages/services";
+
+// Simple static page components (you can later replace with real pages)
+function PrivacyPolicy() {
+  return (
+    <div style={{ maxWidth: "800px", margin: "2rem auto", padding: "1rem", color: "#fff" }}>
+      <h1>Privacy Policy</h1>
+      <p>Last updated: May 2026</p>
+      <p>Your privacy is important to us. This policy explains how we collect, use, and protect your information.</p>
+      <a href="/" style={{ color: "#0d7c8a" }}>← Back to Home</a>
+    </div>
+  );
+}
+
+function TermsOfService() {
+  return (
+    <div style={{ maxWidth: "800px", margin: "2rem auto", padding: "1rem", color: "#fff" }}>
+      <h1>Terms of Service</h1>
+      <p>Last updated: May 2026</p>
+      <p>By using AI Sprint, you agree to these terms. Please read them carefully.</p>
+      <a href="/" style={{ color: "#0d7c8a" }}>← Back to Home</a>
+    </div>
+  );
+}
+
+function CookieSettings() {
+  return (
+    <div style={{ maxWidth: "800px", margin: "2rem auto", padding: "1rem", color: "#fff" }}>
+      <h1>Cookie Settings</h1>
+      <p>We use cookies to enhance your experience. You can control your preferences here.</p>
+      <a href="/" style={{ color: "#0d7c8a" }}>← Back to Home</a>
+    </div>
+  );
+}
+
+function Accessibility() {
+  return (
+    <div style={{ maxWidth: "800px", margin: "2rem auto", padding: "1rem", color: "#fff" }}>
+      <h1>Accessibility</h1>
+      <p>AI Sprint is committed to making our platform usable by everyone, including people with disabilities.</p>
+      <a href="/" style={{ color: "#0d7c8a" }}>← Back to Home</a>
+    </div>
+  );
+}
 
 // Single $59 price grants both tracks via "accounting-bundle"
 function hasAccess(user: any) {
@@ -56,11 +100,18 @@ function AppRoutes() {
   return (
     <LanguageProvider isLoggedIn={!!user}>
       <Router hook={useHashLocation}>
-        <ScrollToTop /> {/* ✨ ADDED - This ensures scroll to top on every route change */}
+        <ScrollToTop />
         <Switch>
           <Route path="/auth" component={AuthPage} />
           <Route path="/faq" component={FAQPage} />
           <Route path="/pricing" component={Pricing} />
+          
+          {/* New footer routes */}
+          <Route path="/privacy" component={PrivacyPolicy} />
+          <Route path="/terms" component={TermsOfService} />
+          <Route path="/cookies" component={CookieSettings} />
+          <Route path="/accessibility" component={Accessibility} />
+
           <Route path="/">
             {!user ? <LandingPage /> : hasAccess(user) ? <HomePage /> : <Redirect to="/pricing" />}
           </Route>
