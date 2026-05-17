@@ -612,33 +612,7 @@ export default function HomePage() {
           color: ${THEME} !important;
           background: ${THEME}1a !important;
         }
-        .scroll-indicator {
-          border-color: ${THEME} !important;
-          color: ${THEME} !important;
-          position: fixed !important;
-          bottom: 2rem !important;
-          left: 50% !important;
-          transform: translateX(-50%) !important;
-          display: flex !important;
-          align-items: center !important;
-          gap: 6px !important;
-          padding: 10px 20px !important;
-          border-radius: 100px !important;
-          border-width: 1.5px !important;
-          border-style: solid !important;
-          background: var(--bg-surface, rgba(10,10,12,0.85)) !important;
-          backdrop-filter: blur(8px) !important;
-          cursor: pointer !important;
-          font-size: 0.82rem !important;
-          font-weight: 700 !important;
-          letter-spacing: 0.04em !important;
-          text-transform: uppercase !important;
-          white-space: nowrap !important;
-          z-index: 100 !important;
-          transition: opacity 0.3s !important;
-        }
-        .scroll-indicator.hidden { opacity: 0 !important; pointer-events: none !important; }
-        .scroll-indicator.visible { opacity: 1 !important; }
+        .scroll-indicator { border-color: ${THEME} !important; color: ${THEME} !important; }
         .tagline-strip { color: ${THEME} !important; }
 
         @keyframes lpPulse {
@@ -697,7 +671,6 @@ export default function HomePage() {
           align-items: center;
           justify-content: center;
           transition: background .2s, border-color .2s, transform .2s, box-shadow .2s;
-          backdrop-filter: blur(8px);
           box-shadow: 0 4px 16px rgba(0,0,0,.2);
           line-height: 1;
           padding: 0;
@@ -706,7 +679,7 @@ export default function HomePage() {
         .week-arrow:hover {
           background: rgba(13,124,138,.28);
           border-color: var(--week-arrow-color, #0d7c8a);
-          transform: translateY(-50%) scale(1.1);
+          transform: translateY(-58%);
           box-shadow: 0 6px 24px rgba(13,124,138,.25);
         }
 
@@ -771,33 +744,7 @@ export default function HomePage() {
       <style>{`
         :root { --color-primary: ${THEME}; }
         .resume-cta { background: ${THEME} !important; box-shadow: 0 4px 20px ${THEME}55 !important; }
-        .scroll-indicator {
-          border-color: ${THEME} !important;
-          color: ${THEME} !important;
-          position: fixed !important;
-          bottom: 2rem !important;
-          left: 50% !important;
-          transform: translateX(-50%) !important;
-          display: flex !important;
-          align-items: center !important;
-          gap: 6px !important;
-          padding: 10px 20px !important;
-          border-radius: 100px !important;
-          border-width: 1.5px !important;
-          border-style: solid !important;
-          background: var(--bg-surface, rgba(10,10,12,0.85)) !important;
-          backdrop-filter: blur(8px) !important;
-          cursor: pointer !important;
-          font-size: 0.82rem !important;
-          font-weight: 700 !important;
-          letter-spacing: 0.04em !important;
-          text-transform: uppercase !important;
-          white-space: nowrap !important;
-          z-index: 100 !important;
-          transition: opacity 0.3s !important;
-        }
-        .scroll-indicator.hidden { opacity: 0 !important; pointer-events: none !important; }
-        .scroll-indicator.visible { opacity: 1 !important; }
+        .scroll-indicator { border-color: ${THEME} !important; color: ${THEME} !important; }
         .tagline-strip { color: ${THEME} !important; }
         .next-recommended { border-color: ${THEME} !important; box-shadow: 0 0 0 1px ${THEME} !important; }
         .filter-btn.active { border-color: ${THEME} !important; color: ${THEME} !important; background: ${THEME}1a !important; }
@@ -1215,7 +1162,20 @@ export default function HomePage() {
             scrollToLessons();
           }
         }}
-        style={{ borderColor: THEME, color: THEME }}
+        style={{
+          borderColor: THEME, color: THEME,
+          position: "fixed", bottom: "2rem",
+          left: "50%", transform: "translateX(-50%)",
+          display: "flex", alignItems: "center", gap: "6px",
+          padding: "10px 20px", borderRadius: "100px",
+          borderWidth: "1.5px", borderStyle: "solid",
+          background: isDark ? "rgba(10,10,12,0.9)" : "#ffffff",
+          cursor: "pointer", fontSize: "0.82rem", fontWeight: 700,
+          whiteSpace: "nowrap", zIndex: 100,
+          opacity: showArrow ? 1 : 0,
+          pointerEvents: showArrow ? "auto" : "none",
+          transition: "opacity 0.3s",
+        }}
       >
         <span>Explore Journey</span>
         <ChevronDown size={20} />
