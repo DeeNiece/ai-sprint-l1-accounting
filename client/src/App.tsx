@@ -3,7 +3,6 @@
 // Last updated: May 2026
 //
 // PRICING UPDATE: Single $59 price — hasAccess() replaces hasBasic/hasAdvanced/hasAnyLevel
-// Legal pages are inline components (no Nav) to avoid useAuth/AuthProvider errors.
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { useEffect } from "react";
@@ -30,51 +29,10 @@ import Pricing from "@/pages/pricing";
 import PasswordPage from "@/pages/password-page";
 import AdminPage from "@/pages/admin";
 import ServicesPage from "@/pages/services";
-
-// ── Legal pages — inline to avoid Nav/useAuth dependency issues ───────────────
-// These pages are public routes. Using <Nav /> here would call useAuth()
-// which requires AuthProvider context and causes a crash on public routes.
-function PrivacyPolicy() {
-  return (
-    <div style={{ maxWidth: "800px", margin: "2rem auto", padding: "1rem", color: "#fff" }}>
-      <h1>Privacy Policy</h1>
-      <p>Last updated: May 2026</p>
-      <p>Your privacy is important to us. This policy explains how we collect, use, and protect your information.</p>
-      <a href="/" style={{ color: "#0d7c8a" }}>← Back to Home</a>
-    </div>
-  );
-}
-
-function TermsOfService() {
-  return (
-    <div style={{ maxWidth: "800px", margin: "2rem auto", padding: "1rem", color: "#fff" }}>
-      <h1>Terms of Service</h1>
-      <p>Last updated: May 2026</p>
-      <p>By using AI Sprint, you agree to these terms. Please read them carefully.</p>
-      <a href="/" style={{ color: "#0d7c8a" }}>← Back to Home</a>
-    </div>
-  );
-}
-
-function CookieSettings() {
-  return (
-    <div style={{ maxWidth: "800px", margin: "2rem auto", padding: "1rem", color: "#fff" }}>
-      <h1>Cookie Settings</h1>
-      <p>We use cookies to enhance your experience. You can control your preferences here.</p>
-      <a href="/" style={{ color: "#0d7c8a" }}>← Back to Home</a>
-    </div>
-  );
-}
-
-function Accessibility() {
-  return (
-    <div style={{ maxWidth: "800px", margin: "2rem auto", padding: "1rem", color: "#fff" }}>
-      <h1>Accessibility</h1>
-      <p>AI Sprint is committed to making our platform usable by everyone, including people with disabilities.</p>
-      <a href="/" style={{ color: "#0d7c8a" }}>← Back to Home</a>
-    </div>
-  );
-}
+import PrivacyPage from "@/pages/privacy";
+import TermsPage from "@/pages/terms";
+import CookieSettingsPage from "@/pages/cookie-settings";
+import AccessibilityPage from "@/pages/accessibility";
 
 // ── License helper ────────────────────────────────────────────────────────────
 function hasAccess(user: any) {
@@ -123,12 +81,12 @@ function AppRoutes() {
           <Route path="/faq"             component={FAQPage} />
           <Route path="/pricing"         component={Pricing} />
 
-          {/* Legal routes — inline components, no Nav */}
-          <Route path="/privacy"         component={PrivacyPolicy} />
-          <Route path="/terms"           component={TermsOfService} />
-          <Route path="/cookies"         component={CookieSettings} />
-          <Route path="/cookie-settings" component={CookieSettings} />
-          <Route path="/accessibility"   component={Accessibility} />
+          {/* Legal routes */}
+          <Route path="/privacy"         component={PrivacyPage} />
+          <Route path="/terms"           component={TermsPage} />
+          <Route path="/cookies"         component={CookieSettingsPage} />
+          <Route path="/cookie-settings" component={CookieSettingsPage} />
+          <Route path="/accessibility"   component={AccessibilityPage} />
 
           {/* Root */}
           <Route path="/">
