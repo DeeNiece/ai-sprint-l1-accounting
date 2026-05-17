@@ -1131,16 +1131,16 @@ export default function HomePage() {
               </div>
             </div>
           </div>
-          <div className="footer-columns" style={{ display: "flex", gap: "2rem", flexWrap: "wrap" }}>
+          <div className="footer-columns" style={{ display: "flex", gap: "3rem", flexWrap: "wrap", textAlign: "left" }}>
             <div className="footer-column">
-              <p className="footer-group-title" style={{ fontWeight: 700, color: textPrimary }}>Support</p>
+              <p className="footer-group-title" style={{ fontWeight: 700, color: textPrimary, textAlign: "left", marginBottom: "0.5rem" }}>Support</p>
               <div className="footer-links" style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
                 <Link href="/faq" className="footer-link" style={{ color: textMuted, textDecoration: "none" }}>Help & FAQ</Link>
                 <Link href="/pricing" className="footer-link" style={{ color: textMuted, textDecoration: "none" }}>Pricing</Link>
               </div>
             </div>
             <div className="footer-column">
-              <p className="footer-group-title" style={{ fontWeight: 700, color: textPrimary }}>Legal</p>
+              <p className="footer-group-title" style={{ fontWeight: 700, color: textPrimary, textAlign: "left", marginBottom: "0.5rem" }}>Legal</p>
               <div className="footer-links" style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
                 <Link href="/privacy" className="footer-link" style={{ color: textMuted, textDecoration: "none" }}>Privacy Policy</Link>
                 <Link href="/terms" className="footer-link" style={{ color: textMuted, textDecoration: "none" }}>Terms of Service</Link>
