@@ -1,4 +1,4 @@
-// ── AI Sprint · Accounting ──────────────────────────────
+// ── AI Sprint · Accounting  ──────────────────────────────
 // File: cookie-settings.tsx | Repo: ai-accounting
 // Last updated: May 2026
 //
