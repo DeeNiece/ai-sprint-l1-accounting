@@ -388,7 +388,7 @@ export default function Nav({ onOpenAuth }: NavProps) {
                       <KeyRound size={14} /> Reset Password
                     </Link>
                     <Link href="/pricing" className="level-switcher-item" onClick={() => setUserMenuOpen(false)}>
-                      <CreditCard size={14} /> Pricing & Upgrades
+                      <CreditCard size={14} /> Pricing 
                     </Link>
                     <div style={{ height: "1px", background: borderColor, margin: "8px 0" }} />
                     <button onClick={logout} className="level-switcher-item" style={{ width: "100%", color: "#dc2626", background: "none", border: "none", textAlign: "left" }}>
