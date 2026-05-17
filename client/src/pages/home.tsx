@@ -615,10 +615,7 @@ export default function HomePage() {
         .scroll-indicator { border-color: ${THEME} !important; color: ${THEME} !important; }
         .tagline-strip { color: ${THEME} !important; }
 
-        @keyframes lpPulse {
-          0%, 100% { opacity: 1; transform: scale(1); }
-          50% { opacity: .5; transform: scale(1.3); }
-        }
+
 
         .week-section { overflow: visible !important; }
         .main-content { overflow: visible !important; }
