@@ -1121,7 +1121,7 @@ export default function HomePage() {
       </section>
 
       <footer className="footer footer-rich" style={{ background: cardBg, borderTop: `1px solid ${cardBorder}`, padding: "2rem 1rem" }}>
-        <div className="footer-inner" style={{ maxWidth: "1200px", margin: "0 auto", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "1rem" }}>
+        <div className="footer-inner" style={{ maxWidth: "1200px", margin: "0 auto", display: "flex", flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: "2rem" }}>
           <div className="footer-brand">
             <div className="footer-brand-row" style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
               <img src={aiSprintLogo} alt="AI Sprint logo" className="footer-logo-img" style={{ height: "40px" }} />
