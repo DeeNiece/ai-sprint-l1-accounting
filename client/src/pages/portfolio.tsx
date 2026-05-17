@@ -216,10 +216,14 @@ export default function PortfolioPage() {
           border: `1px solid ${cardBorder}`, borderRadius: "20px", textAlign: "center",
         }}>
           <div className="next-level-label" style={{ fontWeight: 700, marginBottom: "0.5rem", color: textPrimary }}>
-            {t(`portfolio.nextLevel.${activeLevel}`) || (activeLevel === "1" ? "Ready for the Advanced Track?" : "Advanced complete — you're ready for real client work.")}
+            {activeLevel === "1"
+              ? "Ready for the Advanced Track?"
+              : "Advanced complete — you're ready for real client work."}
           </div>
           <p style={{ color: textMuted, margin: 0 }}>
-            {t(`portfolio.nextLevelDesc.${activeLevel}`) || (activeLevel === "1" ? "The Advanced track builds on these fundamentals with AI audits, operating models, and advisory deliverables." : "You now have the systems to deliver enterprise-level AI accounting services. Start offering advisory work at premium rates.")}
+            {activeLevel === "1"
+              ? "The Advanced track builds on these fundamentals with AI audits, operating models, and advisory deliverables."
+              : "You now have the systems to deliver enterprise-level AI accounting services. Start offering advisory work at premium rates."}
           </p>
         </div>
 

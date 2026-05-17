@@ -234,6 +234,11 @@ const en: Record<string, string> = {
   "portfolio.nextLevel":     "Coming next in Level 2 (Advanced)",
   "portfolio.nextLevelDesc": "Level 2 builds on everything you've done here. You'll move from creating individual pieces to managing full client accounts, building repeatable workflows, and taking on more complex, higher-value deliverables. Same 15-minute daily format — bigger results.",
 
+  "portfolio.nextLevel.1":     "Ready for the Advanced Track?",
+  "portfolio.nextLevel.2":     "Advanced complete — you're ready for real client work.",
+  "portfolio.nextLevelDesc.1": "The Advanced track builds on these fundamentals with AI audits, operating models, and advisory deliverables. Same 15-minute daily format — bigger impact.",
+  "portfolio.nextLevelDesc.2": "You now have the systems to deliver enterprise-level AI accounting services. Start offering advisory work at premium rates.",
+
   // ── Toolkit page ────────────────────────────────────────────────────────────
   "toolkit.title":    "Reference",
   "toolkit.subtitle": "Starter Toolkit",
