@@ -613,8 +613,8 @@ export default function HomePage() {
           background: ${THEME}1a !important;
         }
         .scroll-indicator {
-          border-color: \${THEME} !important;
-          color: \${THEME} !important;
+          border-color: ${THEME} !important;
+          color: ${THEME} !important;
           position: fixed !important;
           bottom: 2rem !important;
           left: 50% !important;
@@ -772,8 +772,8 @@ export default function HomePage() {
         :root { --color-primary: ${THEME}; }
         .resume-cta { background: ${THEME} !important; box-shadow: 0 4px 20px ${THEME}55 !important; }
         .scroll-indicator {
-          border-color: \${THEME} !important;
-          color: \${THEME} !important;
+          border-color: ${THEME} !important;
+          color: ${THEME} !important;
           position: fixed !important;
           bottom: 2rem !important;
           left: 50% !important;
