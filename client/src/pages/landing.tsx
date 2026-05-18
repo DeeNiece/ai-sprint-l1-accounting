@@ -1,11 +1,12 @@
 // ── AI Sprint · Mastering Accounting with AI ────────────────────────────────────────────────
-// File: landing.tsx | Repo: ai-accounting
+// File: landing.tsx | Repo: ai-sprint-l1-accounting
 // Last updated: May 2026
+// Hero: Cinematic full-bleed (Hero_Image_AI_Accounting.png)
+//       Image path: client/public/assets/Hero_Image_AI_Accounting.png
+// Dark mode: locked — toggle hidden, all light-mode CSS preserved & reversible
+// Contact: /api/contact → Resend (RESEND_API_KEY in Railway env vars)
 //
-// Dark/Light mode fully supported:
-// - AuthModal and ContactSection adapt backgrounds, text, inputs, borders.
-// - Main page uses isDark and CSS variables via lp-light class.
-// - Fixed AuthModal login/register to prevent blank screens and handle errors gracefully.
+// ⚠️  RAILWAY REMINDER: Add RESEND_API_KEY to this service's environment variables
 
 import { useState, useEffect, useRef } from "react";
 import logoImg from "@/ai-sprint-logo.png";
@@ -411,24 +412,23 @@ function ContactSection({ isDark }: { isDark: boolean }) {
     e.preventDefault();
     setSubmitting(true);
     setError(null);
-
     const form = e.currentTarget;
-    const data = new FormData(form);
-
+    const fd = new FormData(form);
     try {
-      const res = await fetch("https://api.web3forms.com/submit", {
+      const res = await fetch("/api/contact", {
         method: "POST",
-        body: data,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name:    fd.get("name")    as string,
+          email:   fd.get("email")   as string,
+          message: fd.get("message") as string,
+        }),
       });
       const json = await res.json();
-      if (json.success) {
-        setSubmitted(true);
-        form.reset();
-      } else {
-        setError("Something went wrong. Please try emailing us directly.");
-      }
+      if (res.ok && json.ok) { setSubmitted(true); form.reset(); }
+      else setError(json.error || "Something went wrong. Please email support@aisprint.app");
     } catch {
-      setError("Network error. Please try emailing us directly.");
+      setError("Network error. Please email support@aisprint.app directly.");
     } finally {
       setSubmitting(false);
     }
@@ -530,10 +530,7 @@ function ContactSection({ isDark }: { isDark: boolean }) {
               gap: 18,
             }}
           >
-            <input type="hidden" name="access_key" value="9354c53d-f37d-4c31-845b-88286c03d1d4" />
-            <input type="hidden" name="to" value="support@aisprint.app" />
-            <input type="hidden" name="subject" value="Accounting Sprint Support Request" />
-            <input type="hidden" name="from_name" value="AI Sprint Accounting Landing Page" />
+            {/* contact sent via /api/contact → Resend */}
 
             {error && (
               <div
@@ -674,7 +671,9 @@ export default function LandingPage() {
   const [showAuth, setShowAuth] = useState(false);
   const [authMode, setAuthMode] = useState<"login" | "register">("register");
   const [activeTab, setActiveTab] = useState<"1" | "2">("1");
-  const [isDark, setIsDark] = useState(true);
+  // Dark mode locked — always dark. All lp-light CSS preserved & reversible.
+  const [isDark, _setIsDark] = useState(true);
+  const setIsDark = (_val: boolean) => {}; // no-op — re-enable to restore toggle
   const themeData = LEVEL_THEMES[activeTab];
   const THEME = themeData.color;
 
@@ -889,6 +888,19 @@ export default function LandingPage() {
 
       <style>{`
         @keyframes lpPulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(1.3)} }
+        @keyframes lpHeroReveal { from{transform:scale(1.06);opacity:.7} to{transform:scale(1);opacity:1} }
+        @keyframes lpRise { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+        /* Portrait mobile — ~1/5 of face visible on right edge */
+        @media(max-width:768px) and (orientation:portrait){
+          .lp-acct-cin-bg{ background-position:55% center !important; }
+        }
+        /* Landscape mobile */
+        @media(max-width:900px) and (orientation:landscape){
+          .lp-acct-cin-bg{ background-position:70% center !important; }
+          .lp-acct-cin-content{ padding:5rem 1.4rem 4rem !important; }
+        }
+        /* Scramble target — reserve space */
+        .lp-acct-cin-h1{ display:block; min-height:0.97em; line-height:0.97; }
         .lp-reveal { opacity:0; transform:translateY(24px); transition:opacity .65s ease, transform .65s ease; }
         .lp-reveal.visible { opacity:1; transform:translateY(0); }
         [data-autoscroll]::-webkit-scrollbar { display: none; }
@@ -1051,6 +1063,7 @@ export default function LandingPage() {
         </div>
 
         <div className="lp-nav-actions">
+          {/* Dark mode locked — toggle hidden. Re-enable by uncommenting:
           <button
             className={`lp-theme-toggle${isDark ? "" : " light"}`}
             onClick={() => setIsDark((d) => !d)}
@@ -1058,7 +1071,7 @@ export default function LandingPage() {
             title={isDark ? "Switch to light mode" : "Switch to dark mode"}
           >
             <div className="lp-theme-toggle-thumb" />
-          </button>
+          </button> */}
 
           <button className="lp-btn-ghost" onClick={() => openAuth("login")}>
             Log In
@@ -1074,119 +1087,121 @@ export default function LandingPage() {
         </div>
       </nav>
 
-      {/* Hero section – unchanged except for some inline colour fixes, already uses isDark */}
-      <section className="lp-hero" style={{ position: "relative", zIndex: 1, paddingBottom: "2rem" }}>
-        {/* Badge video */}
-        <div style={{ marginBottom: "2rem", display: "flex", justifyContent: "center", padding: "0 20px" }}>
-          <video autoPlay loop muted playsInline style={{
-            width: "100%", maxWidth: "680px", borderRadius: "16px",
-            boxShadow: `0 20px 40px rgba(13,124,138,.25)`,
-            border: `1px solid rgba(13,124,138,.3)`,
-          }}>
-            <source src={bannerVideo} type="video/mp4" />
-          </video>
-        </div>
+      {/* ── CINEMATIC HERO — full-bleed accounting image ─────────────────────── */}
+      <section style={{ position:"relative", width:"100%", minHeight:"100vh", display:"flex", alignItems:"center", overflow:"hidden", zIndex:1, contain:"layout style" }}>
 
-        <div className="lp-hero-badge" style={{ color: THEME_COLOR, background: "rgba(13,124,138,.1)", borderColor: "rgba(13,124,138,.2)" }}>
-          ⚡ Accounting · AI · 28 Days
-        </div>
+        {/* Background image */}
+        <div className="lp-acct-cin-bg" style={{
+          position:"absolute", inset:0,
+          backgroundImage:"url('/assets/Hero_Image_AI_Accounting.png')",
+          backgroundSize:"cover",
+          backgroundPosition:"70% center",
+          backgroundRepeat:"no-repeat",
+          animation:"lpHeroReveal 1.4s cubic-bezier(.22,1,.36,1) forwards",
+        }} />
 
-        {/* Identity block */}
+        {/* Left gradient overlay */}
         <div style={{
-          margin: "1.2rem auto 0", padding: "22px 28px 20px",
-          background: "rgba(255,255,255,.025)", border: "1px solid rgba(255,255,255,.07)",
-          borderRadius: "16px", maxWidth: "680px", textAlign: "center", position: "relative",
+          position:"absolute", inset:0, zIndex:1,
+          background:"linear-gradient(105deg, rgba(13,13,20,.95) 0%, rgba(13,13,20,.85) 30%, rgba(13,13,20,.52) 56%, rgba(13,13,20,.15) 76%, transparent 100%)",
+        }} />
+
+        {/* Bottom vignette */}
+        <div style={{
+          position:"absolute", bottom:0, left:0, right:0, height:200, zIndex:1,
+          background:"linear-gradient(to bottom, transparent, rgba(13,13,20,.97) 85%, #0d0d14 100%)",
+        }} />
+
+        {/* Content — left aligned */}
+        <div className="lp-acct-cin-content" style={{
+          position:"relative", zIndex:2,
+          maxWidth:620, padding:"10rem 2.5rem 7rem",
+          display:"flex", flexDirection:"column",
         }}>
-          <div style={{ position:"absolute", top:9, left:14, fontSize:13, fontFamily:"monospace", color:`${THEME}cc`, letterSpacing:"1.5px" }}>
-            MODULE No. {themeData.annotation}
+
+          {/* Level selector pills */}
+          <div style={{ display:"flex", gap:8, marginBottom:"1.4rem", animation:"lpRise .7s ease both", flexWrap:"wrap" }}>
+            {(["1","2"] as const).map(lvl => {
+              const color = LEVEL_THEMES[lvl].color;
+              return (
+                <button key={lvl} onClick={() => setActiveTab(lvl)} style={{
+                  fontSize:".72rem", fontWeight:700, color,
+                  background: activeTab === lvl ? `${color}28` : `${color}12`,
+                  border:`1px solid ${activeTab === lvl ? color : `${color}45`}`,
+                  borderRadius:100, padding:"5px 14px", cursor:"pointer",
+                  transition:"all .2s",
+                  boxShadow: activeTab === lvl ? `0 0 14px ${color}44` : "none",
+                }}>{LEVEL_THEMES[lvl].label}</button>
+              );
+            })}
           </div>
-          <div style={{ position:"absolute", top:9, right:14, fontSize:13, fontFamily:"monospace", color:`${THEME}cc`, letterSpacing:"1.5px" }}>
-            {themeData.days}
+
+          {/* Eyebrow */}
+          <p style={{ fontSize:"clamp(.72rem,1.5vw,.85rem)", color:"rgba(200,200,220,.65)", letterSpacing:"2px", textTransform:"uppercase", fontWeight:600, marginBottom:".8rem", marginTop:0, animation:"lpRise .75s .05s ease both" }}>
+            Built for accountants, bookkeepers &amp; finance professionals.
+          </p>
+
+          {/* H1 — scrambled */}
+          <h1 className="lp-acct-cin-h1" style={{
+            fontFamily:"monospace", fontWeight:900,
+            fontSize:"clamp(1.7rem,5vw,3.5rem)",
+            lineHeight:.97, letterSpacing:"-.02em",
+            color:"white", margin:"0 0 1rem",
+          }}>{scrambledH1}</h1>
+
+          {/* Tagline */}
+          <p style={{ color:THEME, fontWeight:700, fontSize:".9rem", letterSpacing:".4px", margin:"0 0 .5rem", animation:"lpRise .85s .15s ease both" }}>
+            {themeData.tagline}
+          </p>
+
+          {/* Sub */}
+          <p style={{ color:"rgba(200,200,220,.75)", lineHeight:1.7, fontSize:".95rem", maxWidth:500, margin:"0 0 1.4rem", animation:"lpRise .9s .18s ease both" }}>
+            {themeData.heroSub}
+          </p>
+
+          {/* Badge */}
+          <div style={{ display:"inline-flex", alignItems:"center", gap:6, color:THEME, background:`${THEME}1a`, border:`1px solid ${THEME}44`, borderRadius:100, padding:"5px 14px", fontSize:".7rem", fontWeight:700, letterSpacing:"1.5px", textTransform:"uppercase", width:"fit-content", margin:"0 0 1.6rem", animation:"lpRise .85s .12s ease both" }}>
+            <span style={{ width:6, height:6, borderRadius:"50%", background:THEME, boxShadow:`0 0 6px ${THEME}`, display:"inline-block", animation:"lpPulse 2s infinite" }} />
+            ⚡ Accounting · AI · 28 Days
           </div>
-          <div style={{ marginTop: 10 }}>
-            <div style={{ fontSize: "clamp(1.3rem,4vw,1.9rem)", fontWeight: 900, color: isDark ? "white" : "#111827", letterSpacing: ".04em", textTransform: "uppercase", lineHeight: 1.2, marginBottom: ".5rem" }}>
-              Mastering Accounting with AI
-            </div>
-            <div style={{ fontSize: ".8rem", color: "#555", letterSpacing: ".06em", marginBottom: ".75rem", fontFamily: "monospace" }}>
-              28-DAY CHALLENGE · 15 MIN/DAY · 2 LEVELS
-            </div>
-            <div style={{ display: "flex", gap: "10px", justifyContent: "center", flexWrap: "wrap" }}>
-              <button onClick={() => setActiveTab("1")} style={{
-                fontSize: ".82rem", fontWeight: 700, color: THEME_COLOR,
-                background: activeTab === "1" ? `${THEME_COLOR}25` : `${THEME_COLOR}12`,
-                border: `1px solid ${activeTab === "1" ? THEME_COLOR : `${THEME_COLOR}25`}`,
-                borderRadius: 100, padding: "3px 12px", cursor: "pointer", transition: "all 0.2s",
-              }}>Basic · Days 1–28</button>
-              <button onClick={() => setActiveTab("2")} style={{
-                fontSize: ".82rem", fontWeight: 700, color: L2_COLOR,
-                background: activeTab === "2" ? `${L2_COLOR}25` : `${L2_COLOR}12`,
-                border: `1px solid ${activeTab === "2" ? L2_COLOR : `${L2_COLOR}25`}`,
-                borderRadius: 100, padding: "3px 12px", cursor: "pointer", transition: "all 0.2s",
-              }}>Advanced · Days 1–28</button>
-            </div>
+
+          {/* CTA row */}
+          <div style={{ display:"flex", alignItems:"center", gap:"1rem", flexWrap:"wrap", marginBottom:"1.8rem", animation:"lpRise 1s .25s ease both" }}>
+            <button
+              style={{ background:THEME, color:"#fff", border:"none", padding:".9rem 2.2rem", borderRadius:100, fontWeight:800, fontSize:".9rem", cursor:"pointer", boxShadow:`0 8px 28px ${THEME}55`, transition:"transform .2s, box-shadow .2s", letterSpacing:".5px", whiteSpace:"nowrap" }}
+              onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.transform="translateY(-2px)"; (e.currentTarget as HTMLButtonElement).style.boxShadow=`0 14px 36px ${THEME}66`; }}
+              onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.transform=""; (e.currentTarget as HTMLButtonElement).style.boxShadow=`0 8px 28px ${THEME}55`; }}
+              onClick={() => openAuth("register")}
+            >{themeData.cta}</button>
+            {activeTab === "2" && (
+              <button
+                onClick={() => setActiveTab("1")}
+                style={{ color:"rgba(200,200,220,.8)", background:"transparent", border:"1px solid rgba(255,255,255,.18)", borderRadius:100, padding:".75rem 1.6rem", fontSize:".82rem", fontWeight:600, cursor:"pointer", transition:"border-color .2s, color .2s", whiteSpace:"nowrap" }}
+                onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.borderColor=THEME; (e.currentTarget as HTMLButtonElement).style.color=THEME; }}
+                onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.borderColor="rgba(255,255,255,.18)"; (e.currentTarget as HTMLButtonElement).style.color="rgba(200,200,220,.8)"; }}
+              >Start with Basic first</button>
+            )}
           </div>
-        </div>
 
-        {/* Scrambled H1 */}
-        <h1 className="lp-hero-h1" style={{ fontFamily: "monospace", letterSpacing: "-.01em" }}>{scrambledH1}</h1>
-        <p className="lp-hero-tagline" style={{ color: THEME }}>{themeData.tagline}</p>
-        <p className="lp-hero-sub">{themeData.heroSub}</p>
+          {/* Stats strip */}
+          <div ref={statsRef} style={{ display:"flex", alignItems:"center", background:"rgba(255,255,255,.04)", border:"1px solid rgba(255,255,255,.08)", borderRadius:14, padding:".9rem 0", width:"fit-content", animation:"lpRise 1.1s .35s ease both" }}>
+            {([{num:s28,label:"Days"},{num:s15,label:"Min/Day"},{num:sEnrolled,label:"Enrolled"},{num:2,label:"Levels"}] as const).map((s,i,arr) => (
+              <div key={i} style={{ display:"flex", alignItems:"center" }}>
+                <div style={{ textAlign:"center", padding:"0 1.3rem" }}>
+                  <div style={{ fontFamily:"monospace", fontWeight:900, fontSize:"1.5rem", color:THEME, lineHeight:1 }}>{s.num}</div>
+                  <div style={{ fontSize:".6rem", letterSpacing:"1.5px", textTransform:"uppercase", color:"rgba(200,200,220,.45)", marginTop:".25rem", fontWeight:600 }}>{s.label}</div>
+                </div>
+                {i < arr.length - 1 && <div style={{ width:1, height:32, background:"rgba(255,255,255,.1)" }} />}
+              </div>
+            ))}
+          </div>
 
-        {/* Level tab buttons */}
-        <div style={{ display: "flex", gap: "12px", justifyContent: "center", margin: "1.5rem 0 1rem", flexWrap: "wrap" }}>
-          {(["1", "2"] as const).map((lvl) => {
-            const color = LEVEL_THEMES[lvl].color;
-            const active = activeTab === lvl;
-            return (
-              <button key={lvl} onClick={() => setActiveTab(lvl)} style={{
-                display: "flex", alignItems: "center", gap: 8,
-                padding: "9px 22px", borderRadius: 100, cursor: "pointer",
-                border: `1.5px solid ${active ? color : "rgba(255,255,255,.15)"}`,
-                background: active ? `${color}1a` : "transparent",
-                color: active ? color : "rgba(255,255,255,.5)",
-                fontWeight: 700, fontSize: ".88rem", transition: "all 0.2s",
-              }}>
-                <span style={{ width: 7, height: 7, borderRadius: "50%", background: color, flexShrink: 0 }} />
-                {LEVEL_THEMES[lvl].label}
-              </button>
-            );
-          })}
-        </div>
-
-        <div className="lp-hero-actions">
-          <button className="lp-hero-cta" style={{ background: THEME }} onClick={() => openAuth("register")}>
-            {themeData.cta}
-          </button>
-          {activeTab === "2" && (
-            <button className="lp-hero-outline" onClick={() => setActiveTab("1")} style={{ color: isDark ? "white" : "#333", borderColor: isDark ? "rgba(255,255,255,0.3)" : "rgba(0,0,0,0.2)" }}>
-              Start with Basic first
-            </button>
-          )}
-        </div>
-
-        {/* Urgency pill */}
-        <div style={{ display: "flex", justifyContent: "center", margin: "1rem 0 0" }}>
-          <div style={{
-            display: "inline-flex", alignItems: "center", gap: ".45rem",
-            background: "rgba(249,115,22,.08)", border: "1px solid rgba(249,115,22,.25)",
-            borderRadius: "100px", padding: ".28rem 1rem",
-            fontSize: ".72rem", letterSpacing: "1.5px", textTransform: "uppercase",
-            color: "#fb923c", fontWeight: 700,
-          }}>
-            <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#f97316", display: "inline-block", animation: "lpPulse 2s infinite" }} />
+          {/* Urgency pill */}
+          <div style={{ display:"inline-flex", alignItems:"center", gap:".45rem", background:"rgba(249,115,22,.08)", border:"1px solid rgba(249,115,22,.25)", borderRadius:"100px", padding:".28rem 1rem", fontSize:".68rem", letterSpacing:"1.5px", textTransform:"uppercase", color:"#fb923c", fontWeight:700, marginTop:"1.2rem", width:"fit-content", animation:"lpRise 1.1s .4s ease both" }}>
+            <span style={{ width:6, height:6, borderRadius:"50%", background:"#f97316", display:"inline-block", animation:"lpPulse 2s infinite" }} />
             {themeData.urgency}
           </div>
-        </div>
 
-        {/* Animated stats */}
-        <div className="lp-stats" ref={statsRef}>
-          <div className="lp-stat"><span className="lp-stat-num">{s28}</span><span className="lp-stat-label">Days</span></div>
-          <div className="lp-stat-divider" />
-          <div className="lp-stat"><span className="lp-stat-num">{s15}</span><span className="lp-stat-label">Min/Day</span></div>
-          <div className="lp-stat-divider" />
-          <div className="lp-stat"><span className="lp-stat-num">{sEnrolled}</span><span className="lp-stat-label">Enrolled</span></div>
-          <div className="lp-stat-divider" />
-          <div className="lp-stat"><span className="lp-stat-num">2</span><span className="lp-stat-label">Levels</span></div>
         </div>
       </section>
 
