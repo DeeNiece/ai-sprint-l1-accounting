@@ -435,6 +435,52 @@ export function registerRoutes(app: Express): Server {
     res.json({ licensedLevels: storage.getLicensedLevels(user.email) });
   });
 
+  // ========== CONTACT FORM (Resend) ==========
+  // ⚠️  Requires RESEND_API_KEY in Railway environment variables
+  app.post("/api/contact", async (req, res) => {
+    const b = z.object({
+      name:    z.string().min(1).max(100),
+      email:   z.string().email(),
+      message: z.string().min(1).max(5000),
+    }).safeParse(req.body);
+    if (!b.success) return res.status(400).json({ error: "Invalid input. Please fill in all fields." });
+
+    const RESEND_API_KEY = process.env.RESEND_API_KEY || "";
+    if (!RESEND_API_KEY) {
+      console.error("Missing RESEND_API_KEY env var");
+      return res.status(500).json({ error: "Server email config missing. Please email support@aisprint.app directly." });
+    }
+    try {
+      const response = await fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: { "Authorization": `Bearer ${RESEND_API_KEY}`, "Content-Type": "application/json" },
+        body: JSON.stringify({
+          from:     "AI Sprint Accounting <noreply@aisprint.app>",
+          to:       ["support@aisprint.app"],
+          reply_to: b.data.email,
+          subject:  `[Accounting Course] Message from ${b.data.name}`,
+          html: `<h2>New Contact Form — Accounting Course</h2>
+            <p><strong>Name:</strong> ${b.data.name}</p>
+            <p><strong>Email:</strong> <a href="mailto:${b.data.email}">${b.data.email}</a></p>
+            <hr/>
+            <p><strong>Message:</strong></p>
+            <p style="white-space:pre-wrap">${b.data.message}</p>
+            <hr/>
+            <p style="color:#888;font-size:12px">Sent via Accounting course contact form · aisprint.app</p>`,
+        }),
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        console.error("Resend error:", data);
+        return res.status(500).json({ error: "Failed to send. Please email support@aisprint.app directly." });
+      }
+      res.json({ ok: true });
+    } catch (err: any) {
+      console.error("Contact route error:", err);
+      res.status(500).json({ error: "Network error. Please email support@aisprint.app directly." });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

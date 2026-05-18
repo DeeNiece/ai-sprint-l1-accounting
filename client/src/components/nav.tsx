@@ -1,3 +1,8 @@
+// ── AI Sprint · Mastering Accounting with AI ────────────────────────────────
+// File: nav.tsx | Repo: ai-sprint-l1-accounting
+// Last updated: May 2026
+// Dark mode: locked — toggle hidden, light mode CSS preserved & reversible
+
 // ── AI Sprint · Accounting ───────────────────────────────────────────────────
 // File: nav.tsx  |  Repo: accounting
 // Last updated: May 2026
@@ -48,7 +53,10 @@ interface NavProps {
 }
 
 export default function Nav({ onOpenAuth }: NavProps) {
-  const { theme, toggle } = useTheme();
+  const { theme: _themeRaw, toggle: _toggle } = useTheme();
+  // Dark mode locked — always dark, toggle hidden.
+  const theme = "dark" as const;
+  const toggle = _toggle; // kept for future use
   const { user, logout } = useAuth();
   const [location, setLocation] = useLocation();
   const { t } = useLanguage();
@@ -400,9 +408,10 @@ export default function Nav({ onOpenAuth }: NavProps) {
             )}
 
             {/* Dark/light toggle */}
+            {/* Theme toggle hidden — dark mode locked
             <button onClick={toggle} className="icon-btn" style={{ background: "none", border: "none", cursor: "pointer", color: textPrimary }}>
               {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
-            </button>
+            </button> */}
 
             {!user && (
               <>
@@ -514,10 +523,11 @@ export default function Nav({ onOpenAuth }: NavProps) {
               <CreditCard size={16} /> Pricing & Upgrades
             </Link>
             <div className="mobile-divider" />
+            {/* Theme toggle hidden — dark mode locked
             <button onClick={toggle} className="mobile-nav-item">
               {theme === "dark" ? <Sun size={16} /> : <Moon size={16} />}
               {theme === "dark" ? "Switch to Light Mode" : "Switch to Dark Mode"}
-            </button>
+            </button> */}
             <button onClick={() => { logout(); setMobileMenuOpen(false); }} className="mobile-nav-item" style={{ color: "#dc2626" }}>
               <LogOut size={16} /> {t("nav.logout")}
             </button>
