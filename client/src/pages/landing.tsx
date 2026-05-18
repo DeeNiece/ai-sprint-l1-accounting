@@ -1,8 +1,8 @@
 // ── AI Sprint · Mastering Accounting with AI ────────────────────────────────────────────────
 // File: landing.tsx | Repo: ai-sprint-l1-accounting
 // Last updated: May 2026
-// Hero: Cinematic full-bleed (Hero_Image_AI_Accounting.png)
-//       Image path: client/public/assets/Hero_Image_AI_Accounting.png
+// Hero: Cinematic full-bleed (Hero_Image_AI_Accounting.webp)
+//       Image path: client/public/assets/Hero_Image_AI_Accounting.webp
 // Dark mode: locked — toggle hidden, all light-mode CSS preserved & reversible
 // Contact: /api/contact → Resend (RESEND_API_KEY in Railway env vars)
 //
@@ -1093,7 +1093,7 @@ export default function LandingPage() {
         {/* Background image */}
         <div className="lp-acct-cin-bg" style={{
           position:"absolute", inset:0,
-          backgroundImage:"url('/assets/Hero_Image_AI_Accounting.png')",
+          backgroundImage:"url('/assets/Hero_Image_AI_Accounting.webp')",
           backgroundSize:"cover",
           backgroundPosition:"70% center",
           backgroundRepeat:"no-repeat",
