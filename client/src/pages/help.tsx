@@ -1,7 +1,11 @@
+// ── AI Sprint · Accounting ───────────────────────────────────────────────────
+// File: help.tsx  |  Repo: accounting
+// Last updated: June 2026
+
 import { useState } from "react";
 import Nav from "@/components/nav";
 import { Link } from "wouter";
-import { CheckCircle2, X, Zap, HelpCircle, Mail, MessageSquare } from "lucide-react";
+import { CheckCircle2, X, Zap, HelpCircle, Mail, MessageSquare, Bot, Key } from "lucide-react";
 
 export default function HelpPage() {
   const [submissionStatus, setSubmissionStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
@@ -10,19 +14,21 @@ export default function HelpPage() {
     event.preventDefault();
     setSubmissionStatus("submitting");
 
-    const formData = new FormData(event.currentTarget);
-    formData.append("access_key", "781af6d9-b539-4b71-bd60-cb9ef50fb55c");
-    formData.append("subject", "New Support Query from AI Sprint");
+    const form = event.currentTarget;
+    const data = {
+      name:    (form.elements.namedItem("name") as HTMLInputElement).value.trim(),
+      email:   (form.elements.namedItem("email") as HTMLInputElement).value.trim(),
+      message: (form.elements.namedItem("message") as HTMLTextAreaElement).value.trim(),
+    };
 
     try {
-      const response = await fetch("https://api.web3forms.com/submit", {
+      const response = await fetch("/api/contact", {
         method: "POST",
-        body: formData
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
       });
-
-      const data = await response.json();
-
-      if (data.success) {
+      const json = await response.json();
+      if (response.ok && json.ok) {
         setSubmissionStatus("success");
         event.currentTarget.reset();
       } else {
@@ -36,31 +42,62 @@ export default function HelpPage() {
   };
 
   const faqs = [
-    { q: "How do I upgrade to the next level?", a: "You can upgrade at any time by clicking 'Pricing' in the top menu and purchasing the next level. Your progress will be saved." },
-    { q: "Do I need paid AI subscriptions?", a: "For Level 1, free tools are sufficient. As you move to advanced levels, we recommend having premium access to tools like ChatGPT Plus or Midjourney." },
-    { q: "I lost my progress, what do I do?", a: "Make sure you are logged into the correct account. If your progress is still missing, please send us a message using the form below." }
+    { q: "How do I upgrade to the Advanced track?", a: "Click 'Pricing' in the top menu at any time to upgrade. Your progress will be saved." },
+    { q: "Do I need an API key to use the AI Coach?", a: "No — the AI Coach and PromptLab both have a built-in AI you can use immediately with no setup. You get 5 AI Coach messages and 3 PromptLab runs per day. Add your own API key in Settings for unlimited use." },
+    { q: "Why did the AI Coach stop responding?", a: "If you're using the built-in AI, you may have reached your daily limit (5 messages for AI Coach, 3 runs for PromptLab). Limits reset at midnight UTC. Add your own API key in Settings for unlimited access." },
+    { q: "I lost my progress, what do I do?", a: "Make sure you are logged into the correct account. If your progress is still missing, please send us a message using the form below." },
   ];
 
   return (
     <div className="page-wrap">
       <Nav />
-      
+
       <main style={{ maxWidth: '800px', margin: '0 auto', padding: '4rem 2rem', minHeight: 'calc(100vh - 300px)' }}>
-        
+
         {/* Header */}
-        <div style={{ textAlign: 'center', marginBottom: '4rem' }}>
-          <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '64px', height: '64px', borderRadius: '50%', background: 'rgba(58, 184, 200, 0.1)', color: 'var(--color-primary)', marginBottom: '1.5rem' }}>
+        <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
+          <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '64px', height: '64px', borderRadius: '50%', background: 'rgba(13, 124, 138, 0.1)', color: 'var(--color-primary)', marginBottom: '1.5rem' }}>
             <HelpCircle size={32} />
           </div>
-          <h1 style={{ fontSize: '2.5rem', fontWeight: 800, marginBottom: '1rem', color: 'var(--color-text)' }}>Help & FAQ</h1>
+          <h1 style={{ fontSize: '2.5rem', fontWeight: 800, marginBottom: '1rem', color: 'inherit' }}>Help & FAQ</h1>
           <p style={{ fontSize: '1.1rem', color: 'var(--color-text-muted)', maxWidth: '500px', margin: '0 auto' }}>
             Find answers to common questions or reach out to our support team directly.
           </p>
         </div>
 
+        {/* Built-in AI callout */}
+        <div style={{ marginBottom: '3rem', background: 'rgba(13, 124, 138, 0.06)', border: '1px solid rgba(13, 124, 138, 0.2)', borderRadius: '16px', padding: '1.75rem 2rem' }}>
+          <h2 style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '8px', color: 'inherit' }}>
+            <Bot size={20} color="#0d7c8a" /> AI Coach & PromptLab — Two Ways to Use
+          </h2>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1rem' }}>
+            <div style={{ background: 'rgba(13, 124, 138, 0.08)', borderRadius: '12px', padding: '1.25rem' }}>
+              <div style={{ fontWeight: 700, fontSize: '0.9rem', marginBottom: '0.5rem', color: '#0d7c8a' }}>✦ Built-in AI (Free, no setup)</div>
+              <ul style={{ margin: 0, paddingLeft: '1.1rem', color: 'var(--color-text-muted)', fontSize: '0.9rem', lineHeight: 1.7 }}>
+                <li>5 AI Coach messages per day</li>
+                <li>3 PromptLab runs per day</li>
+                <li>Focused on today's lesson topic</li>
+                <li>Resets at midnight UTC</li>
+              </ul>
+            </div>
+            <div style={{ background: 'rgba(13, 124, 138, 0.08)', borderRadius: '12px', padding: '1.25rem' }}>
+              <div style={{ fontWeight: 700, fontSize: '0.9rem', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '6px', color: '#0d7c8a' }}><Key size={14} /> BYOK — Bring Your Own API Key</div>
+              <ul style={{ margin: 0, paddingLeft: '1.1rem', color: 'var(--color-text-muted)', fontSize: '0.9rem', lineHeight: 1.7 }}>
+                <li>Unlimited messages & runs</li>
+                <li>Ask about anything in the course</li>
+                <li>~$0.001 per conversation</li>
+                <li>Add your key in Settings →</li>
+              </ul>
+            </div>
+          </div>
+          <p style={{ margin: '1rem 0 0', fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>
+            Each course gets its own daily allocation — enrolling in multiple courses gives you separate limits per course.
+          </p>
+        </div>
+
         {/* FAQs */}
         <section style={{ marginBottom: '4rem' }}>
-          <h2 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '8px' }}><MessageSquare size={20} className="text-primary"/> Frequently Asked Questions</h2>
+          <h2 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '8px', color: 'inherit' }}><MessageSquare size={20} color="#0d7c8a"/> Frequently Asked Questions</h2>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             {faqs.map((faq, i) => (
               <div key={i} style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', padding: '1.5rem', borderRadius: '12px' }}>
@@ -73,7 +110,7 @@ export default function HelpPage() {
 
         {/* Support Form */}
         <section>
-          <h2 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '8px' }}><Mail size={20} className="text-primary"/> Contact Support</h2>
+          <h2 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '8px', color: 'inherit' }}><Mail size={20} color="#0d7c8a"/> Contact Support</h2>
           <form onSubmit={handleSupportSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', background: 'var(--color-surface)', border: '1px solid var(--color-border)', padding: '2.5rem', borderRadius: '16px', boxShadow: 'var(--shadow-md)' }}>
             
             <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap' }}>

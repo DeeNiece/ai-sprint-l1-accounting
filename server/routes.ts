@@ -1,6 +1,6 @@
 // ── AI Sprint · Accounting ───────────────────────────────────────────────────
 // File: routes.ts  |  Repo: accounting
-// Last updated: May 2026
+// Last updated: June 2026
 
 import type { Express, Request, Response, NextFunction } from "express";
 import type { Server } from "http";
@@ -23,6 +23,23 @@ const stripeKey = process.env.STRIPE_SECRET_KEY || "";
 const stripe = stripeKey ? new Stripe(stripeKey, { apiVersion: "2023-10-16" }) : null as any;
 
 const APP_URL = process.env.APP_URL || "https://ai-sprint-l1-accounting-production.up.railway.app";
+
+// ── Built-in AI daily usage counter ──────────────────────────────────────────
+const DAILY_LIMITS = { chat: 5, promptlab: 3 };
+const COURSE_ID = "accounting";
+const dailyUsage = new Map<string, number>();
+
+function todayUTC(): string { return new Date().toISOString().slice(0, 10); }
+function usageKey(userId: number, type: "chat" | "promptlab"): string {
+  return `${userId}:${COURSE_ID}:${todayUTC()}:${type}`;
+}
+function getUsage(userId: number, type: "chat" | "promptlab"): number {
+  return dailyUsage.get(usageKey(userId, type)) || 0;
+}
+function incrementUsage(userId: number, type: "chat" | "promptlab"): void {
+  const key = usageKey(userId, type);
+  dailyUsage.set(key, (dailyUsage.get(key) || 0) + 1);
+}
 
 // ── Pricing (USD) – updated to match pricing page ──────────────────────────
 // Single $59 price grants both tracks via "accounting-bundle"
@@ -301,21 +318,70 @@ export function registerRoutes(app: Express): Server {
     }
   });
 
-  // ── Chat ──────────────────────────────────────────────────
+  // ── GET /api/chat/usage ───────────────────────────────────
+  app.get("/api/chat/usage", requireAuth, (req, res) => {
+    const userId = req.session.userId!;
+    const s = storage.getApiSettings(userId);
+    res.json({
+      byok:      !!(s?.apiKey),
+      chat:      { used: getUsage(userId, "chat"),      limit: DAILY_LIMITS.chat },
+      promptlab: { used: getUsage(userId, "promptlab"), limit: DAILY_LIMITS.promptlab },
+    });
+  });
+
+  // ── POST /api/chat ────────────────────────────────────────
   app.post("/api/chat", requireAuth, async (req, res) => {
-    const s = storage.getApiSettings(req.session.userId!);
-    if (!s?.apiKey) return res.status(400).json({ error: "No API key" });
+    const userId = req.session.userId!;
+    const s = storage.getApiSettings(userId);
+    const hasByok = !!(s?.apiKey);
+    const type: "chat" | "promptlab" = req.body.type === "promptlab" ? "promptlab" : "chat";
+
+    // Daily limit check (built-in only)
+    if (!hasByok) {
+      const used = getUsage(userId, type);
+      const limit = DAILY_LIMITS[type];
+      if (used >= limit) {
+        return res.status(429).json({
+          error: "daily_limit_reached",
+          type,
+          used,
+          limit,
+          message: `You've used all ${limit} free ${type === "promptlab" ? "PromptLab runs" : "AI Coach messages"} for today. Add your own API key in Settings for unlimited use, or come back tomorrow.`,
+        });
+      }
+    }
+
     res.setHeader("Content-Type", "text/plain; charset=utf-8");
     try {
       let messages = req.body.messages || [];
       const dayContext = req.body.dayContext || "You are a helpful accounting AI assistant.";
       if (messages.length === 0 && req.body.prompt) messages = [{ role: "user", content: req.body.prompt }];
-      let finalModel = s.model || "gpt-3.5-turbo";
-      if (!s.model && (s.baseUrl || "").includes("deepseek")) finalModel = "deepseek-chat";
-      const client = new OpenAI({ apiKey: s.apiKey, baseURL: s.baseUrl || undefined });
+
+      // Topic lock for built-in AI
+      const topicLock = hasByok ? "" :
+        "\n\nIMPORTANT: You are a focused lesson coach. Only answer questions directly related to today's accounting lesson topic and tasks. Politely redirect off-topic questions back to the lesson.";
+      const finalSystemPrompt = dayContext + topicLock;
+
+      // Resolve credentials
+      let apiKey: string, baseURL: string | undefined, model: string;
+      if (hasByok) {
+        apiKey  = s!.apiKey;
+        baseURL = s!.baseUrl || undefined;
+        model   = s!.model || (s!.baseUrl?.includes("deepseek") ? "deepseek-chat" : "gpt-3.5-turbo");
+      } else {
+        const builtInKey = process.env.DEEPSEEK_API_KEY;
+        if (!builtInKey) {
+          return res.status(503).json({ error: "Built-in AI is not configured. Please add your own API key in Settings." });
+        }
+        apiKey  = builtInKey;
+        baseURL = "https://api.deepseek.com";
+        model   = "deepseek-chat";
+      }
+
+      const client = new OpenAI({ apiKey, baseURL });
       const stream = await client.chat.completions.create({
-        model: finalModel,
-        messages: [{ role: "system", content: dayContext }, ...messages],
+        model,
+        messages: [{ role: "system", content: finalSystemPrompt }, ...messages],
         stream: true,
       });
       for await (const chunk of stream) {
@@ -323,6 +389,10 @@ export function registerRoutes(app: Express): Server {
         if (text) res.write(text);
       }
       res.end();
+
+      // Increment after successful stream (built-in only)
+      if (!hasByok) incrementUsage(userId, type);
+
     } catch (err: any) {
       res.write(`\n\n[API Connection Error: ${err.message}]`);
       res.end();
