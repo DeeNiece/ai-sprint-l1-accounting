@@ -63,7 +63,7 @@ export default function PricingPage() {
 
                 <button
 
-                <div>={{ fontSize: "0.75rem", color: liveRateClr, textAlign: "center" }}>
+                <div style={{ fontSize: "0.75rem", color: liveRateClr, textAlign: "center" }}>
                 </div>
               </div>
             )}
