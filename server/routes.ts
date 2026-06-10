@@ -75,19 +75,6 @@ export function registerRoutes(app: Express): Server {
     res.json({ received: true });
   });
 
-  // ── PayMongo webhook ──────────────────────────────────────
-  app.post("/api/paymongo/webhook", async (req, res) => {
-    const event = req.body;
-    if (event?.data?.attributes?.type === "checkout_session.payment.paid") {
-      const s = event.data.attributes.data;
-      const email = s.attributes.metadata?.email || s.attributes.billing?.email;
-      const level = s.attributes.metadata?.level || "accounting-bundle";
-      const amount = s.attributes.line_items[0]?.amount || 0;
-      if (email) storage.recordPurchase(email, level, s.id, null, amount);
-    }
-    res.json({ received: true });
-  });
-
   // ── Sessions ──────────────────────────────────────────────
   app.use(session({
     secret: process.env.SESSION_SECRET || "accounting-sprint-secret",
@@ -188,83 +175,6 @@ export function registerRoutes(app: Express): Server {
       });
       res.json({ url: s.url });
     } catch (err: any) { res.status(500).json({ error: err.message }); }
-  });
-
-  // ── PayMongo checkout (dynamic PHP amount based on live USD rate) ──
-  app.post("/api/paymongo/checkout", requireAuth, async (req, res) => {
-    const b = z.object({ plan: z.string() }).safeParse(req.body);
-    const user = storage.getUserById(req.session.userId!);
-    const KEY = process.env.PAYMONGO_SECRET_KEY || "";
-    try {
-      const planKey = b.data?.plan || "accounting-bundle";
-      const usdPriceCents = PRICES[planKey]?.amount || PRICES["accounting-bundle"].amount;
-      const usdPrice = usdPriceCents / 100; // e.g., 2500 → $25.00
-
-      // Fetch live USD/PHP rate
-      let phpAmountCentavos: number;
-      let rateUsed: number;
-      try {
-        const rateRes = await fetch("https://open.er-api.com/v6/latest/USD");
-        const rateData = await rateRes.json();
-        const liveRate = rateData?.rates?.PHP;
-        if (liveRate && typeof liveRate === "number") {
-          rateUsed = liveRate;
-          phpAmountCentavos = Math.round(usdPrice * liveRate * 100);
-        } else {
-          throw new Error("Invalid rate response");
-        }
-      } catch (rateErr) {
-        console.warn("Failed to fetch live rate, falling back to hardcoded rate (58 PHP/USD)");
-        rateUsed = 58;
-        phpAmountCentavos = Math.round(usdPrice * 58 * 100);
-      }
-
-      const priceInfo = {
-        amount: phpAmountCentavos,
-        label: PRICES[planKey].label,
-      };
-
-      const auth = `Basic ${Buffer.from(KEY + ":").toString("base64")}`;
-      const response = await fetch("https://api.paymongo.com/v1/checkout_sessions", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "Authorization": auth },
-        body: JSON.stringify({
-          data: {
-            attributes: {
-              billing: { email: user!.email, name: user!.displayName },
-              send_email_receipt: true,
-              show_description: true,
-              show_line_items: true,
-              cancel_url: `${APP_URL}/#/pricing`,
-              success_url: `${APP_URL}/#/purchase-success`,
-              description: priceInfo.label,
-              payment_method_types: ["qrph", "gcash", "paymaya", "card"],
-              line_items: [
-                {
-                  currency: "PHP",
-                  amount: priceInfo.amount,
-                  name: priceInfo.label,
-                  quantity: 1,
-                },
-              ],
-              metadata: {
-                level: planKey,
-                email: user!.email,
-                usd_rate: rateUsed.toString(),
-                usd_amount: usdPrice.toString(),
-              },
-            },
-          },
-        }),
-      });
-
-      const data = await response.json();
-      if (data.errors) throw new Error(data.errors[0].detail);
-      res.json({ url: data.data.attributes.checkout_url });
-    } catch (err: any) {
-      console.error("PayMongo checkout error:", err);
-      res.status(500).json({ error: err.message });
-    }
   });
 
   // ── API Settings ──────────────────────────────────────────
