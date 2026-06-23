@@ -355,7 +355,7 @@ export default function HomePage() {
   const hasCurrentLevel = hasAccess;
 
   useEffect(() => {
-    if (user && !hasAny) window.location.hash = "/day/L1-1";
+    // Unlicensed users can access Day 1 — no redirect needed
   }, [user, hasAny]);
 
   useEffect(() => {
@@ -565,7 +565,7 @@ export default function HomePage() {
     } finally { setCertGenerating(false); }
   };
 
-  // License guard removed — unlicensed users can access Day 1
+  // Unlicensed users can see the dashboard — Day 1 is free
 
   const filterButtons = activeLevel === "1"
     ? (["all", "foundations", "bookkeeping", "reporting", "controls-ethics", "tax-compliance"] as FilterL1[])
