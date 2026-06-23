@@ -74,12 +74,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       updateAuth({ ...data, licensedLevels: levels });
       queryClient.clear();
 
-      // ✅ FIX: Let App.tsx routing handle where to go after login.
-      // The Route for "/" already shows HomePage for logged-in users.
-      // No hard redirect needed here — removing it prevents bypassing
-      // the ProtectedRoute license checks in App.tsx.
+      // Paid/admin → home, free user → Day 1
+      const isAdmin = data.isAdmin || false;
       if (typeof window !== "undefined") {
-        window.location.hash = levels.length > 0 ? "" : "/pricing";
+        window.location.hash = (levels.length > 0 || isAdmin) ? "/" : "/day/L1-1";
       }
       return null;
     } catch {
@@ -105,14 +103,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       updateAuth({ ...data, licensedLevels: levels });
       queryClient.clear();
 
-      // ✅ FIX: New users ALWAYS go to /pricing after signup.
-      // A brand-new account has no licensedLevels, so the old logic
-      // `levels.includes("1") ? "" : "/pricing"` was accidentally
-      // sending them to "" (home/Level 1) when levels was [].
-      // Now we explicitly send them to /pricing unless they somehow
-      // already have a license (e.g. admin-granted before signup).
+      // Paid/admin → home, new free user → Day 1
+      const isAdmin = data.isAdmin || false;
       if (typeof window !== "undefined") {
-        window.location.hash = levels.length > 0 ? "" : "/pricing";
+        window.location.hash = (levels.length > 0 || isAdmin) ? "/" : "/day/L1-1";
       }
       return null;
     } catch {
