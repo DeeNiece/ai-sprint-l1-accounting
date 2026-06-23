@@ -1,6 +1,7 @@
 // ── AI Sprint · Accounting ───────────────────────────────────────────────────
 // File: routes.ts  |  Repo: accounting
 // Last updated: June 2026
+// Changes: Google OAuth callback now redirects to /#/day/L1-1 (Day 1 free feature)
 
 import type { Express, Request, Response, NextFunction } from "express";
 import type { Server } from "http";
@@ -117,7 +118,7 @@ export function registerRoutes(app: Express): Server {
     passport.authenticate("google", { failureRedirect: "/#/login" }),
     (req, res) => {
       req.session.userId = (req.user as any).id;
-      res.redirect("/#/");
+      res.redirect("/#/day/L1-1");
     }
   );
 

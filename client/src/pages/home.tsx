@@ -1,6 +1,7 @@
 // ── AI Sprint · Accounting ────────────────────────────────────────────────
 // File: home.tsx  |  Repo: accounting
-// Last updated: May 2026
+// Last updated: June 2026
+// Changes: Day 1 free — skip pricing redirect for Day 1, allow complete btn, show Free badge on Day 1 card
 //
 // Full dark/light mode support – uses useTheme().
 // Level switcher (Basic / Advanced) with proper progress bar and certificate.
@@ -354,7 +355,7 @@ export default function HomePage() {
   const hasCurrentLevel = hasAccess;
 
   useEffect(() => {
-    if (user && !hasAny) window.location.hash = "/pricing";
+    if (user && !hasAny && window.location.hash !== "#/day/L1-1") window.location.hash = "/pricing";
   }, [user, hasAny]);
 
   useEffect(() => {
@@ -1060,7 +1061,7 @@ export default function HomePage() {
                               {isNextRecommended && !done && <span className="mini-badge" style={{ background: THEME, color: "white", padding: "2px 8px", borderRadius: "20px", fontSize: "0.7rem" }}>Next</span>}
                               {lastVisitedDay === day.day && done && <span className="last-visited-tag" style={{ background: isDark ? "rgba(255,255,255,0.1)" : "#e2e8f0", padding: "2px 8px", borderRadius: "20px", fontSize: "0.65rem" }}>✓ Last visited</span>}
                             </div>
-                            <button className={`complete-btn ${done ? "done" : ""}`} onClick={() => hasCurrentLevel && toggleMutation.mutate({ dayId, completed: !done })} disabled={!hasCurrentLevel} style={{ background: "none", border: "none", cursor: "pointer", color: done ? THEME : "#aaa" }} aria-label={done ? "Mark incomplete" : "Mark complete"}>
+                            <button className={`complete-btn ${done ? "done" : ""}`} onClick={() => (hasCurrentLevel || day.day === 1) && toggleMutation.mutate({ dayId, completed: !done })} disabled={!hasCurrentLevel && day.day !== 1} style={{ background: "none", border: "none", cursor: "pointer", color: done ? THEME : "#aaa" }} aria-label={done ? "Mark incomplete" : "Mark complete"}>
                               {done ? <CheckCircle2 size={18} /> : <Circle size={18} />}
                             </button>
                           </div>
@@ -1077,9 +1078,9 @@ export default function HomePage() {
                             </div>
                           )}
                           <div className="day-card-footer">
-                            {hasCurrentLevel ? (
+                            {hasCurrentLevel || day.day === 1 ? (
                               <Link href={`/day/${dayId}`} className="view-day-btn" style={{ display: "inline-flex", alignItems: "center", gap: "4px", color: THEME, textDecoration: "none", fontSize: "0.8rem", fontWeight: 500 }}>
-                                View Lesson <ArrowUpRight size={14} />
+                                View Lesson <ArrowUpRight size={14} />{!hasCurrentLevel && day.day === 1 && <span style={{ fontSize: "0.7rem", background: `${THEME}22`, color: THEME, padding: "1px 6px", borderRadius: "20px", marginLeft: "4px" }}>Free</span>}
                               </Link>
                             ) : (
                               <Link href="/pricing" className="view-day-btn" style={{ display: "inline-flex", alignItems: "center", gap: "4px", color: textMuted, textDecoration: "none", fontSize: "0.8rem", fontWeight: 500 }}>

@@ -1,7 +1,7 @@
 // ── AI Sprint · Accounting ───────────────────────────────────────────────────
 // File: pricing.tsx | Repo: accounting
 // Last updated: June 2026
-//
+// Changes: Added Day 1 free trust line under subtitle
 // Single $59 price grants both tracks (56 days total)
 // Stripe only — PayMongo removed
 
@@ -188,8 +188,11 @@ export default function PricingPage() {
           <h1 style={{ fontSize: "clamp(1.8rem,5vw,2.8rem)", fontWeight: 800, color: headingClr, lineHeight: 1.2, margin: "0 0 16px" }}>
             Accounting with AI — Complete 56-Day Course
           </h1>
-          <p style={{ color: bodyClr, fontSize: "1.05rem", lineHeight: 1.7, margin: "0 auto 20px", maxWidth: 650 }}>
+          <p style={{ color: bodyClr, fontSize: "1.05rem", lineHeight: 1.7, margin: "0 auto 12px", maxWidth: 650 }}>
             Two levels, one price. Start with AI-powered bookkeeping fundamentals, graduate to CFO-level reporting and enterprise automation. 56 days of curriculum, 2 completion certificates.
+          </p>
+          <p style={{ color: "#0d7c8a", fontWeight: 600, fontSize: "0.9rem", margin: "0 auto 20px" }}>
+            ✓ Day 1 is always free — try the course before you buy
           </p>
           {ownsAll && (
             <div style={{ background: "rgba(34,197,94,0.08)", color: "#22c55e", padding: "10px 16px", borderRadius: "8px", display: "inline-flex", alignItems: "center", gap: 8, marginTop: 10, border: "1px solid rgba(34,197,94,0.2)" }}>

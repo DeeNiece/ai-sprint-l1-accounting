@@ -1,6 +1,7 @@
 // ── AI Sprint · Mastering Accounting with AI ────────────────────────────────────────────────
 // File: landing.tsx | Repo: ai-sprint-l1-accounting
-// Last updated: May 2026
+// Last updated: June 2026
+// Changes: CTA text updated to "Try Day 1 Free →"
 // Hero: Cinematic full-bleed (Hero_Image_AI_Accounting.webp)
 //       Image path: client/public/assets/Hero_Image_AI_Accounting.webp
 // Dark mode: locked — toggle hidden, all light-mode CSS preserved & reversible
@@ -33,7 +34,7 @@ const LEVEL_THEMES = {
     heroHeadline: "In 28 days, become the accountant who confidently works with AI.",
     heroSub: "Built for accountants, bookkeepers, and finance professionals who want to work smarter with AI — without losing the professional judgement that matters.",
     urgency: "423 accountants enrolled in the Basic track this month",
-    cta: "Start the Basic Track →",
+    cta: "Try Day 1 Free →",
     dividerMarks: ["↔ 28 DAYS", "📊 BASIC TRACK", "15 MIN/DAY"],
     sectionLabel: "ACCOUNTING + AI · BASIC TRACK",
     sectionH2: "The practical way to master accounting with AI in 2026",
