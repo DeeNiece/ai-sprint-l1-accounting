@@ -118,7 +118,7 @@ export function registerRoutes(app: Express): Server {
     passport.authenticate("google", { failureRedirect: "/#/login" }),
     (req, res) => {
       req.session.userId = (req.user as any).id;
-      res.redirect("/#/day/L1-1");
+      res.redirect("/#/");
     }
   );
 
