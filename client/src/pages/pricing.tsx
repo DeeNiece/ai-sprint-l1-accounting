@@ -1,7 +1,7 @@
 // ── AI Sprint · Accounting ───────────────────────────────────────────────────
 // File: pricing.tsx | Repo: accounting
 // Last updated: June 2026
-// Changes: Added Day 1 free trust line under subtitle; added "Try Day 1 for free" escape link below buy button
+// Changes: Added Day 1 free trust line under subtitle
 // Single $59 price grants both tracks (56 days total)
 // Stripe only — PayMongo removed
 
@@ -259,7 +259,7 @@ export default function PricingPage() {
                   <CreditCard size={18} />{loading === "accounting-bundle" ? "Redirecting…" : `Pay with Card · $${COURSE_PRICE_USD} USD`}
                 </button>
                 <div style={{ textAlign: "center", fontSize: "0.85rem", color: isDark ? "#888" : "#6b7280" }}>
-                  Not ready to buy?{" "}
+                  Not ready to commit?{" "}
                   <a href="/#/day/L1-1" style={{ color: L1_COLOR, fontWeight: 700, textDecoration: "none" }}>
                     Try Day 1 for free →
                   </a>

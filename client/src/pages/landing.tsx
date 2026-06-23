@@ -1,7 +1,6 @@
 // ── AI Sprint · Mastering Accounting with AI ────────────────────────────────────────────────
 // File: landing.tsx | Repo: ai-sprint-l1-accounting
-// Last updated: June 2026
-// Changes: CTA text updated to "Try Day 1 Free →"
+// Last updated: May 2026
 // Hero: Cinematic full-bleed (Hero_Image_AI_Accounting.webp)
 //       Image path: client/public/assets/Hero_Image_AI_Accounting.webp
 // Dark mode: locked — toggle hidden, all light-mode CSS preserved & reversible
@@ -1119,6 +1118,13 @@ export default function LandingPage() {
           maxWidth:620, padding:"10rem 2.5rem 7rem",
           display:"flex", flexDirection:"column",
         }}>
+
+          {/* Day 1 Free Banner */}
+          <div style={{ display:"inline-flex", alignItems:"center", gap:8, background:"rgba(13,124,138,.12)", border:"1px solid rgba(13,124,138,.35)", borderRadius:10, padding:"8px 14px", marginBottom:"1.2rem", width:"fit-content", animation:"lpRise .65s ease both" }}>
+            <span style={{ display:"inline-flex", alignItems:"center", justifyContent:"center", width:22, height:22, borderRadius:"50%", background:THEME, color:"#fff", fontWeight:900, fontSize:".7rem", flexShrink:0 }}>1</span>
+            <span style={{ color:THEME, fontWeight:700, fontSize:".85rem" }}>Day 1 is free — no credit card needed</span>
+            <span style={{ color:"rgba(200,200,220,.55)", fontSize:".78rem" }}>Try before you buy.</span>
+          </div>
 
           {/* Level selector pills */}
           <div style={{ display:"flex", gap:8, marginBottom:"1.4rem", animation:"lpRise .7s ease both", flexWrap:"wrap" }}>
