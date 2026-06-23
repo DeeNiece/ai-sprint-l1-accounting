@@ -1,7 +1,7 @@
 // ── AI Sprint · Accounting ───────────────────────────────────────────────────
 // File: App.tsx | Repo: accounting
 // Last updated: June 2026
-// Changes: Day 1 free — /day/L1-1 bypasses license check; unlicensed root redirects to Day 1 not pricing
+// Changes: Day 1 free — /day/L1-1 bypasses license check; unlicensed root redirects to Day 1 not pricing; admin bypass added
 //
 // PRICING UPDATE: Single $59 price — hasAccess() replaces hasBasic/hasAdvanced/hasAnyLevel
 // ─────────────────────────────────────────────────────────────────────────────
@@ -53,7 +53,7 @@ function ProtectedRoute({
 }) {
   const { user } = useAuth();
   if (!user) return <Redirect to="/auth" />;
-  if (requiresLevel === "any" && !hasAccess(user)) return <Redirect to="/pricing" />;
+  if (requiresLevel === "any" && !hasAccess(user) && !user.isAdmin) return <Redirect to="/pricing" />;
   return <>{children}</>;
 }
 
@@ -93,7 +93,7 @@ function AppRoutes() {
           <Route path="/">
             {!user
               ? <LandingPage />
-              : hasAccess(user)
+              : (hasAccess(user) || user.isAdmin)
                 ? <HomePage />
                 : <Redirect to="/day/L1-1" />
             }
@@ -117,7 +117,7 @@ function AppRoutes() {
               // Day 1 (L1-1 or just "1") is free for all logged-in users
               const isDay1 = dayParam === "L1-1" || dayParam === "1";
               if (!user) return <Redirect to="/auth" />;
-              if (!isDay1 && !hasAccess(user)) return <Redirect to="/pricing" />;
+              if (!isDay1 && !hasAccess(user) && !user.isAdmin) return <Redirect to="/pricing" />;
               return <DayPage />;
             }}
           </Route>
