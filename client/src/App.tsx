@@ -1,6 +1,7 @@
 // ── AI Sprint · Accounting ───────────────────────────────────────────────────
 // File: App.tsx | Repo: accounting
-// Last updated: May 2026
+// Last updated: June 2026
+// Changes: Day 1 free — /day/L1-1 bypasses license check; unlicensed root redirects to Day 1 not pricing
 //
 // PRICING UPDATE: Single $59 price — hasAccess() replaces hasBasic/hasAdvanced/hasAnyLevel
 // ─────────────────────────────────────────────────────────────────────────────
@@ -94,7 +95,7 @@ function AppRoutes() {
               ? <LandingPage />
               : hasAccess(user)
                 ? <HomePage />
-                : <Redirect to="/pricing" />
+                : <Redirect to="/day/L1-1" />
             }
           </Route>
 
@@ -112,7 +113,13 @@ function AppRoutes() {
             <ProtectedRoute requiresLevel="any"><ServicesPage /></ProtectedRoute>
           </Route>
           <Route path="/day/:dayParam">
-            <ProtectedRoute requiresLevel="any"><DayPage /></ProtectedRoute>
+            {({ dayParam }: { dayParam?: string }) => {
+              // Day 1 (L1-1 or just "1") is free for all logged-in users
+              const isDay1 = dayParam === "L1-1" || dayParam === "1";
+              if (!user) return <Redirect to="/auth" />;
+              if (!isDay1 && !hasAccess(user)) return <Redirect to="/pricing" />;
+              return <DayPage />;
+            }}
           </Route>
 
           {/* Settings — login only */}
