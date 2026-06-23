@@ -26,10 +26,9 @@ export default function AuthPage() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-    useEffect(() => {
+  useEffect(() => {
     if (user) {
-      // Always land on Day 1 — free for everyone, purchased users can navigate from there
-      setLocation("/day/L1-1");
+      setLocation("/");
     }
   }, [user, setLocation]);
 
