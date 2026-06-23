@@ -48,31 +48,43 @@ export default function PromptLab({ dayTitle, badExample, goodExample }: PromptL
     setLoading(true);
     setError(null);
 
-    const lazyPrompt = badExample;        // unchanged
+    const lazyPrompt = badExample;
     const goodPromptFormatted = formatGoodPrompt(goodExample);
 
     try {
       const [resA, resB] = await Promise.all([
-        fetch("/api/settings/test", {
+        fetch("/api/chat", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ useSaved: true, customPrompt: lazyPrompt }),
+          body: JSON.stringify({
+            type: "promptlab",
+            messages: [{ role: "user", content: lazyPrompt }],
+          }),
         }),
-        fetch("/api/settings/test", {
+        fetch("/api/chat", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ useSaved: true, customPrompt: goodPromptFormatted }),
+          body: JSON.stringify({
+            type: "promptlab",
+            messages: [{ role: "user", content: goodPromptFormatted }],
+          }),
         }),
       ]);
 
-      const dataA = await resA.json();
-      const dataB = await resB.json();
-
-      if (!dataA.success || !dataB.success) {
-        throw new Error(dataA.error || dataB.error || "API Key missing or invalid");
+      // /api/chat streams plain text — read as text, not JSON
+      if (resA.status === 429 || resB.status === 429) {
+        const errData = await (resA.status === 429 ? resA : resB).json();
+        throw new Error(errData.message || "Daily PromptLab limit reached. Come back tomorrow or add your own API key in Settings.");
       }
 
-      setResults({ a: dataA.response, b: dataB.response });
+      if (!resA.ok || !resB.ok) {
+        const errData = await (resA.ok ? resB : resA).json().catch(() => ({}));
+        throw new Error(errData.error || "Something went wrong. Please try again.");
+      }
+
+      const [textA, textB] = await Promise.all([resA.text(), resB.text()]);
+
+      setResults({ a: textA, b: textB });
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -106,7 +118,7 @@ export default function PromptLab({ dayTitle, badExample, goodExample }: PromptL
 
       {error && (
         <div style={{ padding: '0.75rem', borderRadius: '6px', background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', fontSize: '0.85rem', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <AlertCircle size={14} /> {error}. Check your API Key in Settings.
+          <AlertCircle size={14} /> {error}
         </div>
       )}
 
