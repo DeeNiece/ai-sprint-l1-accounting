@@ -1,7 +1,7 @@
 // ── AI Sprint · Accounting ────────────────────────────────────────────────
 // File: home.tsx  |  Repo: accounting
 // Last updated: June 2026
-// Changes: Day 1 free — skip pricing redirect for Day 1, allow complete btn, show Free badge on Day 1 card
+// Changes: Day 1 free — unlicensed users redirect to Day 1 (not pricing), allow complete btn, show Free badge on Day 1 card
 //
 // Full dark/light mode support – uses useTheme().
 // Level switcher (Basic / Advanced) with proper progress bar and certificate.
@@ -355,7 +355,7 @@ export default function HomePage() {
   const hasCurrentLevel = hasAccess;
 
   useEffect(() => {
-    if (user && !hasAny && window.location.hash !== "#/day/L1-1") window.location.hash = "/pricing";
+    if (user && !hasAny) window.location.hash = "/day/L1-1";
   }, [user, hasAny]);
 
   useEffect(() => {
