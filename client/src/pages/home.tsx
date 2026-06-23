@@ -355,7 +355,7 @@ export default function HomePage() {
   const hasCurrentLevel = hasAccess;
 
   useEffect(() => {
-    // Unlicensed users can access Day 1 — no redirect needed
+    // Day 1 is free — unlicensed users are not redirected
   }, [user, hasAny]);
 
   useEffect(() => {
@@ -565,7 +565,7 @@ export default function HomePage() {
     } finally { setCertGenerating(false); }
   };
 
-  // Unlicensed users can see the dashboard — Day 1 is free
+  // Day 1 is free — no license gate here
 
   const filterButtons = activeLevel === "1"
     ? (["all", "foundations", "bookkeeping", "reporting", "controls-ethics", "tax-compliance"] as FilterL1[])

@@ -192,9 +192,11 @@ export default function PricingPage() {
             Two levels, one price. Start with AI-powered bookkeeping fundamentals, graduate to CFO-level reporting and enterprise automation. 56 days of curriculum, 2 completion certificates.
           </p>
           <p style={{ margin: "0 auto 20px" }}>
-            <a href="/#/day/L1-1" style={{ color: "#0d7c8a", fontWeight: 600, fontSize: "0.9rem", textDecoration: "none" }}>
+            <button
+              onClick={() => { window.location.hash = "/day/L1-1"; }}
+              style={{ background: "none", border: "none", padding: 0, color: "#0d7c8a", fontWeight: 600, fontSize: "0.9rem", cursor: "pointer", textDecoration: "underline" }}>
               ✓ Day 1 is always free — try the course before you buy →
-            </a>
+            </button>
           </p>
           {ownsAll && (
             <div style={{ background: "rgba(34,197,94,0.08)", color: "#22c55e", padding: "10px 16px", borderRadius: "8px", display: "inline-flex", alignItems: "center", gap: 8, marginTop: 10, border: "1px solid rgba(34,197,94,0.2)" }}>
@@ -262,9 +264,11 @@ export default function PricingPage() {
                 </button>
                 <div style={{ textAlign: "center", fontSize: "0.85rem", color: isDark ? "#888" : "#6b7280" }}>
                   Not ready to commit?{" "}
-                  <a href="/#/day/L1-1" style={{ color: L1_COLOR, fontWeight: 700, textDecoration: "none" }}>
+                  <button
+                    onClick={() => { window.location.hash = "/day/L1-1"; }}
+                    style={{ background: "none", border: "none", padding: 0, color: L1_COLOR, fontWeight: 700, fontSize: "0.85rem", cursor: "pointer", textDecoration: "underline" }}>
                     Try Day 1 for free →
-                  </a>
+                  </button>
                 </div>
               </div>
             )}
