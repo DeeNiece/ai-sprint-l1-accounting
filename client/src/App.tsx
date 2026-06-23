@@ -116,8 +116,6 @@ function AppRoutes() {
             {({ dayParam }: { dayParam?: string }) => {
               const isDay1 = dayParam === "L1-1" || dayParam === "1";
               if (!user) return <Redirect to="/auth" />;
-              // Paid users and admins go to home dashboard, not Day 1
-              if (isDay1 && (hasAccess(user) || user.isAdmin)) return <Redirect to="/" />;
               if (!isDay1 && !hasAccess(user) && !user.isAdmin) return <Redirect to="/pricing" />;
               return <DayPage />;
             }}
