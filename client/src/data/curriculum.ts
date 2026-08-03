@@ -1,7 +1,7 @@
 // =============================================================================
 // AI Sprint — Accounting Course Curriculum
 // Mastering Accounting with AI Integrations — Basic & Advanced
-// Updated: May 2026
+// Updated: August 2026 (Fixed inaccurate HK toolkit note: Claude is also geo-blocked there, not a working ChatGPT alternative; verified Claude present in all 56 lessons)
 // =============================================================================
 
 // ── Level 1 categories
@@ -606,8 +606,8 @@ export const metricsToTrack = metricsToTrackL1;
 // ─────────────────────────────────────────────
 
 export const starterToolkit: ToolkitItem[] = [
-  { name:"Claude", url:"https://claude.ai", category:"AI Assistant", desc:"Best for structured reasoning, long documents, and complex accounting instructions. First choice for governance frameworks, policy analysis, and management commentary." },
-  { name:"ChatGPT", url:"https://chat.openai.com", category:"AI Assistant", desc:"Strong for drafting, summarising, and explaining accounting concepts. Note: geo-blocked in HK — use Gemini or Claude instead." },
+  { name:"Claude", url:"https://claude.ai", category:"AI Assistant", desc:"Best for structured reasoning, long documents, and complex accounting instructions. First choice for governance frameworks, policy analysis, and management commentary. Geo-blocked in Hong Kong and mainland China — use Gemini there instead." },
+  { name:"ChatGPT", url:"https://chat.openai.com", category:"AI Assistant", desc:"Strong for drafting, summarising, and explaining accounting concepts. Note: geo-blocked in HK — use Gemini instead, natively available there since March 2026." },
   { name:"Gemini", url:"https://gemini.google.com", category:"AI Assistant", desc:"Google's AI — recommended for Hong Kong users. Built into Google Docs and Sheets for seamless accounting workflows." },
   { name:"Perplexity AI", url:"https://perplexity.ai", category:"AI Assistant", desc:"AI research with source citations. Best for tax rule lookups, standard references, and regulatory summaries." },
   { name:"Xero", url:"https://xero.com", category:"Accounting Platform", desc:"Cloud accounting with AI transaction categorisation, bank reconciliation, and reporting. Most widely used SME platform in 2026." },
